@@ -1,0 +1,44 @@
+{
+  "name": "juicy",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.0.7",
+    "@react-three/fiber": "^9.1.2",
+    "@react-three/postprocessing": "^3.0.4",
+    "@tailwindcss/postcss": "^4.1.5",
+    "gsap": "^3.13.0",
+    "next": "15.3.8",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-error-boundary": "^5.0.0",
+    "react-icons": "^5.5.0",
+    "react-water-wave": "^2.0.1",
+    "three": "^0.176.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/three": "^0",
+    "critters": "^0.0.25",
+    "css-loader": "^7.1.2",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.1",
+    "loader-utils": "^3.3.1",
+    "postcss": "^8",
+    "postcss-loader": "^8.1.1",
+    "tailwindcss": "^4",
+    "tailwindcss-patch": "^7.1.0",
+    "typescript": "^5",
+    "unplugin-tailwindcss-mangle": "^4.1.0"
+  },
+  "packageManager": "yarn@4.8.1+sha512.bc946f2a022d7a1a38adfc15b36a66a3807a67629789496c3714dd1703d2e6c6b1c69ff9ec3b43141ac7a1dd853b7685638eb0074300386a59c18df351ef8ff6"
+}
