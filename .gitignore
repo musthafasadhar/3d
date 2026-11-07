@@ -43,3 +43,6 @@ next-env.d.ts
 # lock files
 package-lock.json
 yarn.lock
+
+# omax-reel preview stills
+/omax-reel/out/*.png

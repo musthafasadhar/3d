@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1080" />
+<title>Omax Media Reel Scene</title>
+<style>
+  @font-face { font-family: Poppins; font-weight: 500; src: url(fonts/Poppins-500.woff) format('woff'); }
+  @font-face { font-family: Poppins; font-weight: 600; src: url(fonts/Poppins-600.woff) format('woff'); }
+  @font-face { font-family: Poppins; font-weight: 700; src: url(fonts/Poppins-700.woff) format('woff'); }
+  @font-face { font-family: Poppins; font-weight: 800; src: url(fonts/Poppins-800.woff) format('woff'); }
+  :root { --accent: #2ED3B7; --warm: #FFB347; --heart: #FF4D6D; }
+  html, body { margin: 0; padding: 0; background: #000; overflow: hidden; }
+  #wrap { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
+  #c { position: absolute; inset: 0; width: 1080px; height: 1920px; display: block; }
+  #ov { position: absolute; inset: 0; pointer-events: none; font-family: Poppins, Inter, sans-serif; color: #fff; }
+  /* Text blocks live between 150px and 1560px (bottom 15% = 1632px+ is kept empty for Instagram UI) */
+  .block { position: absolute; left: 84px; right: 84px; }
+  .kicker { display: inline-block; background: var(--accent); color: #fff; font-weight: 700; font-size: 34px;
+            letter-spacing: 0.04em; text-transform: uppercase; padding: 10px 22px 8px; border-radius: 14px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.25); }
+  .title { font-weight: 800; font-size: 86px; line-height: 1.06; letter-spacing: -0.02em; margin-top: 22px;
+           text-shadow: 0 6px 30px rgba(0,0,0,0.45); }
+  .title.sm { font-size: 76px; }
+  .sub { font-weight: 600; font-size: 44px; line-height: 1.25; margin-top: 18px; color: rgba(255,255,255,0.88);
+         text-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+  .acc { color: var(--accent); }
+  .warm { color: var(--warm); }
+  .line { display: block; will-change: transform, opacity; }
+  .kicker.line { display: inline-block; }
+  .stack { position: relative; }
+  .stack > .line { position: absolute; left: 0; right: 0; top: 0; }
+  .center { text-align: center; }
+  /* preview-only safe zone guide (?guide=1) */
+  #guide { position: absolute; left: 0; right: 0; top: 85%; bottom: 0; background: repeating-linear-gradient(45deg, rgba(255,0,0,.25) 0 20px, rgba(255,0,0,.12) 20px 40px);
+           border-top: 4px dashed #ff3b3b; display: none; font: 700 34px Poppins, sans-serif; color: #fff; padding: 24px; box-sizing: border-box; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="c" width="1080" height="1920"></canvas>
+  <div id="ov"></div>
+  <div id="guide">Instagram UI zone (bottom 15%) — kept empty</div>
+</div>
+<script type="module">
+  const params = new URLSearchParams(location.search);
+  const name = params.get('scene') || 's1';
+  if (params.get('guide') === '1') document.getElementById('guide').style.display = 'block';
+  await document.fonts.load('800 40px Poppins');
+  await document.fonts.load('700 40px Poppins');
+  await document.fonts.load('600 40px Poppins');
+  await document.fonts.load('500 40px Poppins');
+  const mod = await import(`./scenes/${name}.js`);
+  const scene = await mod.default();
+  window.DURATION = scene.duration;
+  window.renderAt = (t) => { scene.update(t); };
+  window.READY = true;
+  if (params.get('play') === '1') {
+    const t0 = performance.now();
+    const loop = () => { const t = ((performance.now() - t0) / 1000) % scene.duration; scene.update(t); requestAnimationFrame(loop); };
+    loop();
+  } else {
+    scene.update(parseFloat(params.get('t') || '0'));
+  }
+</script>
+</body>
+</html>
