@@ -2,7 +2,9 @@ import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { makeCharacter } from './characters.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { CopyShader } from 'three/addons/shaders/CopyShader.js';
+import { makeCharacter3D } from './chars3d.js';
 
 THREE.ColorManagement.enabled = false;
 
@@ -69,7 +71,20 @@ const composer = new EffectComposer(renderer);
 composer.setPixelRatio(1);
 composer.setSize(W, H);
 composer.addPass(new RenderPass(scene, camera));
+// second layer: low-poly 3D characters with their own camera + cinematic lights
+const charScene = new THREE.Scene();
+const charCam = new THREE.PerspectiveCamera(30, W / H, 0.1, 100);
+charCam.position.set(0, 0, 22); charCam.lookAt(0, 0, 0);
+const PX = (2 * 22 * Math.tan(THREE.MathUtils.degToRad(15))) / H; // world units per pixel on z=0
+charScene.add(new THREE.HemisphereLight(0xb7a6ff, 0x3a2014, 1.25));
+const charKey = new THREE.DirectionalLight(0xffc48a, 2.3); charKey.position.set(-6, 7, 9); charScene.add(charKey);
+const charRim = new THREE.DirectionalLight(0x7a8dff, 2.6); charRim.position.set(7, 4, -6); charScene.add(charRim);
+const charFill = new THREE.DirectionalLight(0xff8fd0, 0.8); charFill.position.set(5, -2, 6); charScene.add(charFill);
+const charRoot = new THREE.Group(); charScene.add(charRoot);
+const charPass = new RenderPass(charScene, charCam); charPass.clear = false; charPass.clearDepth = true;
 composer.addPass(new UnrealBloomPass(new THREE.Vector2(W / 2, H / 2), 0.85, 0.55, 0.62));
+composer.addPass(charPass); // characters drawn after bloom so faces stay crisp
+composer.addPass(new ShaderPass(CopyShader));
 
 // ---------------------------------------------------------------- textures
 const loader = new THREE.TextureLoader();
@@ -412,7 +427,7 @@ function pulse({ at, t0 = 0, t1 = 1e9, color = 0xff2a2a, period = 1.6, count = 3
         r.visible = on;
         const ph = (((t - t0) / period + i / count) % 1 + 1) % 1;
         r.scale.setScalar(S * (0.005 + radius * ph));
-        r.material.opacity = (1 - ph) * 0.9 * fade;
+        r.material.opacity = (1 - ph) * 0.6 * fade;
       });
       dot.visible = on && facing(p) > 0.05;
       dot.scale.setScalar(S * 0.045 * (1 + 0.2 * Math.sin(t * 8)));
@@ -516,19 +531,24 @@ function updateLabels(t) {
   }
 }
 
-function character(kind, { left, top, t0, t1 = 1e9, scale = 1, mirror = false, talk = () => 0, angry = () => 0, from = 'up' }) {
+function character(kind, { left, top, t0, t1 = 1e9, scale = 1, talk = () => 0, angry = () => 0, point = () => 0 }) {
   if (!OPT.chars) return null;
-  const c = makeCharacter(kind, { mirror });
-  ui.appendChild(c.el);
-  Object.assign(c.el.style, { left: left + 'px', top: top + 'px' });
-  anim(c.el, { t0, t1, from, dur: 0.55, base: `scale(${scale})` });
+  const c = makeCharacter3D(kind);
+  const cx = left + 235, by = top + 610;
+  c.root.position.set((cx - W / 2) * PX, (H / 2 - by) * PX, 0);
+  c.root.rotation.y = cx < 430 ? 0.38 : cx > 650 ? -0.38 : 0;
+  charRoot.add(c.root);
+  const plate = el(`<div class="plate ${PLATES[kind][1]}">${PLATES[kind][0]}</div>`, 'char', { left: left + 'px', top: top + 'px' });
+  anim(plate, { t0: t0 + 0.15, t1, from: 'pop', dur: 0.45, base: `scale(${scale})` });
   UIA.push((t) => {
-    const bob = Math.sin(t * 2.4 + left) * 6;
-    c.el.querySelector('svg').style.translate = `0 ${bob}px`;
-    c.update(t, { talk: talk(t), angry: angry(t) });
+    const k = Math.max(0.001, backOut(clamp((t - t0) / 0.6))) * clamp((t1 - t) / 0.25 + 0.001);
+    c.root.visible = t > t0;
+    c.root.scale.setScalar(scale * 0.84 * k);
+    c.update(t, { talk: talk(t), angry: angry(t), point: point(t) });
   });
   return c;
 }
+const PLATES = { trump: ['🇺🇸 TRUMP', 'blue'], putin: ['🇷🇺 PUTIN', ''], zelensky: ['🇺🇦 ZELENSKY', 'yellow'], iran: ['🇮🇷 IRAN', 'green'] };
 
 const NUKE_SVG = `<svg viewBox="-100 -100 200 200" class="nuke-svg" width="300" height="300">
   <circle r="96" fill="#ffd400" stroke="#111" stroke-width="8"/>
@@ -625,7 +645,7 @@ const SCENES = [
   {
     id: '03-iran-warning', dur: 7,
     build() {
-      cam([[0, 30.5, 50, 2.6], [1.4, 28, 46, 3.25], [7, 28.5, 44, 3.1]]);
+      cam([[0, 30.5, 50, 2.6], [1.4, 23, 47, 3.25], [7, 23.5, 45, 3.1]]);
       setHighlight(0, { [ID.IRAN]: '#ff2436' });
       const host = '#ffb400';
       setHighlight(1, { [ID.ISRAEL]: host, [ID.SAUDI]: host, [ID.UAE]: host, [ID.QATAR]: host, [ID.BAHRAIN]: host, [ID.KUWAIT]: host, [ID.JORDAN]: host, [ID.IRAQ]: host });
@@ -648,7 +668,7 @@ const SCENES = [
         const ico = panel.querySelector('.ico');
         UIA.push((t) => { ico.style.transform = `scale(${1 + 0.12 * Math.max(0, Math.sin(t * 10))})`; });
       }
-      character('iran', { left: 305, top: 1040, t0: 0.9, angry: () => 1, talk: (t) => (t > 1.3 && t < 5.8 ? 1 : 0.15) });
+      character('iran', { left: 305, top: 1040, t0: 0.9, angry: () => 1, point: (t) => clamp((t - 1.5) / 0.4), talk: (t) => (t > 1.3 && t < 5.8 ? 1 : 0.15) });
       return (t) => { redPulse = 0.2 + 0.3 * Math.max(0, Math.sin(t * 5)); };
     },
   },
@@ -707,7 +727,7 @@ const SCENES = [
         { html: 'TO NATO COUNTRIES', cls: 'hl-main sm', t0: 1.3 },
         { html: 'నాటో కంట్రీస్ ఉక్రెయిన్‌కి సపోర్ట్ చేస్తే న్యూక్లియర్ అటాక్స్', cls: 'hl-sub', t0: 1.9, from: 'up' },
       ], 650);
-      character('putin', { left: 305, top: 1040, t0: 1.0, angry: () => 1, talk: (t) => (t > 1.4 && t < 6.6 ? 1 : 0.1) });
+      character('putin', { left: 305, top: 1040, t0: 1.0, angry: () => 1, point: (t) => clamp((t - 2.2) / 0.4), talk: (t) => (t > 1.4 && t < 6.6 ? 1 : 0.1) });
       return (t) => { redPulse = clamp((t - 2) / 0.5) * (0.25 + 0.55 * Math.max(0, Math.sin(t * 7))); };
     },
   },
@@ -755,6 +775,7 @@ const flashEl = document.getElementById('flash'), redEl = document.getElementByI
 function teardown() {
   fxRoot.traverse((o) => { o.geometry && o.geometry.dispose(); o.material && o.material.dispose(); });
   fxRoot.clear();
+  charRoot.clear();
   FX = []; UIA = []; labels.length = 0; ui.innerHTML = '';
 }
 

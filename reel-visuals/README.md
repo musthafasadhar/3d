@@ -1,6 +1,6 @@
 # War-map reel visuals (9:16, 1080×1920)
 
-These are motion graphics for the Trump–Iran / Russia–Ukraine reel. Each clip shows a 3D night-lights globe with real country borders, glowing country highlights, 3D missiles with trails, explosions and shockwaves, dashed "threat" arcs and animated cartoon characters. The overlays include a BREAKING/LIVE HUD and English headlines with Telugu captions.
+These are motion graphics for the Trump–Iran / Russia–Ukraine reel. The characters are 3D low-poly "clay" figures (`chars3d.js`) with warm and purple cinematic lighting. Each clip shows a 3D night-lights globe with real country borders, glowing country highlights, 3D missiles with trails, explosions and shockwaves, dashed "threat" arcs and animated cartoon characters. The overlays include a BREAKING/LIVE HUD and English headlines with Telugu captions.
 
 | Clip | Length | Narration it covers |
 |---|---|---|
@@ -25,4 +25,4 @@ node render.mjs --stills                # quick preview JPGs
 ```
 To get a live preview, serve this folder (for example `npx serve .`) and open `index.html`.
 
-All text, timings, camera moves and missile targets are in the `SCENES` array in `main.js`, and the characters are in `characters.js`.
+All text, timings, camera moves and missile targets are in the `SCENES` array in `main.js`, and the characters are in `chars3d.js` (`characters.js` holds the old flat 2D versions).
