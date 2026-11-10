@@ -4,7 +4,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { CopyShader } from 'three/addons/shaders/CopyShader.js';
-import { makeCharacter3D } from './chars3d.js';
+import { makeCharacter3D, makeLauncher } from './chars3d.js';
 
 THREE.ColorManagement.enabled = false;
 
@@ -76,10 +76,10 @@ const charScene = new THREE.Scene();
 const charCam = new THREE.PerspectiveCamera(30, W / H, 0.1, 100);
 charCam.position.set(0, 0, 22); charCam.lookAt(0, 0, 0);
 const PX = (2 * 22 * Math.tan(THREE.MathUtils.degToRad(15))) / H; // world units per pixel on z=0
-charScene.add(new THREE.HemisphereLight(0xb7a6ff, 0x3a2014, 1.25));
-const charKey = new THREE.DirectionalLight(0xffc48a, 2.3); charKey.position.set(-6, 7, 9); charScene.add(charKey);
-const charRim = new THREE.DirectionalLight(0x7a8dff, 2.6); charRim.position.set(7, 4, -6); charScene.add(charRim);
-const charFill = new THREE.DirectionalLight(0xff8fd0, 0.8); charFill.position.set(5, -2, 6); charScene.add(charFill);
+charScene.add(new THREE.HemisphereLight(0xc6a8ff, 0x2a1426, 1.15));
+const charKey = new THREE.DirectionalLight(0xffb48a, 2.6); charKey.position.set(-5, 6, 10); charScene.add(charKey);
+const charRim = new THREE.DirectionalLight(0xa184ff, 3.2); charRim.position.set(7, 5, -7); charScene.add(charRim);
+const charFill = new THREE.DirectionalLight(0xff7fb8, 0.9); charFill.position.set(6, -1, 6); charScene.add(charFill);
 const charRoot = new THREE.Group(); charScene.add(charRoot);
 const charPass = new RenderPass(charScene, charCam); charPass.clear = false; charPass.clearDepth = true;
 composer.addPass(new UnrealBloomPass(new THREE.Vector2(W / 2, H / 2), 0.85, 0.55, 0.62));
@@ -244,6 +244,10 @@ const smokeTex = (() => {
     const g = c.createRadialGradient(x, y, 0, x, y, rr); g.addColorStop(0, 'rgba(255,255,255,.35)'); g.addColorStop(1, 'rgba(255,255,255,0)');
     c.fillStyle = g; c.fillRect(0, 0, 128, 128);
   }
+  // round mask so the sprite never shows square edges
+  c.globalCompositeOperation = 'destination-in';
+  const mk = c.createRadialGradient(64, 64, 0, 64, 64, 64); mk.addColorStop(0, 'rgba(0,0,0,1)'); mk.addColorStop(0.7, 'rgba(0,0,0,.8)'); mk.addColorStop(1, 'rgba(0,0,0,0)');
+  c.fillStyle = mk; c.fillRect(0, 0, 128, 128);
   return new THREE.CanvasTexture(cv);
 })();
 
@@ -395,7 +399,7 @@ function explosion({ at, t0, scale = 1 }) {
         x.s.visible = aa > 0;
         x.s.position.copy(n.clone().multiplyScalar(1.015 + x.rise * clamp(aa / 4) * S)).add(x.o.clone().multiplyScalar(S));
         x.s.scale.setScalar(S * (0.05 + 0.16 * easeOut(clamp(aa / 4))));
-        x.s.material.opacity = 0.75 * clamp(aa / 0.4) * Math.max(0, 1 - aa / 4.5);
+        x.s.material.opacity = 0.45 * clamp(aa / 0.4) * Math.max(0, 1 - aa / 4.5);
         x.s.material.rotation = x.d * 6 + aa * 0.2;
       });
       ember.position.copy(n.clone().multiplyScalar(1.006));
@@ -531,24 +535,20 @@ function updateLabels(t) {
   }
 }
 
-function character(kind, { left, top, t0, t1 = 1e9, scale = 1, talk = () => 0, angry = () => 0, point = () => 0 }) {
+function character(kind, { cx, by, t0, t1 = 1e9, scale = 1, face = 0, talk = () => 0, angry = () => 0, worried = () => 0, point = () => 0, look = () => 0, dy = () => 0 }) {
   if (!OPT.chars) return null;
   const c = makeCharacter3D(kind);
-  const cx = left + 235, by = top + 610;
-  c.root.position.set((cx - W / 2) * PX, (H / 2 - by) * PX, 0);
-  c.root.rotation.y = cx < 430 ? 0.38 : cx > 650 ? -0.38 : 0;
+  c.root.rotation.y = face;
   charRoot.add(c.root);
-  const plate = el(`<div class="plate ${PLATES[kind][1]}">${PLATES[kind][0]}</div>`, 'char', { left: left + 'px', top: top + 'px' });
-  anim(plate, { t0: t0 + 0.15, t1, from: 'pop', dur: 0.45, base: `scale(${scale})` });
   UIA.push((t) => {
     const k = Math.max(0.001, backOut(clamp((t - t0) / 0.6))) * clamp((t1 - t) / 0.25 + 0.001);
     c.root.visible = t > t0;
-    c.root.scale.setScalar(scale * 0.84 * k);
-    c.update(t, { talk: talk(t), angry: angry(t), point: point(t) });
+    c.root.position.set((cx - W / 2) * PX, (H / 2 - by - dy(t)) * PX, 0);
+    c.root.scale.setScalar(scale * k);
+    c.update(t, { talk: talk(t), angry: angry(t), worried: worried(t), point: point(t), look: look(t) });
   });
   return c;
 }
-const PLATES = { trump: ['🇺🇸 TRUMP', 'blue'], putin: ['🇷🇺 PUTIN', ''], zelensky: ['🇺🇦 ZELENSKY', 'yellow'], iran: ['🇮🇷 IRAN', 'green'] };
 
 const NUKE_SVG = `<svg viewBox="-100 -100 200 200" class="nuke-svg" width="300" height="300">
   <circle r="96" fill="#ffd400" stroke="#111" stroke-width="8"/>
@@ -584,185 +584,105 @@ function applyCamera(t) {
 
 // ---------------------------------------------------------------- scenes
 let hlAmp = [() => 0, () => 0];
+let borderAmp = () => 0.55;
+const EURO_NATO = NATO.filter((id) => !['840', '124', '304'].includes(id));
+const flick = (t, f = 23) => 0.5 + 0.5 * Math.sin(t * f) * Math.sin(t * f * 0.37 + 1.3); // nervous flicker 0..1
+const wave = (t, a, b, f = 0.7) => (t > a && t < b ? 1 : 0); // simple on/off window
+const LOC2 = { VILNIUS: [54.69, 25.28], HELSINKI: [60.17, 24.94], BUCHAREST: [44.43, 26.1], TALLINN: [59.44, 24.75] };
+Object.assign(LOC, LOC2);
+
 const SCENES = [
+  // ======================================================= VIDEO 1: USA – IRAN
   {
-    id: '01-midterms', dur: 5.5,
+    id: 'video1-usa-iran-war', dur: 15,
     build() {
-      cam([[0, 28, -55, 9], [2.4, 39, -97, 3.0], [5.5, 39.5, -101, 2.85]]);
-      setHighlight(0, { [ID.USA]: '#2f7bff' });
-      setHighlight(1, { [ID.USA]: '#ff2436' });
-      hlAmp = [(t) => clamp((t - 1.2) / 0.6) * (0.75 + 0.25 * Math.sin(t * 5)) * (1 - clamp((t - 4.3) / 0.6)), (t) => clamp((t - 4.3) / 0.6) * (0.8 + 0.2 * Math.sin(t * 9))];
-      hud('LAT 38.90 N<br>LON 77.03 W');
-      [['NYC', 0xff2436], ['LA', 0x2f7bff], ['CHI', 0x2f7bff], ['HOU', 0xff2436], ['MIA', 0xff2436], ['SEA', 0x2f7bff], ['DEN', 0xff2436], ['WASHINGTON', 0xffffff]]
-        .forEach(([c, col], i) => FX.push(pulse({ at: LOC[c], t0: 1.6 + i * 0.12, color: col, period: 1.4, count: 2, radius: 0.12 })));
-      label('🇺🇸 USA', [41.5, -100], { cls: 'blue', t0: 1.8 });
-      label('WASHINGTON D.C.', LOC.WASHINGTON, { cls: 'city', t0: 2.3 });
-      headline([
-        { html: 'US MIDTERM', cls: 'hl-main white', t0: 0.35 },
-        { html: 'ELECTIONS', cls: 'hl-main white', t0: 0.55 },
-        { html: 'మిడ్ టర్మ్ ఎలక్షన్స్ కంప్లీట్', cls: 'hl-sub', t0: 1.0, from: 'up' },
-      ]);
-      if (OPT.text) {
-        const stamp = el('✔ COMPLETE', 'hl-main green', { left: '330px', top: '790px', fontSize: '96px', border: '6px solid #fff', borderRadius: '10px' });
-        anim(stamp, { t0: 1.7, from: 'slam', dur: 0.28 });
-        const next = el('NEXT ➜ 🇮🇷 IRAN', 'hl-main', { left: '230px', top: '940px', fontSize: '80px' });
-        anim(next, { t0: 4.2, from: 'left', dur: 0.4 });
-      }
-      character('trump', { left: 300, top: 1020, t0: 2.4, talk: (t) => (t > 2.8 && t < 4.8 ? 1 : 0) });
-      return (t) => { flash += Math.max(0, 1 - Math.abs(t - 1.95) / 0.12) * 0.25; };
-    },
-  },
-  {
-    id: '02-trump-vs-iran', dur: 7.5,
-    build() {
-      cam([[0, 39, -97, 3.0], [1.2, 34, -50, 6.5], [3.0, 29.5, 53, 2.75], [7.5, 30.5, 50, 2.6]]);
-      setHighlight(0, { [ID.USA]: '#2f7bff' });
+      cam([[0, 37, -96, 3.4], [2.8, 39, -97, 3.05], [4.8, 31, -25, 6.6], [6.4, 29.5, 52, 2.75], [9.6, 29, 51, 2.7], [11.2, 25, 47, 3.35], [15, 25.5, 45, 3.25]]);
+      const allies = {}; [ID.ISRAEL, ID.SAUDI, ID.UAE, ID.QATAR, ID.BAHRAIN, ID.KUWAIT, ID.JORDAN, ID.IRAQ].forEach((id) => (allies[id] = '#ffb400'));
       setHighlight(1, { [ID.IRAN]: '#ff2436' });
-      hlAmp = [(t) => 1 - clamp((t - 1) / 0.8), (t) => clamp((t - 2.4) / 0.6) * (0.75 + 0.25 * Math.sin(t * 7))];
-      hud('LAT 35.69 N<br>LON 51.39 E');
-      FX.push(missile({ from: LOC.WHITEMAN, to: LOC.FORDOW, t0: 0.15, dur: 3.1, height: 0.55, size: 1.4, boom: 1.6 }));
-      const shots = [
-        [LOC.ARABIAN_SEA, LOC.TEHRAN], [LOC.GULF_OMAN, LOC.ISFAHAN], [LOC.ARABIAN_SEA, LOC.BANDAR], [LOC.GULF_OMAN, LOC.NATANZ],
-        [LOC.ARABIAN_SEA, LOC.SHIRAZ], [LOC.GULF_OMAN, LOC.TABRIZ], [LOC.ARABIAN_SEA, LOC.ISFAHAN], [LOC.GULF_OMAN, LOC.TEHRAN],
+      hlAmp = [
+        (t) => (t < 5 ? clamp((t - 0.3) / 0.6) * (1 - clamp((t - 4.0) / 0.6)) * (0.7 + 0.2 * Math.sin(t * 5)) : clamp((t - 10.6) / 0.6) * (0.45 + 0.35 * flick(t, 17))),
+        (t) => clamp((t - 5.6) / 0.6) * (t < 9.8 ? 0.75 + 0.2 * Math.sin(t * 7) : 0.55 + 0.4 * flick(t)),
       ];
-      shots.forEach(([a, b], i) => FX.push(missile({ from: a, to: b, t0: 2.7 + i * 0.32, dur: 1.25 + (i % 3) * 0.15 })));
-      FX.push(pulse({ at: LOC.ARABIAN_SEA, t0: 2.4, color: 0x2f7bff, radius: 0.1, count: 2 }));
-      label('🇺🇸 USA', [41.5, -100], { cls: 'blue', t0: 0.1, t1: 1.3 });
-      label('🇮🇷 IRAN', LOC.IRAN, { cls: 'red', t0: 2.6 });
-      label('⚓ US NAVY', LOC.ARABIAN_SEA, { cls: 'city blue', t0: 2.5 });
-      label('TEHRAN', LOC.TEHRAN, { cls: 'city', t0: 4.4 });
-      label('ISFAHAN', LOC.ISFAHAN, { cls: 'city', t0: 4.8 });
-      headline([
-        { html: 'TRUMP <span style="position:static;color:#ffe14a">VS</span> IRAN', cls: 'hl-main', t0: 0.3 },
-        { html: 'WAR BEGINS', cls: 'hl-main black', t0: 3.3, from: 'slam', dur: 0.28 },
-        { html: 'ట్రంప్ యుద్ధం స్టార్ట్ చేశారు', cls: 'hl-sub', t0: 3.8, from: 'up' },
-      ]);
-      character('trump', { left: -40, top: 1040, t0: 0.9, scale: 0.92, talk: (t) => (t > 1.2 && t < 3.0 ? 1 : 0), angry: () => 0.6 });
-      character('iran', { left: 650, top: 1040, t0: 2.6, scale: 0.92, mirror: true, angry: (t) => clamp((t - 3.2) / 0.4), talk: (t) => (t > 4.5 ? 0.8 : 0) });
-      return () => {};
+      borderAmp = (t) => (t > 9.8 ? 0.45 + 0.35 * flick(t, 31) : 0.55);
+      // strike: long-range from the US, then the carrier group salvo
+      FX.push(missile({ from: LOC.WHITEMAN, to: LOC.FORDOW, t0: 2.9, dur: 3.3, height: 0.55, size: 1.5, boom: 1.7 }));
+      const shots = [[LOC.ARABIAN_SEA, LOC.TEHRAN], [LOC.GULF_OMAN, LOC.ISFAHAN], [LOC.ARABIAN_SEA, LOC.BANDAR], [LOC.GULF_OMAN, LOC.NATANZ],
+        [LOC.ARABIAN_SEA, LOC.SHIRAZ], [LOC.GULF_OMAN, LOC.TABRIZ], [LOC.ARABIAN_SEA, LOC.ISFAHAN], [LOC.GULF_OMAN, LOC.TEHRAN]];
+      shots.forEach(([a, b], i) => FX.push(missile({ from: a, to: b, t0: 6.0 + i * 0.3, dur: 1.2 + (i % 3) * 0.15 })));
+      FX.push(pulse({ at: LOC.ARABIAN_SEA, t0: 5.6, t1: 9.8, color: 0x2f7bff, radius: 0.1, count: 2 }));
+      FX.push(pulse({ at: LOC.WASHINGTON, t0: 0.8, t1: 4.4, color: 0x2f7bff, radius: 0.16, count: 2 }));
+      // Iran's warning: shockwave + threat lines to every country that backs the US
+      FX.push(pulse({ at: LOC.TEHRAN, t0: 9.8, color: 0xff2436, radius: 0.5, period: 1.6, count: 3 }));
+      ['TELAVIV', 'RIYADH', 'ABUDHABI', 'DOHA', 'MANAMA', 'KUWAIT', 'AMMAN', 'BAGHDAD'].forEach((c, i) =>
+        FX.push(threat({ from: LOC.TEHRAN, to: LOC[c], t0: 10.2 + i * 0.14, dur: 0.85, height: 0.06 })));
+      label('🇺🇸 USA', [41.5, -100], { cls: 'blue', t0: 0.6, t1: 4.4 });
+      label('WASHINGTON', LOC.WASHINGTON, { cls: 'city', t0: 1.2, t1: 4.4 });
+      label('🇮🇷 IRAN', LOC.IRAN, { cls: 'red', t0: 5.8 });
+      label('⚓ US NAVY', LOC.ARABIAN_SEA, { cls: 'city blue', t0: 5.8, t1: 9.8 });
+      label('TEHRAN', LOC.TEHRAN, { cls: 'city', t0: 7.2 });
+      label('ISFAHAN', LOC.ISFAHAN, { cls: 'city', t0: 7.6, t1: 10 });
+      [['⚠ ISRAEL', LOC.TELAVIV], ['⚠ SAUDI ARABIA', LOC.RIYADH], ['⚠ UAE', LOC.ABUDHABI], ['⚠ QATAR', [25.6, 51.2]], ['⚠ IRAQ', LOC.BAGHDAD], ['⚠ JORDAN', LOC.AMMAN]]
+        .forEach(([n, at], i) => label(n, at, { cls: 'city amber', t0: 10.9 + i * 0.15 }));
+      character('trump', { cx: 250, by: 1800, t0: 0.6, scale: 0.82, face: 0.42,
+        talk: (t) => (t > 1.0 && t < 3.2 ? 1 : t > 12.5 && t < 14.2 ? 0.8 : 0), angry: (t) => (t < 9.8 ? 0.55 : 0.8), point: (t) => clamp((t - 2.2) / 0.3) * (1 - clamp((t - 3.6) / 0.3)), look: (t) => (t > 9.8 ? 0.25 : 0) });
+      character('iran', { cx: 830, by: 1800, t0: 5.4, scale: 0.82, face: -0.42,
+        talk: (t) => (t > 9.9 && t < 14.5 ? 1 : 0), angry: (t) => clamp((t - 6.2) / 0.5), point: (t) => clamp((t - 10.1) / 0.3), worried: (t) => (t > 6 && t < 6.6 ? 1 : 0) });
+      return (t) => {
+        if (t >= 5) setHighlight(0, allies); else setHighlight(0, { [ID.USA]: '#2f7bff' });
+        redPulse = clamp((t - 9.8) / 0.5) * (0.18 + 0.32 * Math.max(0, Math.sin(t * 6)));
+      };
     },
   },
+  // ======================================================= VIDEO 2: RUSSIA – UKRAINE (+ European NATO)
   {
-    id: '03-iran-warning', dur: 7,
+    id: 'video2-russia-ukraine-war', dur: 15,
     build() {
-      cam([[0, 30.5, 50, 2.6], [1.4, 23, 47, 3.25], [7, 23.5, 45, 3.1]]);
-      setHighlight(0, { [ID.IRAN]: '#ff2436' });
-      const host = '#ffb400';
-      setHighlight(1, { [ID.ISRAEL]: host, [ID.SAUDI]: host, [ID.UAE]: host, [ID.QATAR]: host, [ID.BAHRAIN]: host, [ID.KUWAIT]: host, [ID.JORDAN]: host, [ID.IRAQ]: host });
-      hlAmp = [(t) => 0.6 + 0.2 * Math.sin(t * 8), (t) => clamp((t - 1.6) / 0.8) * (0.5 + 0.15 * Math.sin(t * 4))];
-      hud('IRAN • WARNING');
-      FX.push(pulse({ at: LOC.TEHRAN, t0: 0.2, color: 0xff2436, radius: 0.4, period: 2, count: 2 }));
-      const tg = ['TELAVIV', 'RIYADH', 'ABUDHABI', 'DOHA', 'MANAMA', 'KUWAIT', 'AMMAN', 'BAGHDAD'];
-      tg.forEach((c, i) => FX.push(threat({ from: LOC.TEHRAN, to: LOC[c], t0: 1.6 + i * 0.16, dur: 0.9, height: 0.06 })));
-      label('🇮🇷 IRAN', LOC.IRAN, { cls: 'red', t0: 0.3 });
-      label('ISRAEL', LOC.TELAVIV, { cls: 'city amber', t0: 2.6 });
-      label('SAUDI', LOC.RIYADH, { cls: 'city amber', t0: 2.75 });
-      label('UAE', LOC.ABUDHABI, { cls: 'city amber', t0: 2.9 });
-      label('QATAR', [25.6, 51.2], { cls: 'city amber', t0: 3.05 });
-      label('IRAQ', LOC.BAGHDAD, { cls: 'city amber', t0: 3.2 });
-      if (OPT.text) {
-        const panel = el(`<div class="ph">${WARN_ICO}IRAN'S WARNING</div>
-          <div class="pb">Support the USA &amp; attack Iran →<br><b>you get dragged DIRECTLY into the war</b></div>
-          <div class="pt">ఎవరైనా యూఎస్ఏకి సపోర్ట్ చేస్తూ మా మీద అటాక్ చేస్తే డైరెక్ట్‌గా వార్‌లోకి లాగుతాం</div>`, 'panel', { top: '320px' });
-        anim(panel, { t0: 0.4, from: 'down', dur: 0.5 });
-        const ico = panel.querySelector('.ico');
-        UIA.push((t) => { ico.style.transform = `scale(${1 + 0.12 * Math.max(0, Math.sin(t * 10))})`; });
-      }
-      character('iran', { left: 305, top: 1040, t0: 0.9, angry: () => 1, point: (t) => clamp((t - 1.5) / 0.4), talk: (t) => (t > 1.3 && t < 5.8 ? 1 : 0.15) });
-      return (t) => { redPulse = 0.2 + 0.3 * Math.max(0, Math.sin(t * 5)); };
-    },
-  },
-  {
-    id: '04-russia-vs-ukraine', dur: 7.5,
-    build() {
-      cam([[0, 28.5, 44, 3.1], [1.8, 49.5, 35, 2.7], [7.5, 49.8, 33.2, 2.55]]);
+      cam([[0, 53, 38, 5.6], [2.2, 49.5, 34, 2.7], [7, 49.9, 33, 2.6], [9.8, 50.5, 31, 2.8], [11.6, 52, 19, 3.8], [15, 51, 14, 4.0]]);
       setHighlight(0, { [ID.RUSSIA]: '#ff2436' });
-      setHighlight(1, { [ID.UKRAINE]: '#ffd500' });
-      hlAmp = [(t) => clamp((t - 1) / 0.6) * (0.7 + 0.2 * Math.sin(t * 6)), (t) => clamp((t - 1.3) / 0.6) * (0.55 + 0.25 * Math.sin(t * 3))];
-      hud('LAT 50.45 N<br>LON 30.52 E');
+      const natoB = { [ID.UKRAINE]: '#ffd500' }, natoR = { [ID.UKRAINE]: '#ffd500' };
+      EURO_NATO.forEach((id) => { natoB[id] = '#2f7bff'; natoR[id] = '#ff2436'; });
+      hlAmp = [
+        (t) => clamp((t - 0.5) / 0.6) * (t < 10 ? 0.7 + 0.15 * Math.sin(t * 6) : 0.55 + 0.4 * flick(t)),
+        (t) => (t < 11 ? clamp((t - 0.9) / 0.6) * (0.6 + 0.2 * Math.sin(t * 3)) : t < 12.8 ? 0.75 : 0.5 + 0.45 * flick(t, 19)),
+      ];
+      borderAmp = (t) => (t > 11 ? 0.45 + 0.4 * flick(t, 29) : 0.55);
       const src = ['BELGOROD', 'ROSTOV', 'KURSK', 'CRIMEA', 'BLACKSEA', 'BRYANSK'];
-      const dst = ['KYIV', 'KHARKIV', 'ODESA', 'DNIPRO', 'LVIV', 'ZAPOR', 'KYIV', 'KHARKIV', 'ODESA', 'KYIV', 'DNIPRO'];
-      dst.forEach((d, i) => FX.push(missile({ from: LOC[src[i % src.length]], to: LOC[d], t0: 1.9 + i * 0.36, dur: 1.1 + (i % 4) * 0.2, height: 0.05 + (i % 3) * 0.025, size: 0.85 })));
-      label('🇷🇺 RUSSIA', [53.5, 42], { cls: 'red', t0: 1.4 });
-      label('🇺🇦 UKRAINE', [48.6, 29.5], { cls: 'amber', t0: 1.6 });
-      label('KYIV', LOC.KYIV, { cls: 'city', t0: 3.0 });
-      label('KHARKIV', LOC.KHARKIV, { cls: 'city', t0: 3.4 });
-      label('ODESA', LOC.ODESA, { cls: 'city', t0: 3.8 });
-      headline([
-        { html: 'RUSSIA <span style="position:static;color:#ffe14a">VS</span> UKRAINE', cls: 'hl-main sm', t0: 0.3 },
-        { html: 'MISSILE ATTACK', cls: 'hl-main black', t0: 2.4, from: 'slam', dur: 0.28 },
-        { html: 'రష్యా ఉక్రెయిన్ మీద కూడా దాడి చేసింది', cls: 'hl-sub', t0: 2.9, from: 'up' },
-      ]);
-      character('putin', { left: -40, top: 1040, t0: 0.8, scale: 0.92, angry: () => 0.7, talk: (t) => (t > 1.1 && t < 2.6 ? 1 : 0) });
-      character('zelensky', { left: 650, top: 1040, t0: 1.3, scale: 0.92, mirror: true, angry: (t) => clamp((t - 3) / 0.5), talk: (t) => (t > 4.2 && t < 6.4 ? 1 : 0) });
-      return () => {};
-    },
-  },
-  {
-    id: '05-nuclear-warning-nato', dur: 8,
-    build() {
-      cam([[0, 49.8, 33.2, 2.55], [1.8, 52, 22, 3.7], [8, 50, 10, 4.2]]);
-      const nato = {}; NATO.forEach((id) => (nato[id] = '#2f7bff'));
-      const natoRed = {}; NATO.forEach((id) => (natoRed[id] = '#ff2436'));
-      setHighlight(0, { ...nato, [ID.RUSSIA]: '#ff2436', [ID.UKRAINE]: '#ffd500' });
-      setHighlight(1, { ...natoRed, [ID.RUSSIA]: '#ff2436', [ID.UKRAINE]: '#ffd500' });
-      hlAmp = [(t) => clamp((t - 0.6) / 0.6) * (1 - clamp((t - 4.2) / 0.5)) * 0.8, (t) => clamp((t - 4.2) / 0.5) * (0.6 + 0.3 * Math.max(0, Math.sin(t * 9)))];
-      hud('DEFCON ALERT');
-      FX.push(pulse({ at: LOC.MOSCOW, t0: 0.3, color: 0xffd400, radius: 0.7, period: 2.2, count: 3 }));
-      FX.push(pulse({ at: LOC.MOSCOW, t0: 0.5, color: 0xff2436, radius: 0.35, period: 1.1, count: 2 }));
-      const tg = ['WARSAW', 'BERLIN', 'BRUSSELS', 'PARIS', 'LONDON', 'ROME', 'WASHINGTON'];
-      tg.forEach((c, i) => FX.push(threat({ from: LOC.MOSCOW, to: LOC[c], t0: 2.4 + i * 0.22, dur: c === 'WASHINGTON' ? 1.8 : 1.1, width: 1.6, height: c === 'WASHINGTON' ? 0.45 : 0.12 })));
-      label('☢ MOSCOW', LOC.MOSCOW, { cls: 'red', t0: 0.6 });
-      label('NATO', [50.5, 10.5], { cls: 'blue', t0: 1.2 });
-      label('🇺🇦', [49.2, 31.2], { cls: 'city amber', t0: 1.0 });
-      ['LONDON', 'PARIS', 'BERLIN', 'WARSAW', 'ROME'].forEach((c, i) => label(c, LOC[c], { cls: 'city', t0: 3.4 + i * 0.2 }));
-      if (OPT.text) {
-        const nuke = el(NUKE_SVG, 'nuke', { left: '410px', top: '290px', transform: 'scale(.85)' });
-        anim(nuke, { t0: 0.3, from: 'pop', dur: 0.5, base: 'scale(.85)' });
-        const svg = nuke.querySelector('svg');
-        UIA.push((t) => { svg.style.transform = `rotate(${t * 40}deg)`; svg.style.filter = `drop-shadow(0 0 ${20 + 20 * Math.max(0, Math.sin(t * 6))}px rgba(255,212,0,.9))`; });
-      }
-      headline([
-        { html: 'NUCLEAR WARNING', cls: 'hl-main black', t0: 0.7, from: 'slam', dur: 0.3 },
-        { html: 'TO NATO COUNTRIES', cls: 'hl-main sm', t0: 1.3 },
-        { html: 'నాటో కంట్రీస్ ఉక్రెయిన్‌కి సపోర్ట్ చేస్తే న్యూక్లియర్ అటాక్స్', cls: 'hl-sub', t0: 1.9, from: 'up' },
-      ], 650);
-      character('putin', { left: 305, top: 1040, t0: 1.0, angry: () => 1, point: (t) => clamp((t - 2.2) / 0.4), talk: (t) => (t > 1.4 && t < 6.6 ? 1 : 0.1) });
-      return (t) => { redPulse = clamp((t - 2) / 0.5) * (0.25 + 0.55 * Math.max(0, Math.sin(t * 7))); };
-    },
-  },
-  {
-    id: '06-ww3-not-yet', dur: 7.5,
-    build() {
-      cam([[0, 50, 10, 4.2], [2.5, 40, 30, 4.9], [7.5, 37, 42, 5.3]]);
-      setHighlight(0, { [ID.RUSSIA]: '#ff2436', [ID.IRAN]: '#ff2436' });
-      const b = {}; NATO.forEach((id) => (b[id] = '#2f7bff')); b[ID.UKRAINE] = '#ffd500'; b[ID.ISRAEL] = '#2f7bff';
-      setHighlight(1, b);
-      hlAmp = [(t) => 0.7 + 0.3 * Math.sin(t * 6), () => 0.45];
-      hud('WORLD • STATUS');
-      FX.push(pulse({ at: LOC.TEHRAN, t0: 0.2, color: 0xff2436, radius: 0.35, period: 1.5 }));
-      FX.push(pulse({ at: LOC.KYIV, t0: 0.4, color: 0xff2436, radius: 0.35, period: 1.5 }));
-      FX.push(threat({ from: LOC.WASHINGTON, to: LOC.TEHRAN, t0: 0.6, dur: 1.4, height: 0.4, color: 0x2f7bff }));
-      FX.push(threat({ from: LOC.MOSCOW, to: LOC.KYIV, t0: 0.9, dur: 0.8, height: 0.08 }));
-      FX.push(threat({ from: LOC.MOSCOW, to: LOC.BRUSSELS, t0: 1.2, dur: 1.0, height: 0.12 }));
-      FX.push(threat({ from: LOC.TEHRAN, to: LOC.TELAVIV, t0: 1.4, dur: 0.8, height: 0.06 }));
-      label('🇮🇷 IRAN', LOC.IRAN, { cls: 'red', t0: 1.0 });
-      headline([
-        { html: 'WORLD WAR 3?', cls: 'hl-main', t0: 0.3, from: 'slam', dur: 0.3 },
-        { html: '✋ NOT STARTED YET', cls: 'hl-main green sm', t0: 1.8 },
-        { html: 'కంగారు పడాల్సిన అవసరం లేదు', cls: 'hl-sub', t0: 2.3, from: 'up' },
-        { html: '⚠ BUT IT IS DANGEROUS', cls: 'hl-main black sm', t0: 3.6, from: 'slam', dur: 0.28 },
-      ]);
-      if (OPT.text) {
-        const m = el('<div class="mt"><span>DANGER LEVEL</span><span class="pct">0%</span></div><div class="bar"><div class="fill"></div><div class="ticks"></div></div>', 'meter', { top: '1000px' });
-        anim(m, { t0: 4.1, from: 'up', dur: 0.4 });
-        const fill = m.querySelector('.fill'), pct = m.querySelector('.pct');
-        UIA.push((t) => { const v = 82 * easeOut(P(t, 4.4, 1.6)); fill.style.width = v + '%'; pct.textContent = Math.round(v) + '%'; pct.style.color = v > 60 ? '#ff4050' : '#fff'; });
-        UIA.push((t) => { const g = t > 0.3 && t < 0.9 ? Math.sin(t * 90) * 8 : 0; const h = ui.querySelector('.headline'); if (h) h.style.translate = `${g}px 0`; });
-      }
-      character('trump', { left: -20, top: 1170, t0: 4.6, scale: 0.78, talk: () => 0.3 });
-      character('putin', { left: 630, top: 1170, t0: 4.8, scale: 0.78, mirror: true, talk: () => 0.3 });
-      return (t) => { redPulse = clamp((t - 3.6) / 0.4) * 0.35 * (0.5 + 0.5 * Math.sin(t * 5)); };
+      ['KYIV', 'KHARKIV', 'ODESA', 'DNIPRO', 'LVIV', 'ZAPOR', 'KYIV', 'KHARKIV', 'ODESA', 'KYIV'].forEach((d, i) =>
+        FX.push(missile({ from: LOC[src[i % src.length]], to: LOC[d], t0: 2.4 + i * 0.38, dur: 1.1 + (i % 4) * 0.2, height: 0.05 + (i % 3) * 0.025, size: 0.85 })));
+      // nuclear threat: ICBM arcs from Moscow to European NATO capitals
+      FX.push(pulse({ at: LOC.MOSCOW, t0: 9.6, color: 0xffd400, radius: 0.6, period: 1.9, count: 3 }));
+      FX.push(pulse({ at: LOC.MOSCOW, t0: 9.8, color: 0xff2436, radius: 0.3, period: 1.0, count: 2 }));
+      ['WARSAW', 'VILNIUS', 'BERLIN', 'HELSINKI', 'BUCHAREST', 'BRUSSELS', 'PARIS', 'LONDON', 'ROME'].forEach((c, i) =>
+        FX.push(threat({ from: LOC.MOSCOW, to: LOC[c], t0: 10.4 + i * 0.2, dur: 1.1, width: 1.6, height: 0.13, color: 0xff3a2a })));
+      label('🇷🇺 RUSSIA', [53.5, 42], { cls: 'red', t0: 1.2 });
+      label('🇺🇦 UKRAINE', [48.6, 29.5], { cls: 'amber', t0: 1.5 });
+      label('KYIV', LOC.KYIV, { cls: 'city', t0: 3.2, t1: 10.5 });
+      label('KHARKIV', LOC.KHARKIV, { cls: 'city', t0: 3.6, t1: 10.5 });
+      label('ODESA', LOC.ODESA, { cls: 'city', t0: 4.0, t1: 10.5 });
+      label('☢ MOSCOW', LOC.MOSCOW, { cls: 'nukel', t0: 9.7 });
+      label('NATO', [50.8, 10.5], { cls: 'blue', t0: 11.3 });
+      [['☢ WARSAW', 'WARSAW'], ['☢ BERLIN', 'BERLIN'], ['☢ PARIS', 'PARIS'], ['☢ LONDON', 'LONDON'], ['☢ ROME', 'ROME']]
+        .forEach(([n, c], i) => label(n, LOC[c], { cls: 'city red', t0: 11.6 + i * 0.22 }));
+      // leaders duck out while the launcher fires, then return
+      const duck = (t) => 760 * easeInOut(clamp((t - 6.6) / 0.5)) * (1 - easeOut(clamp((t - 10.4) / 0.7)));
+      character('putin', { cx: 250, by: 1800, t0: 0.5, scale: 0.82, face: 0.42, dy: (t) => duck(t),
+        talk: (t) => (t > 0.9 && t < 2.6 ? 1 : t > 11 && t < 14.6 ? 1 : 0), angry: (t) => (t < 10 ? 0.6 : 1), point: (t) => clamp((t - 11.4) / 0.3) });
+      character('zelensky', { cx: 830, by: 1800, t0: 1.1, scale: 0.82, face: -0.42, dy: (t) => duck(t),
+        talk: (t) => (t > 4 && t < 6.2 ? 1 : t > 13 && t < 14.8 ? 0.7 : 0), worried: (t) => clamp((t - 3) / 0.4), look: (t) => (t > 11 ? -0.2 : 0) });
+      // the mobile ICBM launcher (from the reference photo)
+      const L = makeLauncher(glowTex);
+      L.root.position.set(0.4, (H / 2 - 1500) * PX, -2);
+      L.root.rotation.y = 0.42;
+      L.root.scale.setScalar(0.5);
+      charRoot.add(L.root);
+      return (t) => {
+        if (t < 11) setHighlight(1, natoB); else if (t > 12.8) setHighlight(1, natoR); else setHighlight(1, natoB);
+        L.root.visible = OPT.chars && t > 6.8 && t < 11.4;
+        L.root.position.y = (H / 2 - 1500) * PX - easeIn(clamp((t - 10.6) / 0.8)) * 9;
+        const sh = L.update(t, { tIn: 6.9, tUp: 8.3, tFire: 9.4 });
+        shake += sh * 0.02; flash += sh * 0.3;
+        redPulse = clamp((t - 9.6) / 0.5) * (0.2 + 0.38 * Math.max(0, Math.sin(t * 7)));
+      };
     },
   },
 ];
@@ -787,6 +707,7 @@ function renderFrame(i, t) {
   FX.forEach((f) => f.update(t));
   globeMat.uniforms.uA0.value = hlAmp[0](t);
   globeMat.uniforms.uA1.value = hlAmp[1](t);
+  globeMat.uniforms.uBorderAmt.value = borderAmp(t);
   if (shake > 0) {
     const s = Math.min(shake, 0.03) * camDist;
     camera.translateX(Math.sin(t * 91.7) * s); camera.translateY(Math.cos(t * 77.3) * s);

@@ -53,6 +53,7 @@ body.render #stage { position: fixed; left: 0; top: 0; }
 .label.red { border-color: var(--red); color: #ffd7da; }
 .label.blue { border-color: var(--blue); color: #d6e5ff; }
 .label.amber { border-color: var(--amber); color: #fff1c9; }
+.label.nukel { background: #ffd400; color: #111; border-color: #111; font-size: 50px; }
 .label.city { font-size: 30px; border-width: 2px; padding: 3px 10px 0; transform: translate(-50%, -150%); }
 .label::after { content: ''; position: absolute; left: 50%; bottom: -26px; width: 3px; height: 22px; background: currentColor; transform: translateX(-50%); }
 

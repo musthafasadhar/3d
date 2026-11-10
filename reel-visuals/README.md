@@ -1,28 +1,19 @@
-# War-map reel visuals (9:16, 1080×1920)
+# War-map reel visuals (9:16, 1080×1920, 15s each)
 
-These are motion graphics for the Trump–Iran / Russia–Ukraine reel. The characters are 3D low-poly "clay" figures (`chars3d.js`) with warm and purple cinematic lighting. Each clip shows a 3D night-lights globe with real country borders, glowing country highlights, 3D missiles with trails, explosions and shockwaves, dashed "threat" arcs and animated cartoon characters. The overlays include a BREAKING/LIVE HUD and English headlines with Telugu captions.
+There are two 3D infographic videos. Each has a night-lights globe with real country borders, glowing and flickering country highlights, 3D missiles with trails, explosions, warning and threat arcs, and rounded 3D "toy" characters styled after the reference reel: big round heads, small glinting eyes and soft warm/purple lighting. The only text is map labels.
 
-| Clip | Length | Narration it covers |
-|---|---|---|
-| `01-midterms` | 5.5s | Midterm elections complete |
-| `02-trump-vs-iran` | 7.5s | Trump starts the war: missiles from the USA and the Arabian Sea hit Iran |
-| `03-iran-warning` | 7s | Iran warns that anyone who supports the USA gets pulled into the war (Gulf states and Israel highlighted) |
-| `04-russia-vs-ukraine` | 7.5s | Russia strikes Ukraine (Kyiv, Kharkiv, Odesa…) |
-| `05-nuclear-warning-nato` | 8s | Russia's nuclear warning to NATO: NATO turns blue, then red, with threat arcs from Moscow |
-| `06-ww3-not-yet` | 7.5s | WW3 hasn't started, no need to panic, but the situation is dangerous (danger meter) |
-
-The output files are in `out/`:
-* `NN-*.mp4` clips include the headlines and Telugu captions.
-* `NN-*-clean.mp4` clips show only the globe and characters, so you can add your own captions.
-* `FULL-REEL.mp4` joins all the captioned clips in order.
+| Video | What happens |
+|---|---|
+| `out/video1-usa-iran-war.mp4` | The USA is highlighted while Trump gives the order. A long-range strike and a carrier salvo hit Iran. The Iran commander gets angry, then Iran's warning plays: a shockwave from Tehran and red threat lines to every country backing the US (Israel, Saudi Arabia, UAE, Qatar, Iraq, Jordan, Kuwait, Bahrain), with ⚠ markers and flickering borders. |
+| `out/video2-russia-ukraine-war.mp4` | Russia (red) and Ukraine (yellow) are shown with Putin and Zelensky. Missile salvos hit Ukrainian cities. An 8-axle mobile ICBM launcher drives in, raises its canister and fires. The camera then pulls back: European NATO countries light up blue, then flash red as nuclear threat arcs (☢) reach Warsaw, Berlin, Paris, London, Rome and others. |
 
 ## Re-render / tweak
 ```bash
-./render-all.sh                         # everything
-node render.mjs --scenes 2,3            # only some clips
-node render.mjs --clean --nochars       # globe only
-node render.mjs --stills                # quick preview JPGs
+./render-all.sh                                  # both videos
+node render.mjs --scenes 2                       # only video 2
+node render.mjs --nochars                        # globe only, no characters
+node render.mjs --stills --times 2,7,12          # preview JPGs at chosen seconds
 ```
-To get a live preview, serve this folder (for example `npx serve .`) and open `index.html`.
-
-All text, timings, camera moves and missile targets are in the `SCENES` array in `main.js`, and the characters are in `chars3d.js` (`characters.js` holds the old flat 2D versions).
+* All timings, camera moves, targets and labels are in the `SCENES` array in `main.js`.
+* The characters and the launcher are in `chars3d.js`.
+* `chars3d-lowpoly.js` and `characters.js` are the earlier faceted and flat-2D styles.

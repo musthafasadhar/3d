@@ -42,7 +42,8 @@ const suffix = CLEAN ? '-clean' : '';
 for (const i of list) {
   const s = scenes[i];
   if (STILLS) {
-    for (const t of [0.5, s.dur * 0.35, s.dur * 0.6, s.dur - 0.3]) {
+    const TIMES = opt('times', null);
+    for (const t of (TIMES ? String(TIMES).split(',').map(Number) : [0.5, s.dur * 0.35, s.dur * 0.6, s.dur - 0.3])) {
       await page.evaluate(([i, t]) => window.renderFrame(i, t), [i, t]);
       await page.screenshot({ path: path.join(OUT, `still-${s.id}-${t.toFixed(1)}${suffix}.jpg`), type: 'jpeg', quality: 80 });
     }
