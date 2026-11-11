@@ -74,6 +74,13 @@ const warmBounce = new THREE.DirectionalLight(0xffb48c, 1.1); warmBounce.positio
 const rim = new THREE.DirectionalLight(0xdfe9ff, 0.9); rim.position.set(-3, 6, -8); scene.add(rim);
 const catcher = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShadowMaterial({ opacity: 0.25 }));
 catcher.rotation.x = -Math.PI / 2; catcher.receiveShadow = true; scene.add(catcher);
+// real-looking clinic floor (light grey glossy tile, like the photo) so furniture is grounded
+const tileTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 512; const g = c.getContext('2d');
+  g.fillStyle = '#d6d2cb'; g.fillRect(0, 0, 512, 512); g.strokeStyle = 'rgba(120,115,108,.35)'; g.lineWidth = 3;
+  for (let i = 0; i <= 512; i += 128) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 512); g.moveTo(0, i); g.lineTo(512, i); g.stroke(); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(5, 5); return t; })();
+const floorTile = new THREE.Mesh(new THREE.PlaneGeometry(22, 18), new THREE.MeshStandardMaterial({ map: tileTex, roughness: 0.28, metalness: 0 }));
+floorTile.rotation.x = -Math.PI / 2; floorTile.position.set(0, -0.001, 2.5); floorTile.receiveShadow = true; scene.add(floorTile);
 const camera = new THREE.PerspectiveCamera(30, W / H, 0.1, 80);
 
 const kiran = createHostMale(); scene.add(kiran);
