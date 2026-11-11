@@ -19,17 +19,17 @@ export const PALETTE = {
 };
 
 // Deterministic pseudo-random so the faceting is identical in every render.
-function rng(seed) {
+export function rng(seed) {
   let s = seed >>> 0;
   return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
 }
 
-const mat = (color, opts = {}) =>
+export const mat = (color, opts = {}) =>
   new THREE.MeshStandardMaterial({ color, roughness: 0.85, metalness: 0, flatShading: true, ...opts });
 
 // Head ellipsoid scale; used to put facial features exactly on the surface.
-const HS = new THREE.Vector3(1.0, 1.05, 0.95);
-function onHead(x, y, lift = 0) {
+export const HS = new THREE.Vector3(1.0, 1.05, 0.95);
+export function onHead(x, y, lift = 0) {
   // z on the ellipsoid for given x,y (head-local)
   const nx = x / HS.x, ny = y / HS.y;
   const z = HS.z * Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
@@ -166,7 +166,7 @@ function buildHead(M) {
 }
 
 // Lathe profile helper: [radius, y] pairs -> faceted shell, optional front opening.
-function lathe(profile, segs, phiStart = 0, phiLen = Math.PI * 2) {
+export function lathe(profile, segs, phiStart = 0, phiLen = Math.PI * 2) {
   return new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y)), segs, phiStart, phiLen);
 }
 
@@ -244,7 +244,8 @@ function buildBody(M) {
 export function createHostMale(opts = {}) {
   const P = { ...PALETTE, ...opts };
   const M = {
-    skin: mat(P.skin),
+    // Smooth, soft skin (like the references); hair and clothes stay faceted.
+    skin: mat(P.skin, { flatShading: P.facetedSkin === true, roughness: 0.62 }),
     nose: mat(P.skinShade),
     hair: mat(P.hair, { roughness: 0.7 }),
     glasses: mat(P.glasses, { roughness: 0.4, flatShading: false }),
