@@ -38,7 +38,13 @@
 - **Honest twist at 36 s:** we never claim appointments work (it's "planned" on the site). Being self-aware builds trust and is funnier.
 - **Two comment triggers** ("worst hospital experience" and the "AVNI" keyword) push the algorithm, plus a loop ending for rewatches.
 
-## Needs your call
+## Decisions (confirmed)
+- Host name: **Kiran**.
+- Voice: AI voice first; the owner records it himself if it is not good.
+- Captions: **Tenglish** (Roman letters).
+- Script: the scenario is approved, but the dialogue will be rewritten (via ChatGPT using docs/avni-website-report.md).
+
+## Original open questions
 1. Host name "Kiran" is a placeholder; change it if you want.
 2. Voices: your own Telugu recording (most authentic) or a TTS voice. This is decided after script approval.
 3. Captions: Telugu script (as drafted) or Roman Tenglish?
