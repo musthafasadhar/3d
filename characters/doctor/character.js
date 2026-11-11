@@ -170,7 +170,7 @@ export function createDoctor(opts = {}) {
     new THREE.Vector3(0.3, 1.72, 0.64),
   ]);
   torso.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 48, 0.03, 8), tubeMat));
-  const chest = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.05, 16), new THREE.MeshStandardMaterial({ color: P.metal, roughness: 0.25, metalness: 0.8 }));
+  const chest = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.05, 16), new THREE.MeshStandardMaterial({ color: P.metal, roughness: 0.45, metalness: 0.3 }));
   chest.position.set(-0.3, 1.5, 0.66); chest.rotation.x = Math.PI / 2; torso.add(chest);
 
   root.traverse((o) => { if (o.isMesh && o.parent?.name !== 'glasses') { o.castShadow = true; o.receiveShadow = true; } });
