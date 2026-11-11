@@ -3,7 +3,7 @@
 // About 1.7 units tall, feet at y = 0, faces +Z.
 import * as THREE from 'three';
 
-export const PALETTE = { body: 0x3cc79a, feet: 0x27a77c, eye: 0x0b0b10 };
+export const PALETTE = { body: 0x5fe0b0, feet: 0x3fc795, eye: 0x0b0b10 };
 export const SCALE = 0.62; // ~1 unit tall: about one head high next to Kiran
 
 // Eye presets: [scaleX, scaleY, offsetY]
@@ -23,7 +23,8 @@ function rng(seed) {
 
 export function createAvniBuddy(opts = {}) {
   const P = { ...PALETTE, ...opts };
-  const bodyMat = new THREE.MeshStandardMaterial({ color: P.body, roughness: 0.62, flatShading: true });
+  // soft bright mint with a little self-glow so it never goes muddy in shadow
+  const bodyMat = new THREE.MeshStandardMaterial({ color: P.body, roughness: 0.55, flatShading: true, emissive: 0x0d5a3c, emissiveIntensity: 0.35 });
   const root = new THREE.Group();
   root.name = 'avniBuddy';
   const body = new THREE.Group();
@@ -71,7 +72,7 @@ export function createAvniBuddy(opts = {}) {
   }
 
   // Four round feet
-  const feetMat = new THREE.MeshStandardMaterial({ color: P.feet, roughness: 0.65, flatShading: true });
+  const feetMat = new THREE.MeshStandardMaterial({ color: P.feet, roughness: 0.6, flatShading: true, emissive: 0x0d5a3c, emissiveIntensity: 0.3 });
   for (const [x, z] of [[-0.4, 0.12], [-0.13, 0.22], [0.13, 0.22], [0.4, 0.12]]) {
     const f = new THREE.Mesh(new THREE.IcosahedronGeometry(0.17, 1), feetMat);
     f.scale.set(1, 0.8, 1);

@@ -1,5 +1,5 @@
-// Doctor's cabin set - evening, golden sun through window blinds (stripe shadows),
-// warm practical desk lamp, cool ambient fill. Scale: characters are ~4.5 units tall.
+// Doctor's cabin set - BRIGHT daytime clinic: soft sunlight through half-open blinds,
+// cream walls, light oak floor, blue sky + trees outside, pastel mint accents. Scale: characters are ~4.5 units tall.
 // Layout: back wall z=-5.5 (window + shelf), doctor behind desk (desk centre z=-1.2),
 // patient side towards +z, front wall z=+8.
 import * as THREE from 'three';
@@ -22,9 +22,9 @@ export function buildCabin() {
   // ---------- floor (warm wood planks) ----------
   const floorTex = canvasTex(1024, 1024, (g, w, h) => {
     for (let i = 0; i < 16; i++) {
-      const l = 38 + R() * 10;
-      g.fillStyle = `hsl(28, 38%, ${l}%)`; g.fillRect(0, i * 64, w, 64);
-      g.fillStyle = 'rgba(40,20,10,.35)'; g.fillRect(0, i * 64, w, 2);
+      const l = 66 + R() * 8;
+      g.fillStyle = `hsl(32, 42%, ${l}%)`; g.fillRect(0, i * 64, w, 64);
+      g.fillStyle = 'rgba(120,80,50,.25)'; g.fillRect(0, i * 64, w, 2);
       g.fillRect(((i * 397) % 900) + 60, i * 64, 2, 64);
       for (let k = 0; k < 30; k++) { g.fillStyle = `rgba(60,30,15,${R() * 0.08})`; g.fillRect(R() * w, i * 64 + R() * 64, 80 + R() * 200, 1.5); }
     }
@@ -32,11 +32,11 @@ export function buildCabin() {
   floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping; floorTex.repeat.set(3, 3);
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(18, 18), std(0xffffff, { map: floorTex, roughness: 0.55 }));
   floor.rotation.x = -Math.PI / 2; floor.position.z = 1; floor.receiveShadow = true; set.add(floor);
-  const rug = new THREE.Mesh(new THREE.CircleGeometry(3.2, 40), std(0x8a5a3c, { roughness: 1 }));
+  const rug = new THREE.Mesh(new THREE.CircleGeometry(3.2, 40), std(0xbfe3d4, { roughness: 1 }));
   rug.rotation.x = -Math.PI / 2; rug.position.set(0.6, 0.01, 1.4); rug.scale.set(1.3, 1, 1); rug.receiveShadow = true; set.add(rug);
 
   // ---------- walls ----------
-  const wallM = std(0xe9e2d3, { roughness: 0.95 });
+  const wallM = std(0xfbf6ee, { roughness: 0.95 });
   const H = 9.5;
   // back wall with window opening x[-0.8, 5.2], y[2.6, 7.4]
   const bz = -5.5;
@@ -47,46 +47,44 @@ export function buildCabin() {
   box(18, H, 0.3, wallM, 0, H / 2, 8, set).name = 'frontWall'; // front wall (hidden for wide shots)
   box(0.3, H, 14, wallM, -9, H / 2, 1.2, set); // left wall
   box(0.3, H, 14, wallM, 9, H / 2, 1.2, set); // right wall
-  const skirtM = std(0x5b4636); // skirting
+  const skirtM = std(0xe6dccb); // skirting
   box(18, 0.3, 0.1, skirtM, 0, 0.15, bz + 0.2, set);
   const ceil = new THREE.Mesh(new THREE.PlaneGeometry(18, 14), std(0xf3efe6)); ceil.rotation.x = Math.PI / 2; ceil.position.set(0, H, 1.2); set.add(ceil);
   // window frame + sill
-  const frameM = std(0x3b2d24, { roughness: 0.6 });
+  const frameM = std(0xffffff, { roughness: 0.5 });
   box(6.2, 0.18, 0.5, frameM, 2.2, 2.6, bz + 0.1, set); box(6.2, 0.18, 0.4, frameM, 2.2, 7.4, bz, set);
   box(0.18, 4.8, 0.4, frameM, -0.8, 5, bz, set); box(0.18, 4.8, 0.4, frameM, 5.2, 5, bz, set); box(0.1, 4.8, 0.3, frameM, 2.2, 5, bz - 0.05, set);
   // blinds (partly open) -> stripe shadows
-  const slatM = std(0xd9cdb8, { roughness: 0.7 });
+  const slatM = std(0xfaf7f0, { roughness: 0.6 });
   for (let i = 0; i < 15; i++) {
     const s = box(5.9, 0.04, 0.26, slatM, 2.2, 7.2 - i * 0.3, bz + 0.35, set);
-    s.rotation.x = 0.55;
+    s.rotation.x = 0.95; // mostly open: bright, still casts soft stripes
   }
   // outside: dusk sky + city (emissive so bloom picks the lights)
   const skyTex = canvasTex(1024, 768, (g, w, h) => {
     const gr = g.createLinearGradient(0, 0, 0, h);
-    gr.addColorStop(0, '#2c3f78'); gr.addColorStop(0.45, '#c46a6a'); gr.addColorStop(0.75, '#f3a35b'); gr.addColorStop(1, '#ffd08a');
+    gr.addColorStop(0, '#6fb6f2'); gr.addColorStop(0.6, '#b9e0fb'); gr.addColorStop(1, '#e9f6ff');
     g.fillStyle = gr; g.fillRect(0, 0, w, h);
-    g.fillStyle = '#ffe7b0'; g.beginPath(); g.arc(760, 560, 60, 0, 7); g.fill();
-    for (let i = 0; i < 14; i++) {
-      const bw = 50 + R() * 90, bh = 120 + R() * 360, x = i * 76 - 20;
-      g.fillStyle = `rgb(${40 + R() * 20},${34 + R() * 15},${55 + R() * 20})`; g.fillRect(x, h - bh, bw, bh);
-      for (let k = 0; k < 18; k++) { g.fillStyle = R() > 0.5 ? '#ffd27a' : '#ffefc4'; g.fillRect(x + 6 + (k % 3) * (bw / 3.4), h - bh + 14 + Math.floor(k / 3) * 22, 9, 11); }
-    }
+    g.fillStyle = 'rgba(255,255,255,.9)';
+    for (const [x, y, r0] of [[180, 140, 60], [250, 130, 80], [320, 150, 55], [700, 90, 50], [760, 80, 70], [820, 100, 45]]) { g.beginPath(); g.arc(x, y, r0, 0, 7); g.fill(); }
+    for (let i = 0; i < 8; i++) { g.fillStyle = `hsl(${205 + R() * 15}, 25%, ${78 + R() * 10}%)`; const bw = 60 + R() * 80, bh = 150 + R() * 200; g.fillRect(i * 130 + R() * 30, h - bh - 120, bw, bh); }
+    for (let i = 0; i < 22; i++) { g.fillStyle = `hsl(${100 + R() * 30}, ${40 + R() * 20}%, ${38 + R() * 15}%)`; g.beginPath(); g.arc(R() * w, h - 60 - R() * 120, 50 + R() * 50, 0, 7); g.fill(); }
   });
   const sky = new THREE.Mesh(new THREE.PlaneGeometry(26, 16), new THREE.MeshBasicMaterial({ map: skyTex, toneMapped: false }));
   sky.position.set(2.2, 5, -16); set.add(sky);
 
   // ---------- back wall dressing: bookshelf + certificates ----------
-  const shelfM = std(0x6b4a33, { roughness: 0.6 });
+  const shelfM = std(0xd9bf9b, { roughness: 0.6 });
   const shelf = new THREE.Group(); shelf.position.set(-5.2, 0, bz + 0.6); set.add(shelf);
   box(3.4, 6.4, 0.9, shelfM, 0, 3.2, 0, shelf);
   for (let k = 0; k < 4; k++) {
     const y = 1.0 + k * 1.45;
-    box(3.1, 1.3, 0.1, std(0x3e2a1d), 0, y + 0.55, 0.42, shelf).visible = false;
+    box(3.1, 1.3, 0.1, std(0xcfb38e), 0, y + 0.55, 0.42, shelf).visible = false;
     let x = -1.4;
     while (x < 1.3) {
       const w = 0.12 + R() * 0.14, hgt = 0.8 + R() * 0.4;
       const hue = [8, 25, 140, 200, 35, 350, 160][Math.floor(R() * 7)];
-      const b = box(w, hgt, 0.6, std(new THREE.Color(`hsl(${hue}, ${30 + R() * 35}%, ${28 + R() * 30}%)`)), x + w / 2, y + hgt / 2 + 0.05, 0.2, shelf);
+      const b = box(w, hgt, 0.6, std(new THREE.Color(`hsl(${hue}, ${35 + R() * 30}%, ${48 + R() * 25}%)`)), x + w / 2, y + hgt / 2 + 0.05, 0.2, shelf);
       b.rotation.z = R() > 0.9 ? 0.15 : 0;
       x += w + 0.02;
     }
@@ -101,7 +99,7 @@ export function buildCabin() {
     g.fillStyle = '#b5372c'; g.beginPath(); g.arc(w - 70, h - 70, 24, 0, 7); g.fill();
   });
   for (const [x, y] of [[-2.4, 6.2], [-2.4, 4.3]]) {
-    box(1.7, 1.3, 0.08, std(0x2a1f18), x, y, bz + 0.2, set);
+    box(1.7, 1.3, 0.08, std(0xc9a46a, { roughness: 0.4 }), x, y, bz + 0.2, set);
     const c = new THREE.Mesh(new THREE.PlaneGeometry(1.45, 1.08), std(0xffffff, { map: certTex, roughness: 0.4 })); c.position.set(x, y, bz + 0.25); set.add(c);
   }
   // wall clock
@@ -126,7 +124,7 @@ export function buildCabin() {
   box(0.06, 0.06, 7, std(0x9aa3a8, { metalness: 0.6 }), -4.6, 7.8, 2.5, set);
 
   // ---------- right / front: door, poster, water dispenser, plant ----------
-  box(0.15, 6.2, 2.6, std(0x7a5a40, { roughness: 0.6 }), 8.85, 3.1, 4.5, set);
+  box(0.15, 6.2, 2.6, std(0xd8b48a, { roughness: 0.6 }), 8.85, 3.1, 4.5, set);
   const posterTex = canvasTex(300, 420, (g, w, h) => {
     g.fillStyle = '#f2f6f4'; g.fillRect(0, 0, w, h); g.fillStyle = '#16a37b'; g.fillRect(0, 0, w, 60);
     g.fillStyle = '#fff'; g.font = 'bold 26px sans-serif'; g.fillText('HEALTHY HEART', 40, 40);
@@ -144,9 +142,9 @@ export function buildCabin() {
 
   // ---------- desk ----------
   const desk = new THREE.Group(); desk.name = 'desk'; desk.position.set(0.4, 0, -1.2); set.add(desk);
-  const woodM = std(0x7a5236, { roughness: 0.45 });
+  const woodM = std(0xc89a6c, { roughness: 0.45 });
   box(5.6, 0.16, 2.4, woodM, 0, 1.2, 0, desk);
-  box(5.4, 1.1, 0.12, std(0x5e3f2a, { roughness: 0.6 }), 0, 0.6, 1.0, desk); // modesty panel (hides seated legs)
+  box(5.4, 1.1, 0.12, std(0xf4efe6, { roughness: 0.6 }), 0, 0.6, 1.0, desk); // modesty panel (hides seated legs)
   box(0.14, 1.12, 2.2, woodM, -2.65, 0.56, 0, desk); box(0.14, 1.12, 2.2, woodM, 2.65, 0.56, 0, desk);
   // monitor (back to patient side, screen faces doctor)
   const mon = new THREE.Group(); mon.position.set(-1.5, 1.28, -0.4); mon.rotation.y = 0.35; desk.add(mon);
@@ -177,31 +175,31 @@ export function buildCabin() {
   const pens = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.35, 12), std(0x2f6b5e)); pens.position.set(2.3, 1.45, 0.4); desk.add(pens);
   for (let i = 0; i < 4; i++) box(0.03, 0.5, 0.03, std([0x1f3d5c, 0xb5372c, 0x222222, 0x2c7a3c][i]), 2.27 + (i % 2) * 0.06, 1.62, 0.37 + (i > 1 ? 0.06 : 0), desk).rotation.z = (i - 1.5) * 0.12;
   const plateTex = canvasTex(512, 128, (g, w, h) => {
-    g.fillStyle = '#2a2018'; g.fillRect(0, 0, w, h); g.fillStyle = '#e8c77a'; g.font = 'bold 46px serif'; g.textAlign = 'center'; g.fillText('GENERAL PHYSICIAN', w / 2, 82);
+    g.fillStyle = '#16a37b'; g.fillRect(0, 0, w, h); g.fillStyle = '#ffffff'; g.font = 'bold 46px serif'; g.textAlign = 'center'; g.fillText('GENERAL PHYSICIAN', w / 2, 82);
   });
-  const plate = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.3, 0.1), [std(0x2a2018), std(0x2a2018), std(0x2a2018), std(0x2a2018), std(0xffffff, { map: plateTex, roughness: 0.4 }), std(0x2a2018)]);
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.3, 0.1), [std(0x16a37b), std(0x16a37b), std(0x16a37b), std(0x16a37b), std(0xffffff, { map: plateTex, roughness: 0.4 }), std(0x16a37b)]);
   plate.position.set(0.3, 1.43, 1.0); plate.rotation.x = -0.25; plate.castShadow = true; desk.add(plate);
   for (let i = 0; i < 3; i++) { const p = box(0.75, 0.01, 1.0, std(0xf7f5ef, { roughness: 0.95 }), -0.5 + i * 0.12, 1.29 + i * 0.01, 0.0, desk); p.rotation.y = (R() - 0.5) * 0.6; }
   // chairs
-  const chairM = std(0x23312f, { roughness: 0.6 });
+  const chairM = std(0x2f8f86, { roughness: 0.6 });
   const dchair = new THREE.Group(); dchair.position.set(0.4, 0, -3.3); set.add(dchair);
   box(1.8, 0.25, 1.6, chairM, 0, 0.68, 0, dchair); box(1.8, 2.4, 0.25, chairM, 0, 2.0, -0.75, dchair);
   const pchair = new THREE.Group(); pchair.name = 'patientChair'; pchair.position.set(3.8, 0, -0.5); pchair.rotation.y = Math.PI / 2 + 0.35; set.add(pchair);
   box(1.5, 0.2, 1.4, std(0x3b6e66), 0, 0.95, 0, pchair); box(1.5, 1.6, 0.18, std(0x3b6e66), 0, 1.8, 0.65, pchair);
   for (const [x, z] of [[-0.6, -0.55], [0.6, -0.55], [-0.6, 0.55], [0.6, 0.55]]) box(0.08, 0.95, 0.08, std(0x777e83, { metalness: 0.6 }), x, 0.47, z, pchair);
 
-  // ---------- lights ----------
+  // ---------- lights (bright, soft daylight) ----------
   const lights = new THREE.Group(); set.add(lights);
-  lights.add(new THREE.HemisphereLight(0xbcd3ff, 0x6a4a34, 1.05)); // cool sky fill / warm bounce
-  const sun = new THREE.DirectionalLight(0xffb065, 4.2); // golden hour through the blinds
-  sun.position.set(6.5, 9.5, -16); sun.target.position.set(-0.5, 0.5, 2.5);
-  sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
+  lights.add(new THREE.HemisphereLight(0xffffff, 0xe8d6bf, 2.2)); // bright sky fill + warm floor bounce
+  const sun = new THREE.DirectionalLight(0xfff0d8, 3.2); // late-morning sun through the blinds
+  sun.position.set(6.5, 12, -16); sun.target.position.set(-0.5, 0.5, 2.5);
+  sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02; sun.shadow.radius = 4;
   Object.assign(sun.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 1, far: 40 });
   lights.add(sun, sun.target);
-  const lampL = new THREE.PointLight(0xffb66e, 9, 9, 1.6); lampL.position.set(2.35, 2.35, -1.7); lampL.castShadow = true; lampL.shadow.mapSize.set(1024, 1024); lightsAdd(lampL);
-  const screenL = new THREE.PointLight(0x9fc6ff, 2.2, 4, 2); screenL.position.set(-1.1, 2.1, -2.2); lightsAdd(screenL);
-  const bounce = new THREE.PointLight(0xffd2a6, 3.0, 12, 1.5); bounce.position.set(1.5, 4.5, 5.5); lightsAdd(bounce); // soft front fill
-  function lightsAdd(l) { lights.add(l); }
-
+  // big soft key from the patient side (like a window/softbox) - keeps faces bright and even
+  const key = new THREE.DirectionalLight(0xfff4ea, 1.6); key.position.set(4, 7, 9); lights.add(key);
+  const fill = new THREE.DirectionalLight(0xe6f2ff, 0.8); fill.position.set(-7, 4, 5); lights.add(fill);
+  const lampL = new THREE.PointLight(0xffd9a8, 2.5, 6, 1.6); lampL.position.set(2.35, 2.35, -1.7); lights.add(lampL);
+  const screenL = new THREE.PointLight(0xcfe3ff, 1.0, 4, 2); screenL.position.set(-1.1, 2.1, -2.2); lights.add(screenL);
   return set;
 }

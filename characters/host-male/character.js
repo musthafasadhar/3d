@@ -5,14 +5,15 @@
 import * as THREE from 'three';
 
 export const PALETTE = {
-  skin: 0xf0a888,
-  skinShade: 0xd9775a, // nose
-  hair: 0x4a2c1c,
+  skin: 0xf9c3a8, // peach-pink
+  blush: 0xf08e86, // cheek / chin warmth (multiplied over skin)
+  skinShade: 0xe98c72, // nose
+  hair: 0x5b3824,
   glasses: 0x17141c,
   eye: 0x0d0b10,
   mouth: 0x3b1f1f,
   tee: 0x1b1a22,
-  jacket: 0x2f6ed8, // blue
+  jacket: 0x3d82f2, // bright blue
   pants: 0x24283a,
   shoes: 0xece8e4,
   soles: 0x9a948f,
@@ -24,6 +25,13 @@ export function rng(seed) {
   return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
 }
 
+// Soft, slightly velvety skin (sheen) - bright and smooth like the references.
+export function skinMat(color, vertexColors = false) {
+  return new THREE.MeshPhysicalMaterial({
+    color, vertexColors, roughness: 0.55, metalness: 0, sheen: 0.6, sheenRoughness: 0.7,
+    sheenColor: new THREE.Color(0xffd6c8), clearcoat: 0.05, clearcoatRoughness: 0.8,
+  });
+}
 export const mat = (color, opts = {}) =>
   new THREE.MeshStandardMaterial({ color, roughness: 0.85, metalness: 0, flatShading: true, ...opts });
 
@@ -120,8 +128,23 @@ function buildGlasses(M) {
 function buildHead(M) {
   const head = new THREE.Group();
   head.name = 'head';
-  const skull = new THREE.Mesh(new THREE.IcosahedronGeometry(1, 5), M.skin);
+  // Face skin: vertex-colour blush on cheeks/chin/nose area fakes the soft
+  // subsurface warmth of the reference renders (pink cheeks, warm lower face).
+  const skullGeo = new THREE.IcosahedronGeometry(1, 5);
+  const sp = skullGeo.attributes.position, col = [];
+  const blush = new THREE.Color(M.blush), base = new THREE.Color(1, 1, 1), c = new THREE.Color();
+  for (let i = 0; i < sp.count; i++) {
+    const x = sp.getX(i), y = sp.getY(i), z = sp.getZ(i);
+    const cheek = Math.max(0, 1 - Math.hypot(Math.abs(x) - 0.55, y + 0.32, Math.max(0, 0.75 - z)) / 0.42);
+    const lower = Math.max(0, Math.min(1, (-y - 0.35) * 1.4)) * Math.max(0, z) * 0.55;
+    const t = Math.min(1, cheek * 0.85 + lower);
+    c.copy(base).lerp(blush, t);
+    col.push(c.r, c.g, c.b);
+  }
+  skullGeo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  const skull = new THREE.Mesh(skullGeo, M.face);
   skull.scale.copy(HS);
+  skull.name = 'skull';
   head.add(skull);
 
   // Eyes: small vertical black ovals with a single white highlight
@@ -245,7 +268,9 @@ export function createHostMale(opts = {}) {
   const P = { ...PALETTE, ...opts };
   const M = {
     // Smooth, soft skin (like the references); hair and clothes stay faceted.
-    skin: mat(P.skin, { flatShading: P.facetedSkin === true, roughness: 0.62 }),
+    skin: skinMat(P.skin, false),
+    face: skinMat(P.skin, true),
+    blush: P.blush,
     nose: mat(P.skinShade),
     hair: mat(P.hair, { roughness: 0.7 }),
     glasses: mat(P.glasses, { roughness: 0.4, flatShading: false }),
