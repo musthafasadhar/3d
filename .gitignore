@@ -43,3 +43,5 @@ next-env.d.ts
 # lock files
 package-lock.json
 yarn.lock
+characters/node_modules
+characters/*/views/spin/

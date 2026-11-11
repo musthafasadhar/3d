@@ -1,0 +1,1 @@
+{ "name": "reel-characters", "private": true, "type": "module", "dependencies": { "three": "0.176.0" } }
