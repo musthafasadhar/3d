@@ -16,6 +16,7 @@ import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { buildCabin } from './cabin.js';
 import { createHostMale } from '/characters/host-male/character.js';
 import { createDoctor } from '/characters/doctor/character.js';
@@ -30,8 +31,49 @@ renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadow
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xeef5f8);
-scene.add(buildCabin());
+// REAL background + lighting: CC0 photographic HDRI of a clinic room (Poly Haven 'hospital_room').
+// It is the blurred backdrop AND the image-based light that gives the soft, photographic shading.
+const cabin = buildCabin();
+scene.add(cabin);
+const KEEP = ['desk', 'patientChair'];
+for (const c of cabin.children) c.visible = KEEP.includes(c.name);
+const hdr = await new RGBELoader().loadAsync('/reels/assets/hdri/hospital_room_4k.hdr');
+hdr.mapping = THREE.EquirectangularReflectionMapping;
+scene.environment = hdr;
+// Background PLATE: the photo seen through a wider virtual lens (more of the real room fits
+// behind a close-up: cabinets, doors, bed), rendered to a texture and blurred by the DOF pass.
+const bgScene = new THREE.Scene();
+bgScene.background = hdr;
+const bgCam = new THREE.PerspectiveCamera(62, W / H, 0.1, 10);
+const plate = new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType });
+plate.texture.colorSpace = THREE.LinearSRGBColorSpace;
+scene.background = plate.texture;
+let BG_FOV = 62, BG_PITCH = 0;
+window.setPlate = (fov, pitchDeg = 0) => { BG_FOV = fov; BG_PITCH = pitchDeg; };
+function renderPlate() {
+  bgCam.fov = BG_FOV; bgCam.updateProjectionMatrix();
+  bgCam.quaternion.copy(camera.quaternion);
+  bgCam.rotateX(THREE.MathUtils.degToRad(BG_PITCH));
+  bgScene.backgroundBlurriness = 0.02;
+  bgScene.backgroundRotation.copy(scene.environmentRotation);
+  renderer.setRenderTarget(plate); renderer.render(bgScene, bgCam); renderer.setRenderTarget(null);
+}
+scene.backgroundBlurriness = 0.03;
+scene.backgroundIntensity = 1.0;
+scene.environmentIntensity = 1.15;
+window.setBgRot = (deg) => { scene.environmentRotation.y = THREE.MathUtils.degToRad(deg); };
+window.setBgRot(225);
+// one soft key for contact shadows on the desk + a shadow-catcher floor
+const keyL = new THREE.DirectionalLight(0xfff3e6, 1.2);
+keyL.position.set(5, 10, 6); keyL.castShadow = true; keyL.shadow.mapSize.set(2048, 2048); keyL.shadow.radius = 6; keyL.shadow.bias = -0.0005;
+Object.assign(keyL.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8 });
+scene.add(keyL);
+// warm low bounce from the front-left (the orange glow on the reference girl's cheek/chin)
+const warmBounce = new THREE.DirectionalLight(0xffb48c, 1.1); warmBounce.position.set(-3, -1.5, 6); scene.add(warmBounce);
+// soft cool rim from behind to separate the characters from the background
+const rim = new THREE.DirectionalLight(0xdfe9ff, 0.9); rim.position.set(-3, 6, -8); scene.add(rim);
+const catcher = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShadowMaterial({ opacity: 0.25 }));
+catcher.rotation.x = -Math.PI / 2; catcher.receiveShadow = true; scene.add(catcher);
 const camera = new THREE.PerspectiveCamera(30, W / H, 0.1, 80);
 
 const kiran = createHostMale(); scene.add(kiran);
@@ -87,7 +129,7 @@ function stage() {
   avni.setEyes('neutral');
   for (const c of [kiran, doctor]) c.getObjectByName('head').rotation.set(0, 0, 0);
 }
-const frontWall = () => scene.getObjectByName('frontWall');
+const frontWall = () => ({ visible: false }); // no room geometry any more (photo background)
 const SHOTS = {
   // --- cast portraits (front wall hidden so the camera can pull back) ---
   cast_kiran() {
@@ -121,8 +163,10 @@ const SHOTS = {
 };
 
 window.renderShot = (id) => {
-  for (const o of [kiran, doctor, avni]) o.traverse(() => {});
-  SHOTS[id]();
+  const [name, rot] = id.split('@');   // e.g. "doctor_cu@90" = rotate the photo background 90 deg
+  if (rot !== undefined) window.setBgRot(+rot);
+  SHOTS[name]();
+  renderPlate();
   grade.uniforms.uTime.value = 1.0;
   composer.render();
   return true;

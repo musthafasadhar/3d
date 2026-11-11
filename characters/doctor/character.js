@@ -6,8 +6,8 @@ import * as THREE from 'three';
 import { createHostMale, HS, onHead, mat, lathe, rng } from '../host-male/character.js';
 
 export const PALETTE = {
-  skin: 0xedb08f,
-  blush: 0xf0a896,
+  skin: 0xf2bf9f,
+  blush: 0xffc8b8,
   hairDark: 0x2f2520,
   hairGrey: 0xb3aca5,
   beard: 0x34291f,

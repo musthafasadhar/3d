@@ -182,7 +182,7 @@ export function buildCabin() {
   for (let i = 0; i < 3; i++) { const p = box(0.75, 0.01, 1.0, std(0xf7f5ef, { roughness: 0.95 }), -0.5 + i * 0.12, 1.29 + i * 0.01, 0.0, desk); p.rotation.y = (R() - 0.5) * 0.6; }
   // chairs
   const chairM = std(0x2f8f86, { roughness: 0.6 });
-  const dchair = new THREE.Group(); dchair.position.set(0.4, 0, -3.3); set.add(dchair);
+  const dchair = new THREE.Group(); dchair.name = 'doctorChair'; dchair.position.set(0.4, 0, -3.3); set.add(dchair);
   box(1.8, 0.25, 1.6, chairM, 0, 0.68, 0, dchair); box(1.8, 2.4, 0.25, chairM, 0, 2.0, -0.75, dchair);
   const pchair = new THREE.Group(); pchair.name = 'patientChair'; pchair.position.set(3.8, 0, -0.5); pchair.rotation.y = Math.PI / 2 + 0.35; set.add(pchair);
   box(1.5, 0.2, 1.4, std(0x3b6e66), 0, 0.95, 0, pchair); box(1.5, 1.6, 0.18, std(0x3b6e66), 0, 1.8, 0.65, pchair);

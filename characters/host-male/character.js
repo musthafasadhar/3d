@@ -6,11 +6,11 @@ import * as THREE from 'three';
 
 export const PALETTE = {
   skin: 0xf9c3a8, // peach-pink
-  blush: 0xf08e86, // cheek / chin warmth (multiplied over skin)
+  blush: 0xffc2b4, // soft cheek / lower-face warmth (multiplied over skin - light pink, never muddy)
   skinShade: 0xe98c72, // nose
   hair: 0x5b3824,
   glasses: 0x17141c,
-  eye: 0x0d0b10,
+  eye: 0x050406,
   mouth: 0x3b1f1f,
   tee: 0x1b1a22,
   jacket: 0x3d82f2, // bright blue
@@ -135,9 +135,10 @@ function buildHead(M) {
   const blush = new THREE.Color(M.blush), base = new THREE.Color(1, 1, 1), c = new THREE.Color();
   for (let i = 0; i < sp.count; i++) {
     const x = sp.getX(i), y = sp.getY(i), z = sp.getZ(i);
-    const cheek = Math.max(0, 1 - Math.hypot(Math.abs(x) - 0.55, y + 0.32, Math.max(0, 0.75 - z)) / 0.42);
-    const lower = Math.max(0, Math.min(1, (-y - 0.35) * 1.4)) * Math.max(0, z) * 0.55;
-    const t = Math.min(1, cheek * 0.85 + lower);
+    // broad, subtle warmth (reference look): soft cheeks + warmer lower face, no hard spots
+    const cheek = Math.max(0, 1 - Math.hypot(Math.abs(x) - 0.5, (y + 0.3) * 0.8, Math.max(0, 0.7 - z)) / 0.7);
+    const lower = Math.max(0, Math.min(1, (-y + 0.1) * 0.9)) * Math.max(0, z + 0.3) * 0.35;
+    const t = Math.min(0.6, cheek * cheek * 0.45 + lower);
     c.copy(base).lerp(blush, t);
     col.push(c.r, c.g, c.b);
   }
@@ -274,7 +275,7 @@ export function createHostMale(opts = {}) {
     nose: mat(P.skinShade),
     hair: mat(P.hair, { roughness: 0.7 }),
     glasses: mat(P.glasses, { roughness: 0.4, flatShading: false }),
-    eye: mat(P.eye, { roughness: 0.3, flatShading: false }),
+    eye: mat(P.eye, { roughness: 0.25, flatShading: false, envMapIntensity: 0.15 }),
     white: new THREE.MeshBasicMaterial({ color: 0xffffff }),
     mouth: mat(P.mouth),
     tee: mat(P.tee),
