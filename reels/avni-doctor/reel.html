@@ -1,0 +1,381 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000;font-family:Poppins,sans-serif}
+  canvas{position:absolute;inset:0}
+  #ov{position:absolute;inset:0;pointer-events:none}
+  .pill{position:absolute;left:0;right:0;margin:0 auto;width:fit-content;max-width:900px;top:230px;text-align:center;
+    background:rgba(28,22,36,.74);color:#fff;font-weight:700;font-size:50px;line-height:1.3;padding:20px 38px;border-radius:26px;
+    font-family:Poppins,'Noto Color Emoji',sans-serif}
+  .phone{position:absolute;left:50%;top:480px;width:600px;height:1180px;margin-left:-300px;border-radius:72px;background:#0e0e12;padding:22px;
+    box-shadow:0 40px 90px rgba(0,0,0,.45)}
+  .screen{width:100%;height:100%;border-radius:52px;overflow:hidden;background:#fff;position:relative}
+  .gal{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:6px;position:absolute;left:0;right:0}
+  .gal div{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:62px;border-radius:6px;font-family:'Noto Color Emoji'}
+  .bar{padding:64px 34px 14px;font-weight:800;font-size:36px;color:#103b2e}
+  .tag{font-size:17px;color:#16a37b;font-weight:800;letter-spacing:2px}
+  .chat{display:flex;gap:18px;align-items:center;padding:20px 26px;border-bottom:1px solid #eef1f0}
+  .av{width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px;font-family:'Noto Color Emoji'}
+  .cn{font-weight:700;font-size:27px;color:#1d2a26}.cm{font-size:21px;color:#7a8a85}
+  .web{position:absolute;left:50%;top:520px;width:960px;margin-left:-480px;border-radius:28px;background:#fff;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.35)}
+  .wtop{height:54px;background:#f1f5f3;display:flex;align-items:center;gap:10px;padding:0 22px}
+  .wtop i{width:14px;height:14px;border-radius:50%;background:#d8dedb;display:inline-block}
+  .wbody{display:flex;min-height:760px}
+  .side{width:230px;background:#f7faf9;padding:26px 18px;border-right:1px solid #e6eeeb}
+  .logo{font-weight:800;font-size:34px;color:#0f6b52;display:flex;align-items:center;gap:10px}
+  .logo small{display:block;font-size:12px;letter-spacing:3px;color:#5b7d72;margin-top:-6px}
+  .nav{margin-top:30px}.nav div{padding:14px 16px;border-radius:12px;font-size:20px;color:#4b5f58;font-weight:600}
+  .nav .on{background:#e1f4ec;color:#0f6b52}
+  .main{flex:1;padding:30px 34px}
+  .h1{font-size:40px;font-weight:800;color:#13342b}.sub{font-size:19px;color:#6b7f78;margin:6px 0 22px}
+  .stat{display:inline-block;width:46%;margin:0 2% 16px 0;border:2px solid #e3efea;border-radius:20px;padding:20px 22px;vertical-align:top}
+  .stat b{font-size:56px;color:#13342b;display:block}.stat span{font-size:18px;color:#6b7f78;font-weight:600}
+  .hero{background:#0f7a5a;color:#fff;border-radius:22px;padding:28px;margin-bottom:20px;font-size:30px;font-weight:700}
+  .row{display:flex;align-items:center;gap:16px;padding:16px 10px;border-bottom:1px solid #edf2f0;font-size:21px;color:#2d3d38}
+  .row .ini{width:46px;height:46px;border-radius:50%;background:#e1f4ec;color:#0f6b52;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .row .id{margin-left:auto;color:#7a8a85;font-weight:600}
+  .search{border:2px solid #dfe9e5;border-radius:14px;padding:14px 18px;font-size:20px;color:#8a9a95;margin-bottom:12px}
+  .role{display:inline-flex;width:46%;margin:0 2% 16px 0;border:2px solid #e3efea;border-radius:20px;padding:18px;gap:14px;align-items:center;font-size:22px;font-weight:700;color:#13342b}
+  .role i{font-style:normal;font-size:34px;font-family:'Noto Color Emoji'}
+  .role small{display:block;font-size:15px;color:#6b7f78;font-weight:600}
+  .ev{display:flex;gap:16px;align-items:center;padding:15px 6px;border-bottom:1px solid #edf2f0;font-size:20px;color:#2d3d38}
+  .ev .dot{width:14px;height:14px;border-radius:50%;background:#16a37b}
+  .ev .tm{margin-left:auto;color:#8a9a95;font-size:17px}
+  .pcard{margin:14px 24px;padding:22px;border-radius:24px;border:2px solid #d8eee6;display:flex;gap:18px;align-items:center}
+  .pic{width:64px;height:64px;border-radius:18px;background:#e3f6ef;display:flex;align-items:center;justify-content:center;font-size:34px;font-family:'Noto Color Emoji'}
+  .t1{font-size:25px;font-weight:800;color:#103b2e}.t2{font-size:19px;color:#5f7d72;font-weight:600}
+  .card{position:absolute;left:50%;transform:translateX(-50%);text-align:center;border-radius:34px;box-shadow:0 30px 70px rgba(0,0,0,.25)}
+  .tagline{top:430px;width:880px;background:rgba(255,255,255,.94);padding:36px 30px}
+  .tagline .brand{font-size:66px;font-weight:800;color:#0f6b52;line-height:1}.tagline .brand small{display:block;font-size:20px;letter-spacing:6px;color:#5b7d72;margin-top:8px}
+  .tagline .tl{font-size:40px;font-weight:700;color:#13342b;margin-top:18px}
+  .chips{top:440px;width:940px;background:none;box-shadow:none;display:flex;flex-wrap:wrap;justify-content:center;gap:16px}
+  .chips span{background:#0f7a5a;color:#fff;font-weight:700;font-size:34px;padding:16px 28px;border-radius:999px;box-shadow:0 14px 30px rgba(0,0,0,.2)}
+  .demo{top:440px;background:#fff;padding:28px 48px;font-size:46px;font-weight:800;color:#0f6b52}
+  .cmt{top:420px;width:820px;background:#0d1d18;padding:34px 0 40px}
+  .cmt .h{color:#fff;font-weight:800;font-size:44px;letter-spacing:4px}
+  .cmt .k{display:inline-block;background:#16a37b;color:#fff;font-weight:800;font-size:120px;padding:0 54px;border-radius:26px;margin:12px 0}
+  .cmt .s{color:#cfe9df;font-size:34px;font-weight:600}
+  .end{position:absolute;inset:0;background:linear-gradient(180deg,#f3fbf8,#d9f2e8);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .end .b{font-size:150px;font-weight:800;color:#0f6b52;line-height:1}
+  .end .e{font-size:34px;letter-spacing:12px;color:#3f6e60;font-weight:700;margin-top:10px}
+  .end .t{font-size:48px;font-weight:700;color:#13342b;margin-top:60px}
+  .end .c{margin-top:70px;background:#0f7a5a;color:#fff;font-size:40px;font-weight:800;padding:22px 44px;border-radius:999px}
+</style>
+<script type="importmap">{ "imports": {
+  "three": "/characters/node_modules/three/build/three.module.js",
+  "three/addons/": "/characters/node_modules/three/examples/jsm/" } }</script>
+</head>
+<body>
+<div id="ov"></div>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { buildCabin } from './cabin.js';
+import { createHostMale } from '/characters/host-male/character.js';
+import { createDoctor } from '/characters/doctor/character.js';
+import { createAvniBuddy, EYES } from '/characters/avni-buddy/character.js';
+
+const W = 1080, H = 1920;
+const TL = await (await fetch(new URLSearchParams(location.search).get('timeline') || 'build/timeline.json')).json();
+const FPS = TL.fps;
+
+// ---------------- renderer / scene (same look as the approved look-dev) ----------------
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H); renderer.setPixelRatio(1);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.prepend(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(30, W / H, 0.1, 80);
+
+const cabin = buildCabin(); scene.add(cabin);
+for (const c of cabin.children) c.visible = ['desk', 'patientChair'].includes(c.name);
+const hdr = await new RGBELoader().loadAsync('/reels/assets/hdri/hospital_room_4k.hdr');
+hdr.mapping = THREE.EquirectangularReflectionMapping;
+scene.environment = hdr; scene.environmentIntensity = 1.15;
+scene.environmentRotation.y = THREE.MathUtils.degToRad(225);
+const bgScene = new THREE.Scene(); bgScene.background = hdr; bgScene.backgroundBlurriness = 0.02;
+bgScene.backgroundRotation.copy(scene.environmentRotation);
+const bgCam = new THREE.PerspectiveCamera(62, W / H, 0.1, 10);
+const plate = new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType });
+plate.texture.colorSpace = THREE.LinearSRGBColorSpace;
+scene.background = plate.texture;
+const keyL = new THREE.DirectionalLight(0xfff3e6, 1.2);
+keyL.position.set(5, 10, 6); keyL.castShadow = true; keyL.shadow.mapSize.set(2048, 2048); keyL.shadow.radius = 6; keyL.shadow.bias = -0.0005;
+Object.assign(keyL.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8 }); scene.add(keyL);
+const warmBounce = new THREE.DirectionalLight(0xffb48c, 1.1); warmBounce.position.set(-3, -1.5, 6); scene.add(warmBounce);
+const rim = new THREE.DirectionalLight(0xdfe9ff, 0.9); rim.position.set(-3, 6, -8); scene.add(rim);
+const tileTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 512; const g = c.getContext('2d');
+  g.fillStyle = '#d6d2cb'; g.fillRect(0, 0, 512, 512); g.strokeStyle = 'rgba(120,115,108,.35)'; g.lineWidth = 3;
+  for (let i = 0; i <= 512; i += 128) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 512); g.moveTo(0, i); g.lineTo(512, i); g.stroke(); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(5, 5); return t; })();
+const floorTile = new THREE.Mesh(new THREE.PlaneGeometry(22, 18), new THREE.MeshStandardMaterial({ map: tileTex, roughness: 0.28 }));
+floorTile.rotation.x = -Math.PI / 2; floorTile.position.set(0, -0.001, 2.5); floorTile.receiveShadow = true; scene.add(floorTile);
+
+const kiran = createHostMale(); scene.add(kiran);
+const doctor = createDoctor(); scene.add(doctor);
+const avni = createAvniBuddy(); scene.add(avni);
+const K = (n) => kiran.getObjectByName(n), D = (n) => doctor.getObjectByName(n);
+// phone in Kiran's right hand
+const phone = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.78, 0.05), new THREE.MeshStandardMaterial({ color: 0x101016, roughness: 0.6 }));
+phone.position.set(0.0, -1.25, 0.12); phone.rotation.set(1.0, 0.3, 0.1); K('armR').add(phone);
+const files = cabin.getObjectByName('files');
+const fileTops = files.children.slice(5, 9);
+const fileRest = fileTops.map((f) => ({ p: f.position.clone(), r: f.rotation.clone() }));
+
+// ---------------- post ----------------
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bokeh = new BokehPass(scene, camera, { focus: 8, aperture: 0.0035, maxblur: 0.012 }); composer.addPass(bokeh);
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(W / 2, H / 2), 0.25, 0.6, 0.9));
+composer.addPass(new OutputPass());
+const grade = new ShaderPass({
+  uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uVig: { value: 0.16 } },
+  vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }`,
+  fragmentShader: `uniform sampler2D tDiffuse; uniform float uTime; uniform float uVig; varying vec2 vUv;
+    float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)) + uTime*7.13) * 43758.5453); }
+    void main(){ vec3 c = texture2D(tDiffuse, vUv).rgb; float l = dot(c, vec3(0.299,0.587,0.114));
+      c += vec3(-0.01, 0.0, 0.02) * (1.0 - smoothstep(0.0, 0.45, l));
+      c += vec3(0.025, 0.012, -0.012) * smoothstep(0.5, 1.0, l);
+      c = mix(c, c*c*(3.0-2.0*c), 0.12); c = mix(vec3(l), c, 1.08); c = c * 0.95 + 0.04;
+      vec2 d = vUv - 0.5; d.x *= 0.62; c *= 1.0 - uVig * smoothstep(0.18, 0.75, length(d));
+      c += (h(vUv * 1000.0) - 0.5) * 0.022; gl_FragColor = vec4(c, 1.0); }` });
+composer.addPass(grade);
+
+// ---------------- staging ----------------
+const KIRAN_SEAT = new THREE.Vector3(3.8, 0.12, -0.5), KIRAN_RY = -Math.PI / 2 - 0.35;
+const AVNI_SPOT = new THREE.Vector3(-1.6, 1.28, -0.25); // front of the desk, out of the doctor/Kiran eye-lines
+const lerp = (a, b, t) => a + (b - a) * t;
+const clamp01 = (x) => Math.max(0, Math.min(1, x));
+const ease = (x) => { x = clamp01(x); return x * x * (3 - 2 * x); };
+const V = (a) => new THREE.Vector3(...a);
+
+// camera presets: cam, target, fov, focus point, aperture, plate fov, push-in (fraction over the shot)
+const SHOTS = {
+  walk_in:      { cam: [7.6, 3.4, 10.6], tgt: [1.6, 2.9, -1.0], fov: 36, focus: [3.6, 2.8, 0.0], ap: 0.001, plate: 70, push: 0.05 },
+  wide:         { cam: [7.6, 3.4, 10.6], tgt: [0.9, 2.95, -1.3], fov: 34, focus: [2.0, 2.6, -1.0], ap: 0.0012, plate: 70, push: 0.04 },
+  doctor_cu:    { cam: [4.3, 3.3, 4.9], tgt: [0.4, 2.65, -2.6], fov: 30, focus: [0.4, 3.1, -1.7], ap: 0.0035, plate: 62, push: 0.05 },
+  doctor_smile: { cam: [4.3, 3.3, 4.9], tgt: [0.4, 2.7, -2.6], fov: 30, focus: [0.4, 3.1, -1.7], ap: 0.0035, plate: 62, push: 0.04 },
+  doctor_files: { cam: [3.4, 3.0, 3.9], tgt: [0.9, 2.15, -1.5], fov: 32, focus: [1.2, 1.9, -1.2], ap: 0.0035, plate: 62, push: 0.05 },
+  kiran_cu:     { cam: [-4.1, 3.3, 1.2], tgt: [3.8, 2.75, -0.5], fov: 30, focus: [3.8, 3.4, -0.5], ap: 0.0035, plate: 62, push: 0.05 },
+  kiran_cam:    { cam: [-1.6, 3.4, 4.2], tgt: [3.8, 2.8, -0.5], fov: 28, focus: [3.8, 3.4, -0.5], ap: 0.0035, plate: 62, push: 0.07 },
+  two_shot:     { cam: [6.6, 3.6, 3.4], tgt: [0.6, 2.8, -2.4], fov: 34, focus: [0.5, 3.1, -2.3], ap: 0.003, plate: 66, push: 0.04 }, // over Kiran's shoulder
+  phone:        { cam: [-4.1, 3.3, 1.2], tgt: [3.8, 2.75, -0.5], fov: 26, focus: [0, 0, 0], ap: 0.03, plate: 62, push: 0.03 },
+  ui:           { cam: [-1.85, 2.15, 6.2], tgt: [-1.6, 1.85, -0.25], fov: 26, focus: [0, 0, 0], ap: 0.03, plate: 62, push: 0.03 },
+  avni_enter:   { cam: [-0.8, 2.3, 6.6], tgt: [-0.8, 1.95, -0.25], fov: 30, focus: [-1.2, 1.9, -0.1], ap: 0.003, plate: 62, push: 0.03 },
+  avni_cu: { cam: [-1.85, 2.15, 6.2], tgt: [-1.6, 1.85, -0.25], fov: 26, focus: [-1.6, 1.8, 0.2], ap: 0.004, plate: 62, push: 0.06 },
+  avni_cu_slow: { cam: [-1.85, 2.15, 6.2], tgt: [-1.6, 1.85, -0.25], fov: 26, focus: [-1.6, 1.8, 0.2], ap: 0.004, plate: 62, push: 0.14 },
+  avni_doc:     { cam: [-0.1, 2.2, 5.8], tgt: [-1.6, 2.0, -0.6], fov: 28, focus: [-1.6, 1.8, 0.0], ap: 0.003, plate: 62, push: 0.05 },
+  avni_cam:     { cam: [-1.6, 2.1, 6.0], tgt: [-1.6, 2.0, -0.25], fov: 26, focus: [-1.6, 1.8, 0.2], ap: 0.004, plate: 62, push: 0.06 },
+};
+
+// timeline -> shot spans (consecutive events with the same shot are merged into one camera move)
+const EV = TL.events.map((e) => ({ ...e, shot: e.kind === 'line' ? TL.lines[e.line].shot : e.shot }));
+const spans = [];
+for (let i = 0; i < EV.length; i++) {
+  const e = EV[i], next = EV[i + 1];
+  const end = next ? next.start : TL.endCardStart;
+  const last = spans[spans.length - 1];
+  if (last && last.shot === e.shot && e.kind === 'line' && last.kind === 'line') last.end = end;
+  else spans.push({ shot: e.shot, start: e.start, end, kind: e.kind });
+}
+function eventAt(t) { let cur = EV[0]; for (const e of EV) if (e.start <= t) cur = e; return cur; }
+function spanAt(t) { let cur = spans[0]; for (const s of spans) if (s.start <= t) cur = s; return cur; }
+const lineStart = (i) => EV.find((e) => e.kind === 'line' && e.line === i);
+const activeLine = (t) => EV.find((e) => e.kind === 'line' && e.start <= t && t < e.end);
+// active "acts" for a line stay on until the next line by another speaker starts
+function actsAt(t) {
+  const e = eventAt(t); const L = TL.lines[e.line];
+  return new Set(L && e ? (L.act || []) : []);
+}
+
+// ---------------- acting helpers ----------------
+function blink(t, seed) { const p = 2.6 + seed * 1.3, ph = (t + seed * 0.77) % p; return ph < 0.1 ? Math.sin(ph / 0.1 * Math.PI) : 0; }
+function setEyes(ch, open) { for (const n of ['eyeL', 'eyeR']) ch.getObjectByName(n).scale.y = Math.max(0.08, open); }
+function idle(ch, t, seed) {
+  const head = ch.getObjectByName('head'), torso = ch.getObjectByName('torso');
+  torso.scale.set(1, 1 + 0.012 * Math.sin(t * 1.6 + seed), 1);
+  head.rotation.set(0.02 * Math.sin(t * 0.9 + seed), 0.05 * Math.sin(t * 0.5 + seed * 2), 0.025 * Math.sin(t * 0.7 + seed));
+  ch.getObjectByName('armL').rotation.set(0, 0, 0.12 + 0.02 * Math.sin(t * 1.3 + seed));
+  ch.getObjectByName('armR').rotation.set(0, 0, -0.12 - 0.02 * Math.sin(t * 1.3 + seed));
+  setEyes(ch, 1 - blink(t, seed));
+}
+
+function pose(t, frame) {
+  const e = eventAt(t), acts = actsAt(t), lineIdx = e.line;
+  const amp = TL.amp[frame] || 0;
+  const speaking = activeLine(t);
+  const who = speaking ? TL.lines[speaking.line].who : null;
+
+  // ---- Kiran ----
+  idle(kiran, t, 0.3);
+  kiran.position.copy(KIRAN_SEAT); kiran.rotation.set(0, KIRAN_RY, 0);
+  const walk = EV[0].kind === 'line' && TL.lines[0].shot === 'walk_in' ? EV[0] : null;
+  if (walk && t < walk.end + 0.1) {
+    const u = ease((t - walk.start) / Math.max(0.6, (walk.end - walk.start) * 0.9));
+    kiran.position.set(lerp(5.6, KIRAN_SEAT.x, u), lerp(0, KIRAN_SEAT.y, u) + 0.08 * Math.abs(Math.sin(t * 9)) * (1 - u), lerp(1.4, KIRAN_SEAT.z, u));
+    kiran.rotation.y = lerp(-Math.PI / 2, KIRAN_RY, u);
+  }
+  K('mouth').scale.set(1, who === 'kiran' ? 1 + 5.5 * amp : 1, 1);
+  if (who === 'kiran') K('head').rotation.x += 0.05 * amp;
+  phone.visible = false;
+  if (acts.has('holdHead')) { const a = K('armR'); a.rotation.set(-0.35, 0, 2.45); K('head').rotation.z += 0.08; }
+  if (acts.has('cry')) { setEyes(kiran, 0.18); K('head').rotation.z += 0.05 * Math.sin(t * 14); }
+  const phoneLine = (i) => ['phone'].includes(TL.lines[i].shot) || (TL.lines[i].act || []).includes('phoneUp');
+  // Kiran keeps the phone up from the first phone line until he answers "Meeru?" (doctor takes over with files)
+  const firstPhone = TL.lines.findIndex((L) => L.shot === 'phone');
+  const lastPhone = TL.lines.findIndex((L) => (L.act || []).includes('phoneUp'));
+  if (lineIdx >= firstPhone && lineIdx <= lastPhone) {
+    K('armR').rotation.set(-1.15, -0.5, 0.55); phone.visible = true;
+    K('head').rotation.x += 0.12; // looking down at the phone
+  }
+  if (acts.has('lookAround')) K('head').rotation.y += 0.55 * Math.sin((t - e.start) * 3.2);
+  if (acts.has('pointDoctor')) K('armL').rotation.set(-1.45, 0.25, 0.25);
+  if (acts.has('lookCam')) { kiran.rotation.y = -0.95; K('head').rotation.y += 0.1; }
+  const away = TL.lines.findIndex((L) => (L.act || []).includes('phoneAway'));
+  if (lineIdx === away) { const ls = lineStart(away); const u = ease((t - ls.start) / 0.6); K('armR').rotation.set(lerp(-1.15, 0, u), lerp(-0.5, 0, u), lerp(0.55, -0.12, u)); phone.visible = u < 1; }
+
+  // ---- Doctor ----
+  idle(doctor, t, 1.7);
+  doctor.position.set(0.4, -0.2, -2.6); doctor.rotation.set(0, 0, 0);
+  D('mouth').scale.set(1.1, who === 'doctor' ? 1 + 5 * amp : 1, 1);
+  if (who === 'doctor') D('head').rotation.x += 0.05 * amp;
+  if (acts.has('leanToPhone')) { D('head').rotation.y += 0.45; D('head').rotation.z += 0.08; doctor.position.x += 0.15; }
+  const filesFrom = TL.lines.findIndex((L) => (L.act || []).includes('filesOpen'));
+  const filesTo = TL.lines.findIndex((L, i) => i > filesFrom && (L.act || []).includes('filesFlip') && L.shot === 'two_shot');
+  const flipping = lineIdx >= filesFrom && lineIdx <= filesTo;
+  fileTops.forEach((f, k) => { f.position.copy(fileRest[k].p); f.rotation.copy(fileRest[k].r); });
+  if (flipping) {
+    D('armL').rotation.set(-1.2, 0, 0.35); D('armR').rotation.set(-1.2, 0, -0.35);
+    D('head').rotation.x += 0.28; D('head').rotation.y += 0.25;
+    fileTops.forEach((f, k) => { const ph = ((t * 1.6 + k * 0.35) % 1); f.position.y = fileRest[k].p.y + 0.25 * Math.sin(ph * Math.PI) * (k === 3 ? 1 : 0.4); f.rotation.x = -1.4 * Math.sin(ph * Math.PI) * (k === 3 ? 1 : 0.2); });
+  }
+  const sp = spanAt(t);
+  if (sp.shot === 'doctor_smile') { const u = ease((t - sp.start) / 0.3); D('mouth').scale.set(1.1 + 0.5 * u, 1.6, 1); D('head').rotation.z += 0.06 * u; D('head').rotation.x -= 0.05 * Math.abs(Math.sin(t * 10)) * u; }
+
+  // ---- Avni ----
+  const enter = EV.find((x) => x.shot === 'avni_enter');
+  avni.visible = !!enter && t >= enter.start;
+  avni.position.copy(AVNI_SPOT); avni.rotation.set(0, 0.1, 0);
+  const body = avni.getObjectByName('body');
+  body.position.y = 0.92 + 0.02 * Math.sin(t * 2.2); body.scale.set(1, 1, 1);
+  const L = lineIdx !== undefined ? TL.lines[lineIdx] : null;
+  // eyes: last line that set avniEyes up to now
+  let eyes = 'neutral';
+  for (let i = 0; i <= lineIdx; i++) if (TL.lines[i].avniEyes) eyes = TL.lines[i].avniEyes;
+  avni.setEyes(eyes);
+  if (blink(t, 2.9) > 0.5 && eyes !== 'happy') avni.setEyes('closed');
+  if (enter && t >= enter.start && t < enter.end + 0.2) {
+    const u = clamp01((t - enter.start) / (enter.end - enter.start));
+    avni.position.x = lerp(1.0, AVNI_SPOT.x, ease(u));
+    avni.position.y = AVNI_SPOT.y + 0.45 * Math.abs(Math.sin(u * Math.PI * 3)) * (1 - u * 0.3);
+    avni.setEyes('happy');
+  }
+  if (who === 'avni') { body.scale.set(1 - 0.03 * amp, 1 + 0.07 * amp, 1 - 0.03 * amp); body.position.y += 0.04 * amp; }
+  if (acts.has('lookBetween')) avni.rotation.y = 0.1 + 0.6 * Math.sin((t - e.start) * 6);
+  if (acts.has('hop')) { const u = (t - e.start) * 3; avni.position.y += 0.3 * Math.abs(Math.sin(u * Math.PI)) * (u < 2 ? 1 : 0); }
+  if (sp.shot === 'avni_doc') avni.rotation.y = -0.7;
+  if (sp.shot === 'avni_cam') avni.rotation.y = 0;
+}
+
+// ---------------- overlays ----------------
+const ov = document.getElementById('ov');
+const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const TILES = ['😂', '💍', '🍛', '📸', '🐶', '😂', '🧾', '🎂', '🏏', '🤳', '😂', '📄', '🌅', '💍', '🎬', '🐱', '😂', '🍕', '🏖️', '😎', '📱', '🎉', '😂', '🌸'];
+function gallery(t, kind) {
+  const shift = -((t * 900) % 1400);
+  const tiles = kind === 'screenshots' ? TILES.map((e, i) => (i % 3 === 1 ? '🧾' : i % 4 === 0 ? '💬' : e)) : TILES;
+  const html = tiles.concat(tiles).map((e, i) => `<div style="background:hsl(${(i * 47) % 360},55%,${82 - (i % 3) * 7}%)">${e}</div>`).join('');
+  return `<div class="bar" style="padding-top:60px">${kind === 'screenshots' ? 'Screenshots' : 'Gallery'}<div class="tag">4,812 ITEMS</div></div><div class="gal" style="top:${190 + shift}px">${html}</div>`;
+}
+function chats(t) {
+  const names = [['Family 👨‍👩‍👧', 'Amma: Bhojanam chesava?'], ['College Gang', 'Kiran: 😂😂😂'], ['Cousin Wedding', '1,203 photos'], ['Office', 'Meeting at 5'], ['Ravi', 'meme pampa chudu'], ['Lab Reports?', 'Photo'], ['Cricket Club', 'Sunday match!'], ['Memes Only', '😂'], ['Neighbours', 'Water cut tomorrow'], ['Amma', 'Voice message']];
+  const shift = -((t * 260) % 500);
+  const rows = names.concat(names).map(([n, m], i) => `<div class="chat"><div class="av" style="background:hsl(${i * 53 % 360},50%,85%)">${['👩', '🎓', '💍', '💼', '🙂', '🧾', '🏏', '😂', '🏠', '👩'][i % 10]}</div><div><div class="cn">${n}</div><div class="cm">${m}</div></div></div>`).join('');
+  return `<div class="bar" style="background:#1f8a5b;color:#fff;padding-bottom:24px">Chats</div><div style="position:absolute;left:0;right:0;top:${150 + shift}px">${rows}</div>`;
+}
+function web(active, body) {
+  const nav = ['Overview', 'Patients', 'Activity log', 'My account'].map((n) => `<div class="${n === active ? 'on' : ''}">${n}</div>`).join('');
+  return `<div class="web"><div class="wtop"><i></i><i></i><i></i></div><div class="wbody"><div class="side"><div class="logo">❤︎ avni</div><div class="tag" style="padding-left:4px">HEALTH ERP</div><div class="nav">${nav}</div></div><div class="main">${body}</div></div></div>`;
+}
+const UI = {
+  gallery: (t) => `<div class="phone"><div class="screen">${gallery(t, 'gallery')}</div></div>`,
+  screenshots: (t) => `<div class="phone"><div class="screen">${gallery(t + 3, 'screenshots')}</div></div>`,
+  chats: (t) => `<div class="phone"><div class="screen">${chats(t)}</div></div>`,
+  overview: () => web('Overview', `<div class="tag">HOSPITAL WORKSPACE</div><div class="h1">A better day of care.</div><div class="sub">A clear view of your hospital, so you can focus on people.</div>
+    <div class="hero">Good care begins with a warm welcome.</div><div class="stat"><b>3</b><span>Registered patients</span></div><div class="stat"><b>4</b><span>Active team members</span></div>`),
+  directory: (t) => web('Patients', `<div class="h1">Your patients.</div><div class="sub">Register and find patients within your hospital.</div>
+    <div class="search">🔍 ${'Sara'.slice(0, Math.min(4, Math.floor(((t * 3) % 6))))}<span style="color:#16a37b">|</span></div>
+    ${[['S', 'Sara Kumar', 'DEMO-001'], ['R', 'Ravi Sharma', 'DEMO-002'], ['A', 'Ananya Rao', 'DEMO-003']].map(([i, n, id], k) => `<div class="row" style="${k === 0 ? 'background:#effaf5;border-radius:12px' : ''}"><div class="ini">${i}</div>${n}<span class="id">${id}</span></div>`).join('')}`),
+  roles: () => web('My account', `<div class="h1">Access by role.</div><div class="sub">Each person sees only what their job needs.</div>
+    ${[['🏥', 'Hospital admin', 'Patients, overview, activity'], ['🗂️', 'Front desk', 'Registration & directory'], ['🩺', 'Doctor', 'Clinical workspace'], ['💉', 'Nurse', 'Nursing workspace']].map(([i, n, s]) => `<div class="role"><i>${i}</i><div>${n}<small>${s}</small></div></div>`).join('')}`),
+  activity: () => web('Activity log', `<div class="h1">Every action, accounted for.</div><div class="sub">A record of authorized access and patient registrations.</div>
+    ${[['Sign in', 'Hospital workspace', '09:29'], ['Patient registered', 'DEMO-003 · Front desk', '09:41'], ['Record viewed', 'DEMO-001 · Doctor', '10:02'], ['Sign in', 'Nurse workspace', '10:15']].map(([a, b, c]) => `<div class="ev"><span class="dot"></span><b>${a}</b>&nbsp;<span style="color:#7a8a85">${b}</span><span class="tm">${c}</span></div>`).join('')}`),
+  patient: () => `<div class="phone"><div class="screen"><div class="bar"><span class="tag">YOUR HEALTH, ORGANIZED</span><br>My medical reports</div>
+    <div class="pcard"><div class="pic">🩸</div><div><div class="t2">Laboratory</div><div class="t1">Blood test report</div></div></div>
+    <div class="pcard"><div class="pic">🩺</div><div><div class="t2">Consultation</div><div class="t1">Consultation summary</div></div></div>
+    <div class="pcard"><div class="pic">💊</div><div><div class="t2">Prescription</div><div class="t1">Prescription</div></div></div>
+    <div class="bar" style="padding-top:26px"><span class="tag">A FAMILIAR FACE</span><br>Doctors you've consulted</div>
+    <div class="pcard"><div class="pic">👩‍⚕️</div><div><div class="t1">Dr. Asha Rao</div><div class="t2">Cardiology · Book again</div></div></div></div></div>`,
+};
+const CARDS = {
+  tagline: () => `<div class="card tagline"><div class="brand">❤︎ avni<small>HEALTH ERP</small></div><div class="tl">Less complexity.<br>More connected care.</div></div>`,
+  trust: () => `<div class="card chips"><span>Role-based access</span><span>Hospital-specific access</span><span>Activity logs</span></div>`,
+  demo: () => `<div class="card demo">Try the AVNI demo</div>`,
+  comment: () => `<div class="card cmt"><div class="h">COMMENT</div><div class="k">AVNI</div><div class="s">for the demo link 📩</div></div>`,
+};
+function overlay(t) {
+  if (t >= TL.endCardStart) return `<div class="end"><div class="b">❤︎ avni</div><div class="e">HEALTH ERP</div><div class="t">Less complexity.<br>More connected care.</div><div class="c">Comment AVNI for the demo link</div></div>`;
+  const e = eventAt(t); let html = '';
+  const L = TL.lines[e.line];
+  const sp = spanAt(t);
+  if (e.kind === 'line' || e.kind === 'beat') {
+    if (L.ui && e.kind === 'line') html += UI[L.ui](t - e.start);
+    if (L.card && e.kind === 'line') html += CARDS[L.card]();
+  }
+  // caption: the chunk being spoken (held through the short gap after it)
+  const cur = EV.filter((x) => x.kind === 'line' && x.start <= t).pop();
+  if (cur && t < cur.end + 0.25) {
+    const c = cur.captions.filter((c) => c.start <= t).pop() || cur.captions[0];
+    html += `<div class="pill">${esc(c.text)}</div>`;
+  }
+  return html;
+}
+
+// ---------------- frame ----------------
+const tmpPos = new THREE.Vector3(), tmpTgt = new THREE.Vector3();
+window.renderFrame = (frame) => {
+  const t = frame / FPS;
+  pose(t, frame);
+  const sp = spanAt(Math.min(t, TL.endCardStart - 0.001));
+  const S = SHOTS[sp.shot] || SHOTS.wide;
+  const u = clamp01((t - sp.start) / Math.max(0.1, sp.end - sp.start));
+  tmpTgt.copy(V(S.tgt)); tmpPos.copy(V(S.cam)).lerp(tmpTgt, S.push * ease(u));
+  camera.fov = S.fov; camera.updateProjectionMatrix();
+  camera.position.copy(tmpPos); camera.lookAt(tmpTgt);
+  bokeh.uniforms.focus.value = camera.position.distanceTo(V(S.focus));
+  bokeh.uniforms.aperture.value = S.ap;
+  bgCam.fov = S.plate; bgCam.updateProjectionMatrix(); bgCam.quaternion.copy(camera.quaternion);
+  renderer.setRenderTarget(plate); renderer.render(bgScene, bgCam); renderer.setRenderTarget(null);
+  grade.uniforms.uTime.value = frame * 0.37;
+  composer.render();
+  ov.innerHTML = overlay(t);
+  return true;
+};
+window.renderShot = (id) => window.renderFrame(+id);
+await document.fonts.load('700 50px Poppins');
+window.ready = true;
+window.TOTAL_FRAMES = TL.frames;
+</script>
+</body>
+</html>
