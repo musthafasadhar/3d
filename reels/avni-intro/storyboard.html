@@ -1,0 +1,187 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@600;800&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000;font-family:'Noto Sans Telugu','Poppins',sans-serif}
+  canvas{position:absolute;inset:0}
+  .ov{position:absolute;inset:0;pointer-events:none}
+  .pill{position:absolute;left:0;right:0;margin:0 auto;width:fit-content;top:200px;max-width:860px;text-align:center;
+    background:rgba(40,22,48,.78);color:#fff;font-weight:800;font-size:50px;line-height:1.35;padding:22px 40px;border-radius:26px}
+  .phone{position:absolute;left:50%;top:520px;transform:translateX(-50%) rotate(-3deg);width:560px;height:1130px;border-radius:70px;
+    background:#0e0e12;padding:22px;box-shadow:0 40px 90px rgba(0,0,0,.45)}
+  .screen{width:100%;height:100%;border-radius:52px;overflow:hidden;background:#fff;font-family:'Poppins','Noto Sans Telugu',sans-serif}
+  .gal{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:90px 6px 6px}
+  .gal div{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:58px;border-radius:6px}
+  .bar{padding:70px 34px 10px;font-weight:800;font-size:34px;color:#103b2e}
+  .card{margin:16px 26px;padding:24px;border-radius:24px;border:2px solid #d8eee6;display:flex;gap:18px;align-items:center}
+  .ic{width:64px;height:64px;border-radius:18px;background:#e3f6ef;display:flex;align-items:center;justify-content:center;font-size:34px}
+  .t1{font-size:26px;font-weight:800;color:#103b2e}.t2{font-size:20px;color:#5f7d72;font-weight:600}
+  .tag{font-size:18px;color:#16a37b;font-weight:800;letter-spacing:2px}
+  .cta{position:absolute;left:50%;top:180px;transform:translateX(-50%);width:820px;text-align:center;background:#0d1d18;border-radius:36px;padding:34px 0 40px;
+    box-shadow:0 30px 70px rgba(0,0,0,.35)}
+  .cta .k{display:inline-block;background:#16a37b;color:#fff;font-family:Poppins;font-weight:800;font-size:110px;padding:0 50px;border-radius:26px;margin:10px 0}
+  .cta .s{color:#cfe9df;font-size:38px;font-weight:600}
+  .cta .h{color:#fff;font-family:Poppins;font-weight:800;font-size:44px;letter-spacing:4px}
+</style>
+<script type="importmap">{ "imports": { "three": "/characters/node_modules/three/build/three.module.js" } }</script>
+</head>
+<body>
+<div class="ov" id="ov"></div>
+<script type="module">
+import * as THREE from 'three';
+import { createHostMale } from '/characters/host-male/character.js';
+import { createAvniBuddy } from '/characters/avni-buddy/character.js';
+
+const W = 1080, H = 1920;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H); renderer.setPixelRatio(1);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.prepend(renderer.domElement);
+
+// ---------- Painted, pre-blurred hospital waiting room (fake depth of field) ----------
+function waitingRoom() {
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  const wall = g.createLinearGradient(0, 0, 0, H);
+  wall.addColorStop(0, '#cfeee3'); wall.addColorStop(0.55, '#a9dccb'); wall.addColorStop(1, '#6fb8a0');
+  g.fillStyle = wall; g.fillRect(0, 0, W, H);
+  // window with daylight
+  g.fillStyle = '#fbfff4'; g.fillRect(640, 120, 520, 900);
+  g.fillStyle = '#e2f6ff'; g.fillRect(660, 140, 480, 860);
+  g.fillStyle = '#2f6e5c'; g.fillRect(890, 120, 26, 900); g.fillRect(640, 560, 520, 22);
+  // teal stripe
+  g.fillStyle = '#16a37b'; g.fillRect(0, 1040, W, 50);
+  // token display board
+  g.fillStyle = '#111'; g.fillRect(70, 260, 420, 210);
+  g.fillStyle = '#ff4a3d'; g.font = 'bold 86px monospace'; g.fillText('TOKEN 23', 92, 400);
+  // green cross sign
+  g.fillStyle = '#16a37b'; g.fillRect(250, 640, 60, 180); g.fillRect(190, 700, 180, 60);
+  // chairs row
+  g.fillStyle = '#1f7f66';
+  for (let i = 0; i < 6; i++) { g.beginPath(); g.roundRect(i * 190 - 30, 1180, 160, 170, 30); g.fill(); g.fillRect(i * 190 + 40, 1350, 18, 160); }
+  // plant
+  g.fillStyle = '#2d8a3e'; g.beginPath(); g.ellipse(980, 1150, 110, 200, 0, 0, Math.PI * 2); g.fill();
+  // bokeh
+  for (const [x, y, r, col] of [[740, 260, 46, '#ffffff'], [1000, 380, 34, '#fff8d6'], [820, 760, 52, '#ffffff'], [120, 980, 30, '#d7fff0'], [560, 180, 26, '#ffffff']]) {
+    g.globalAlpha = 0.55; g.fillStyle = col; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+  }
+  g.globalAlpha = 1;
+  const b = document.createElement('canvas'); b.width = W; b.height = H;
+  const bg = b.getContext('2d'); bg.filter = 'blur(22px)'; bg.drawImage(c, 0, 0);
+  const t = new THREE.CanvasTexture(b); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+
+const scene = new THREE.Scene();
+scene.background = waitingRoom();
+const camera = new THREE.PerspectiveCamera(34, W / H, 0.1, 100);
+
+scene.add(new THREE.HemisphereLight(0xf4fffb, 0x5f8f80, 1.5));
+const sun = new THREE.DirectionalLight(0xfff3e2, 2.2); sun.position.set(5, 7, 6); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -5, right: 5, top: 6, bottom: -2 });
+scene.add(sun);
+const rim = new THREE.DirectionalLight(0xbaf5e0, 1.4); rim.position.set(-5, 5, -5); scene.add(rim);
+const phoneGlow = new THREE.PointLight(0xdfefff, 0, 3, 2); scene.add(phoneGlow);
+
+const kiran = createHostMale(); scene.add(kiran);
+const avni = createAvniBuddy(); scene.add(avni);
+// phone in Kiran's right hand (character's right = -x)
+const armR = kiran.getObjectByName('armR');
+const phone = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.78, 0.05), new THREE.MeshStandardMaterial({ color: 0x101016, roughness: 0.85 }));
+phone.position.set(0.0, -1.25, 0.12); phone.rotation.set(1.0, 0.3, 0.1); armR.add(phone);
+// reception counter (Avni stands on it in wide shots)
+const counter = new THREE.Group();
+const top = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.12, 1.4), new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: 0.6 }));
+top.position.y = 1.9; const front = new THREE.Mesh(new THREE.BoxGeometry(2.3, 1.85, 1.3), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 }));
+front.position.y = 0.93; const stripe = new THREE.Mesh(new THREE.BoxGeometry(2.32, 0.18, 1.32), new THREE.MeshStandardMaterial({ color: 0x16a37b }));
+stripe.position.y = 1.4; counter.add(top, front, stripe); counter.traverse(o => { if (o.isMesh) { o.castShadow = o.receiveShadow = true; } });
+scene.add(counter);
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshStandardMaterial({ color: 0xd9ece5, roughness: 1 }));
+floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+
+const ov = document.getElementById('ov');
+const pill = (t) => `<div class="pill">${t}</div>`;
+const SCREENS = {
+  gallery: `<div class="gal">${['😂', '💍', '🍛', '📸', '🐶', '😂', '🧾', '🎂', '🏏', '🤳', '😂', '📄', '🌅', '💍', '🎬'].map((e, i) =>
+    `<div style="background:hsl(${i * 47 % 360},55%,${82 - (i % 3) * 8}%)">${e}</div>`).join('')}</div>`,
+  reports: `<div class="bar"><span class="tag">YOUR HEALTH, ORGANIZED</span><br>My medical reports</div>
+    <div class="card"><div class="ic">🩸</div><div><div class="t2">Laboratory</div><div class="t1">Blood test report</div><div class="t2">12 Oct 2026</div></div></div>
+    <div class="card"><div class="ic">🩺</div><div><div class="t2">Consultation</div><div class="t1">Consultation summary</div><div class="t2">05 Oct 2026</div></div></div>
+    <div class="card"><div class="ic">💊</div><div><div class="t2">Prescription</div><div class="t1">Prescription</div><div class="t2">05 Oct 2026</div></div></div>
+    <div class="bar" style="padding-top:30px"><span class="tag">A FAMILIAR FACE</span><br>Doctors you've consulted</div>
+    <div class="card"><div class="ic">👩‍⚕️</div><div><div class="t1">Dr. Asha Rao</div><div class="t2">Cardiology · Green Valley Hospital</div></div></div>`,
+};
+const phoneUI = (k) => `<div class="phone"><div class="screen">${SCREENS[k]}</div></div>`;
+
+function cam(px, py, pz, tx, ty, tz, fov = 34) {
+  camera.fov = fov; camera.updateProjectionMatrix();
+  camera.position.set(px, py, pz); camera.lookAt(tx, ty, tz);
+}
+function poseHoldPhone(on) {
+  armR.rotation.set(on ? -1.15 : 0, on ? -0.5 : 0, on ? 0.55 : -0.12);
+  phone.visible = on; phoneGlow.intensity = on ? 2.5 : 0;
+  if (on) phoneGlow.position.set(-0.3, 2.6, 1.2);
+}
+
+window.renderShot = (id) => {
+  kiran.visible = avni.visible = counter.visible = floor.visible = true;
+  kiran.position.set(0, 0, 0); kiran.rotation.set(0, 0, 0);
+  avni.position.set(0, 0, 0); avni.rotation.set(0, 0, 0); avni.scale.setScalar(1);
+  avni.setEyes('neutral'); poseHoldPhone(false);
+  kiran.getObjectByName('head').rotation.set(0, 0, 0);
+  kiran.getObjectByName('mouth').scale.y = 1;
+  let html = '';
+  switch (id) {
+    case 'hook': // 0-3s Kiran CU, phone, panic
+      counter.visible = avni.visible = false; poseHoldPhone(true);
+      kiran.getObjectByName('head').rotation.set(0.18, 0.12, 0.04);
+      kiran.getObjectByName('mouth').scale.y = 2.6;
+      cam(0.4, 2.9, 8.2, 0, 2.55, 0);
+      html = pill('డాక్టర్ గారు last report అడిగారు…<br>నా gallery లో 4,000 photos ఉన్నాయి 😰');
+      break;
+    case 'gallery': // 3-6.5s phone insert
+      counter.visible = avni.visible = false; poseHoldPhone(true);
+      cam(0.4, 2.9, 8.2, 0, 2.55, 0);
+      html = pill('ఇది meme… ఇది cousin పెళ్లి…<br>ఇది ఎందుకు screenshot తీశాను?!') + phoneUI('gallery');
+      break;
+    case 'avni_pop': // 8-10s Avni appears on the counter
+      kiran.visible = false; floor.visible = false;
+      avni.position.set(0, 1.96, 0.1); avni.setEyes('wide');
+      avni.scale.set(1.08, 0.92, 1.08);
+      cam(0, 2.9, 6.2, 0, 2.6, 0, 36);
+      html = pill('Bro. నేను ఉన్నా కదా.');
+      break;
+    case 'reports': // 14.5-18.5s reports insert
+      counter.visible = avni.visible = false; poseHoldPhone(true);
+      cam(0.4, 2.9, 8.2, 0, 2.55, 0);
+      html = pill('అదే! Blood test report!') + phoneUI('reports');
+      break;
+    case 'avni_sad': // 36-39s honesty twist
+      kiran.visible = false; floor.visible = false;
+      avni.position.set(0, 1.96, 0.1); avni.setEyes('sad'); avni.rotation.set(0.12, -0.15, 0);
+      cam(0.3, 2.75, 5.4, 0, 2.55, 0, 36);
+      html = pill('…అది ఇంకా build చేస్తున్నాం.');
+      break;
+    case 'cta': // 48-52s wide, CTA card
+      kiran.position.set(-0.95, 0, 0.6); kiran.rotation.y = 0.25;
+      counter.position.set(1.0, 0, -0.3); avni.position.set(0.9, 1.96, -0.2); avni.setEyes('happy');
+      armR.rotation.set(0, 0, -0.12);
+      kiran.getObjectByName('armL').rotation.set(0, 0, 2.6); // wave
+      cam(0, 3.2, 12.5, 0, 3.7, 0, 34);
+      html = `<div class="cta"><div class="h">COMMENT</div><div class="k">AVNI</div><div class="s">Demo link DM లో వస్తుంది 📩</div></div>`;
+      break;
+  }
+  if (id !== 'cta') kiran.getObjectByName('armL').rotation.set(0, 0, 0.12);
+  ov.innerHTML = html;
+  renderer.render(scene, camera);
+  return true;
+};
+await document.fonts.load('800 50px "Noto Sans Telugu"');
+await document.fonts.load('800 50px Poppins');
+window.ready = true;
+</script>
+</body>
+</html>
