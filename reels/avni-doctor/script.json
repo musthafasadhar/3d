@@ -1,65 +1,386 @@
 {
-  "title": "Avni Health ERP - doctor's cabin",
-  "voices": {
-    "kiran":  { "voice": "te-IN-MohanNeural",  "rate": "+22%", "pitch": "+6Hz" },
-    "doctor": { "voice": "te-IN-MohanNeural",  "rate": "+12%", "pitch": "-16Hz" },
-    "avni":   { "voice": "te-IN-ShrutiNeural", "rate": "+20%", "pitch": "+28Hz" }
+ "title": "Avni Health ERP - doctor's cabin",
+ "voices": {
+  "kiran": {
+   "voice": "te-IN-MohanNeural",
+   "rate": "+22%",
+   "pitch": "+6Hz"
   },
-  "lines": [
-    { "who": "kiran",  "cap": "Doctor… naa headache asalu taggatledu.", "te": "డాక్టర్… నా headache అసలు తగ్గట్లేదు.", "shot": "walk_in", "act": ["holdHead"] },
-    { "who": "doctor", "cap": "Okay, Kiran. Last time kuda ide problem ki vachav kada?", "te": "Okay, కిరణ్. Last time కూడా ఇదే problem కి వచ్చావ్ కదా?", "shot": "doctor_cu" },
-    { "who": "kiran",  "cap": "Haa doctor.", "te": "హా డాక్టర్.", "shot": "kiran_cu" },
-    { "who": "doctor", "cap": "Last time reports unnayi kada… okasari chupinchu.", "te": "Last time reports ఉన్నాయి కదా… ఒకసారి చూపించు.", "shot": "doctor_cu" },
-    { "who": "doctor", "cap": "…Em ayyindi?", "te": "ఏం అయ్యింది?", "shot": "doctor_cu", "pre": 0.45, "preShot": "kiran_cu" },
-    { "who": "kiran",  "cap": "Doctor… report undhi.", "te": "డాక్టర్… report ఉంది.", "shot": "kiran_cu" },
-    { "who": "doctor", "cap": "Good.", "te": "Good.", "shot": "doctor_cu" },
-    { "who": "kiran",  "cap": "Kaani… ekkada undo teliyadu. 😭", "te": "కానీ… ఎక్కడ ఉందో తెలియదు.", "shot": "kiran_cu", "act": ["cry"] },
-
-    { "who": "kiran",  "cap": "Gallery lo untundhi anukunta…", "te": "Gallery లో ఉంటుంది అనుకుంటా…", "shot": "phone", "ui": "gallery" },
-    { "who": "doctor", "cap": "Gallery lo?", "te": "Gallery లో?", "shot": "doctor_cu", "act": ["leanToPhone"] },
-    { "who": "kiran",  "cap": "Maybe screenshots…", "te": "Maybe screenshots…", "shot": "phone", "ui": "screenshots" },
-    { "who": "kiran",  "cap": "WhatsApp lo untundhi emo…", "te": "WhatsApp లో ఉంటుందేమో…", "shot": "phone", "ui": "chats" },
-    { "who": "doctor", "cap": "Report kosam vachava… phone clean cheyyadaniki vachava? 😐", "te": "Report కోసం వచ్చావా… phone clean చెయ్యడానికి వచ్చావా?", "shot": "doctor_cu" },
-    { "who": "kiran",  "cap": "Doctor, memes madhyalo report undhi… dorikithe cheptha. 😭", "te": "డాక్టర్, memes మధ్యలో report ఉంది… దొరికితే చెప్తా.", "shot": "kiran_cu", "act": ["phoneUp", "cry"] },
-
-    { "who": "doctor", "cap": "Sare… nuvvu akkada search cheyyi.", "te": "సరే… నువ్వు అక్కడ search చెయ్యి.", "shot": "wide", "act": ["filesOpen"] },
-    { "who": "kiran",  "cap": "Meeru?", "te": "మీరు?", "shot": "kiran_cu" },
-    { "who": "doctor", "cap": "Nenu naa records lo search chestha.", "te": "నేను నా records లో search చేస్తా.", "shot": "doctor_files", "act": ["filesFlip"] },
-    { "who": "kiran",  "cap": "Okay… report yekkada undhi…", "te": "Okay… report ఎక్కడ ఉంది…", "shot": "kiran_cu", "act": ["lookAround"] },
-    { "who": "kiran",  "cap": "Ippudu veedi okkadi kosam ivi anni tirageyali…", "te": "ఇప్పుడు వీడి ఒక్కడి కోసం ఇవి అన్నీ తిరగేయాలి…", "shot": "two_shot", "act": ["pointDoctor", "filesFlip"] },
-    { "who": "kiran",  "cap": "Dorakaledhu doctor, ippudu em chedham antaru? 😐", "te": "దొరకలేదు డాక్టర్, ఇప్పుడు ఏం చేద్దాం అంటారు?", "shot": "kiran_cam", "act": ["lookCam"] },
-
-    { "who": "kiran",  "cap": "Enduku aa musi musi navvulu?", "te": "ఎందుకు ఆ ముసి ముసి నవ్వులు?", "shot": "kiran_cu", "pre": 1.1, "preShot": "avni_enter", "avniEyes": "happy" },
-    { "who": "avni",   "cap": "Idi hospital la ledhu… Lost and Found office la undhi. 👀", "te": "ఇది hospital లా లేదు… Lost and Found office లా ఉంది.", "shot": "avni_cu", "avniEyes": "happy" },
-    { "who": "doctor", "cap": "Patient old report dorakatledu.", "te": "Patient old report దొరకట్లేదు.", "shot": "doctor_cu" },
-    { "who": "kiran",  "cap": "Naa phone lo kuda kanipinchatledu.", "te": "నా phone లో కూడా కనిపించట్లేదు.", "shot": "kiran_cu" },
-    { "who": "avni",   "cap": "Exactly.", "te": "Exactly.", "shot": "avni_cu", "act": ["lookBetween"], "avniEyes": "sus" },
-
-    { "who": "avni",   "cap": "Idhi just mee iddari problem anukuntunnara?", "te": "ఇది just మీ ఇద్దరి problem అనుకుంటున్నారా?", "shot": "avni_cu", "avniEyes": "neutral" },
-    { "who": "kiran",  "cap": "Kaadha?", "te": "కాదా?", "shot": "kiran_cu" },
-    { "who": "avni",   "cap": "Prathi roju entho mandi patients reports kosam search chestharu.", "te": "ప్రతి రోజు ఎంతో మంది patients reports కోసం search చేస్తారు.", "shot": "avni_cu", "avniEyes": "neutral" },
-    { "who": "avni",   "cap": "Doctors old information kosam search chestharu.", "te": "Doctors old information కోసం search చేస్తారు.", "shot": "avni_doc", "avniEyes": "neutral" },
-    { "who": "avni",   "cap": "Hospital lo treatment kanna mundhu… information ni vetakadam start avuthundhi.", "te": "Hospital లో treatment కన్నా ముందు… information ని వెతకడం start అవుతుంది.", "shot": "avni_cu_slow", "avniEyes": "sad", "post": 0.4 },
-
-    { "who": "kiran",  "cap": "Aithe solution enti?", "te": "అయితే solution ఏంటి?", "shot": "kiran_cu" },
-    { "who": "avni",   "cap": "Anduke… AVNI.", "te": "అందుకే… అవ్ని.", "shot": "avni_cu", "avniEyes": "happy", "card": "tagline" },
-    { "who": "avni",   "cap": "Hospital side lo patient records easy ga manage cheyyadaniki…", "te": "Hospital side లో patient records easy గా manage చెయ్యడానికి…", "shot": "ui", "ui": "overview" },
-    { "who": "avni",   "cap": "Searchable patient directory.", "te": "Searchable patient directory.", "shot": "ui", "ui": "directory" },
-    { "who": "avni",   "cap": "Different roles ki appropriate access.", "te": "Different roles కి appropriate access.", "shot": "ui", "ui": "roles" },
-    { "who": "avni",   "cap": "Inka important actions ki activity log.", "te": "ఇంకా important actions కి activity log.", "shot": "ui", "ui": "activity" },
-
-    { "who": "kiran",  "cap": "Aithe naa side?", "te": "అయితే నా side?", "shot": "kiran_cu" },
-    { "who": "avni",   "cap": "Patient ki important health information… consulted doctors… health related anni okeychota untai.", "te": "Patient కి important health information… consulted doctors… health related అన్నీ ఒకే చోట ఉంటాయి.", "shot": "ui", "ui": "patient" },
-    { "who": "kiran",  "cap": "So next time gallery lo 8,000 photos madhyalo report vetakakkarledu? 👀", "te": "So next time gallery లో ఎనిమిది వేల photos మధ్యలో report వెతకక్కర్లేదు?", "shot": "kiran_cu" },
-    { "who": "avni",   "cap": "Exactly. 😄", "te": "Exactly.", "shot": "avni_cu", "avniEyes": "happy", "act": ["hop"] },
-
-    { "who": "doctor", "cap": "Kaani patient data ante privacy?", "te": "కానీ patient data అంటే privacy?", "shot": "doctor_cu" },
-    { "who": "avni",   "cap": "Anduke access andariki same undadhu.", "te": "అందుకే access అందరికీ same ఉండదు.", "shot": "avni_cu", "avniEyes": "sus", "card": "trust" },
-
-    { "who": "kiran",  "cap": "Okay… next time hospital ki consultation kosam vastha.", "te": "Okay… next time hospital కి consultation కోసం వస్తా.", "shot": "wide", "act": ["phoneAway"] },
-    { "who": "kiran",  "cap": "Treasure hunt kosam kaadhu. 😭", "te": "Treasure hunt కోసం కాదు.", "shot": "kiran_cu", "post": 0.5, "postShot": "doctor_smile" },
-    { "who": "avni",   "cap": "Meeru doctor, hospital owner, leka healthcare team lo unte…", "te": "మీరు doctor, hospital owner, లేక healthcare team లో ఉంటే…", "shot": "avni_cam", "avniEyes": "neutral", "card": "demo" },
-    { "who": "avni",   "cap": "Comment AVNI for the demo link.", "te": "Comment Avni for the demo link.", "shot": "avni_cam", "avniEyes": "happy", "card": "comment" }
-  ],
-  "endCard": 1.6
+  "doctor": {
+   "voice": "te-IN-MohanNeural",
+   "rate": "+12%",
+   "pitch": "-16Hz"
+  },
+  "avni": {
+   "voice": "te-IN-ShrutiNeural",
+   "rate": "+20%",
+   "pitch": "+28Hz"
+  }
+ },
+ "lines": [
+  {
+   "who": "kiran",
+   "cap": "Doctor… naa headache asalu taggatledu.",
+   "te": "డాక్టర్… నా headache అసలు తగ్గట్లేదు.",
+   "shot": "kiran_cu",
+   "act": [
+    "holdHead"
+   ],
+   "pose": "adjust_glasses"
+  },
+  {
+   "who": "doctor",
+   "cap": "Okay, Kiran. Last time kuda ide problem ki vachav kada?",
+   "te": "Okay, కిరణ్. Last time కూడా ఇదే problem కి వచ్చావ్ కదా?",
+   "shot": "doctor_cu"
+  },
+  {
+   "who": "kiran",
+   "cap": "Haa doctor.",
+   "te": "హా డాక్టర్.",
+   "shot": "kiran_cu",
+   "pose": "arms_crossed"
+  },
+  {
+   "who": "doctor",
+   "cap": "Last time reports unnayi kada… okasari chupinchu.",
+   "te": "Last time reports ఉన్నాయి కదా… ఒకసారి చూపించు.",
+   "shot": "doctor_cu"
+  },
+  {
+   "who": "doctor",
+   "cap": "…Em ayyindi?",
+   "te": "ఏం అయ్యింది?",
+   "shot": "doctor_cu",
+   "pre": 0.45,
+   "preShot": "kiran_cu",
+   "prePose": "thinking_chin"
+  },
+  {
+   "who": "kiran",
+   "cap": "Doctor… report undhi.",
+   "te": "డాక్టర్… report ఉంది.",
+   "shot": "kiran_cu",
+   "pose": "explaining"
+  },
+  {
+   "who": "doctor",
+   "cap": "Good.",
+   "te": "Good.",
+   "shot": "doctor_cu"
+  },
+  {
+   "who": "kiran",
+   "cap": "Kaani… ekkada undo teliyadu. 😭",
+   "te": "కానీ… ఎక్కడ ఉందో తెలియదు.",
+   "shot": "kiran_cu",
+   "act": [
+    "cry"
+   ],
+   "pose": "thinking_chin"
+  },
+  {
+   "who": "kiran",
+   "cap": "Gallery lo untundhi anukunta…",
+   "te": "Gallery లో ఉంటుంది అనుకుంటా…",
+   "shot": "phone",
+   "ui": "gallery"
+  },
+  {
+   "who": "doctor",
+   "cap": "Gallery lo?",
+   "te": "Gallery లో?",
+   "shot": "doctor_cu",
+   "act": [
+    "leanToPhone"
+   ]
+  },
+  {
+   "who": "kiran",
+   "cap": "Maybe screenshots…",
+   "te": "Maybe screenshots…",
+   "shot": "phone",
+   "ui": "screenshots"
+  },
+  {
+   "who": "kiran",
+   "cap": "WhatsApp lo untundhi emo…",
+   "te": "WhatsApp లో ఉంటుందేమో…",
+   "shot": "phone",
+   "ui": "chats"
+  },
+  {
+   "who": "doctor",
+   "cap": "Report kosam vachava… phone clean cheyyadaniki vachava? 😐",
+   "te": "Report కోసం వచ్చావా… phone clean చెయ్యడానికి వచ్చావా?",
+   "shot": "doctor_cu"
+  },
+  {
+   "who": "kiran",
+   "cap": "Doctor, memes madhyalo report undhi… dorikithe cheptha. 😭",
+   "te": "డాక్టర్, memes మధ్యలో report ఉంది… దొరికితే చెప్తా.",
+   "shot": "kiran_cu",
+   "act": [
+    "phoneUp",
+    "cry"
+   ],
+   "pose": "laptop"
+  },
+  {
+   "who": "doctor",
+   "cap": "Sare… nuvvu akkada search cheyyi.",
+   "te": "సరే… నువ్వు అక్కడ search చెయ్యి.",
+   "shot": "doctor_files",
+   "act": [
+    "filesOpen"
+   ]
+  },
+  {
+   "who": "kiran",
+   "cap": "Meeru?",
+   "te": "మీరు?",
+   "shot": "kiran_cu",
+   "pose": "open_hand"
+  },
+  {
+   "who": "doctor",
+   "cap": "Nenu naa records lo search chestha.",
+   "te": "నేను నా records లో search చేస్తా.",
+   "shot": "doctor_files",
+   "act": [
+    "filesFlip"
+   ]
+  },
+  {
+   "who": "kiran",
+   "cap": "Okay… report yekkada undhi…",
+   "te": "Okay… report ఎక్కడ ఉంది…",
+   "shot": "kiran_cu",
+   "act": [
+    "lookAround"
+   ],
+   "pose": "looking_up_right"
+  },
+  {
+   "who": "kiran",
+   "cap": "Ippudu veedi okkadi kosam ivi anni tirageyali…",
+   "te": "ఇప్పుడు వీడి ఒక్కడి కోసం ఇవి అన్నీ తిరగేయాలి…",
+   "shot": "kiran_cu",
+   "act": [
+    "pointDoctor",
+    "filesFlip"
+   ],
+   "pose": "pointing"
+  },
+  {
+   "who": "kiran",
+   "cap": "Dorakaledhu doctor, ippudu em chedham antaru? 😐",
+   "te": "దొరకలేదు డాక్టర్, ఇప్పుడు ఏం చేద్దాం అంటారు?",
+   "shot": "kiran_cu",
+   "act": [
+    "lookCam"
+   ],
+   "pose": "explaining"
+  },
+  {
+   "who": "kiran",
+   "cap": "Enduku aa musi musi navvulu?",
+   "te": "ఎందుకు ఆ ముసి ముసి నవ్వులు?",
+   "shot": "kiran_cu",
+   "pre": 1.1,
+   "preShot": "avni_enter",
+   "avniEyes": "happy",
+   "pose": "adjust_glasses"
+  },
+  {
+   "who": "avni",
+   "cap": "Idi hospital la ledhu… Lost and Found office la undhi. 👀",
+   "te": "ఇది hospital లా లేదు… Lost and Found office లా ఉంది.",
+   "shot": "avni_cu",
+   "avniEyes": "happy"
+  },
+  {
+   "who": "doctor",
+   "cap": "Patient old report dorakatledu.",
+   "te": "Patient old report దొరకట్లేదు.",
+   "shot": "doctor_cu"
+  },
+  {
+   "who": "kiran",
+   "cap": "Naa phone lo kuda kanipinchatledu.",
+   "te": "నా phone లో కూడా కనిపించట్లేదు.",
+   "shot": "kiran_cu",
+   "pose": "thinking_chin"
+  },
+  {
+   "who": "avni",
+   "cap": "Exactly.",
+   "te": "Exactly.",
+   "shot": "avni_cu",
+   "act": [
+    "lookBetween"
+   ],
+   "avniEyes": "sus"
+  },
+  {
+   "who": "avni",
+   "cap": "Idhi just mee iddari problem anukuntunnara?",
+   "te": "ఇది just మీ ఇద్దరి problem అనుకుంటున్నారా?",
+   "shot": "avni_cu",
+   "avniEyes": "neutral"
+  },
+  {
+   "who": "kiran",
+   "cap": "Kaadha?",
+   "te": "కాదా?",
+   "shot": "kiran_cu",
+   "pose": "open_hand"
+  },
+  {
+   "who": "avni",
+   "cap": "Prathi roju entho mandi patients reports kosam search chestharu.",
+   "te": "ప్రతి రోజు ఎంతో మంది patients reports కోసం search చేస్తారు.",
+   "shot": "avni_cu",
+   "avniEyes": "neutral"
+  },
+  {
+   "who": "avni",
+   "cap": "Doctors old information kosam search chestharu.",
+   "te": "Doctors old information కోసం search చేస్తారు.",
+   "shot": "avni_doc",
+   "avniEyes": "neutral"
+  },
+  {
+   "who": "avni",
+   "cap": "Hospital lo treatment kanna mundhu… information ni vetakadam start avuthundhi.",
+   "te": "Hospital లో treatment కన్నా ముందు… information ని వెతకడం start అవుతుంది.",
+   "shot": "avni_cu_slow",
+   "avniEyes": "sad",
+   "post": 0.4
+  },
+  {
+   "who": "kiran",
+   "cap": "Aithe solution enti?",
+   "te": "అయితే solution ఏంటి?",
+   "shot": "kiran_cu",
+   "pose": "looking_up_right"
+  },
+  {
+   "who": "avni",
+   "cap": "Anduke… AVNI.",
+   "te": "అందుకే… అవ్ని.",
+   "shot": "avni_cu",
+   "avniEyes": "happy",
+   "card": "tagline"
+  },
+  {
+   "who": "avni",
+   "cap": "Hospital side lo patient records easy ga manage cheyyadaniki…",
+   "te": "Hospital side లో patient records easy గా manage చెయ్యడానికి…",
+   "shot": "ui",
+   "ui": "overview"
+  },
+  {
+   "who": "avni",
+   "cap": "Searchable patient directory.",
+   "te": "Searchable patient directory.",
+   "shot": "ui",
+   "ui": "directory"
+  },
+  {
+   "who": "avni",
+   "cap": "Different roles ki appropriate access.",
+   "te": "Different roles కి appropriate access.",
+   "shot": "ui",
+   "ui": "roles"
+  },
+  {
+   "who": "avni",
+   "cap": "Inka important actions ki activity log.",
+   "te": "ఇంకా important actions కి activity log.",
+   "shot": "ui",
+   "ui": "activity"
+  },
+  {
+   "who": "kiran",
+   "cap": "Aithe naa side?",
+   "te": "అయితే నా side?",
+   "shot": "kiran_cu",
+   "pose": "open_hand"
+  },
+  {
+   "who": "avni",
+   "cap": "Patient ki important health information… consulted doctors… health related anni okeychota untai.",
+   "te": "Patient కి important health information… consulted doctors… health related అన్నీ ఒకే చోట ఉంటాయి.",
+   "shot": "ui",
+   "ui": "patient"
+  },
+  {
+   "who": "kiran",
+   "cap": "So next time gallery lo 8,000 photos madhyalo report vetakakkarledu? 👀",
+   "te": "So next time gallery లో ఎనిమిది వేల photos మధ్యలో report వెతకక్కర్లేదు?",
+   "shot": "kiran_cu",
+   "pose": "smile_arms_crossed"
+  },
+  {
+   "who": "avni",
+   "cap": "Exactly. 😄",
+   "te": "Exactly.",
+   "shot": "avni_cu",
+   "avniEyes": "happy",
+   "act": [
+    "hop"
+   ]
+  },
+  {
+   "who": "doctor",
+   "cap": "Kaani patient data ante privacy?",
+   "te": "కానీ patient data అంటే privacy?",
+   "shot": "doctor_cu"
+  },
+  {
+   "who": "avni",
+   "cap": "Anduke access andariki same undadhu.",
+   "te": "అందుకే access అందరికీ same ఉండదు.",
+   "shot": "avni_cu",
+   "avniEyes": "sus",
+   "card": "trust"
+  },
+  {
+   "who": "kiran",
+   "cap": "Okay… next time hospital ki consultation kosam vastha.",
+   "te": "Okay… next time hospital కి consultation కోసం వస్తా.",
+   "shot": "kiran_cu",
+   "act": [
+    "phoneAway"
+   ],
+   "pose": "fist_pump"
+  },
+  {
+   "who": "kiran",
+   "cap": "Treasure hunt kosam kaadhu. 😭",
+   "te": "Treasure hunt కోసం కాదు.",
+   "shot": "kiran_cu",
+   "post": 0.5,
+   "postShot": "doctor_smile",
+   "pose": "laughing_up"
+  },
+  {
+   "who": "avni",
+   "cap": "Meeru doctor, hospital owner, leka healthcare team lo unte…",
+   "te": "మీరు doctor, hospital owner, లేక healthcare team లో ఉంటే…",
+   "shot": "avni_cam",
+   "avniEyes": "neutral",
+   "card": "demo"
+  },
+  {
+   "who": "avni",
+   "cap": "Comment AVNI for the demo link.",
+   "te": "Comment Avni for the demo link.",
+   "shot": "avni_cam",
+   "avniEyes": "happy",
+   "card": "comment"
+  }
+ ],
+ "endCard": 1.6
 }
