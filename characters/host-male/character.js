@@ -278,7 +278,7 @@ export function createHostMale(opts = {}) {
     eye: mat(P.eye, { roughness: 0.25, flatShading: false, envMapIntensity: 0.15 }),
     white: new THREE.MeshBasicMaterial({ color: 0xffffff }),
     mouth: mat(P.mouth),
-    tee: mat(P.tee),
+    tee: mat(P.tee, { side: THREE.DoubleSide }), // lathe surface: render both sides (no see-through)
     jacket: mat(P.jacket, { side: THREE.DoubleSide }),
     jacketDark: mat(new THREE.Color(P.jacket).multiplyScalar(0.82).getHex()),
     pants: mat(P.pants),

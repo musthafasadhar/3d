@@ -18,7 +18,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { buildCabin } from './cabin.js';
-import { createHostMale } from '/characters/host-male/character.js';
+import { createKiran } from '/characters/kiran/character.js';
 import { createDoctor } from '/characters/doctor/character.js';
 import { createAvniBuddy } from '/characters/avni-buddy/character.js';
 
@@ -83,7 +83,7 @@ const floorTile = new THREE.Mesh(new THREE.PlaneGeometry(22, 18), new THREE.Mesh
 floorTile.rotation.x = -Math.PI / 2; floorTile.position.set(0, -0.001, 2.5); floorTile.receiveShadow = true; scene.add(floorTile);
 const camera = new THREE.PerspectiveCamera(30, W / H, 0.1, 80);
 
-const kiran = createHostMale(); scene.add(kiran);
+const kiran = createKiran(); scene.add(kiran);
 const doctor = createDoctor(); scene.add(doctor);
 const avni = createAvniBuddy(); scene.add(avni);
 
