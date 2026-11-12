@@ -47,3 +47,4 @@ characters/node_modules
 characters/*/views/spin/
 reels/assets/hdri/*.hdr
 reels/*/build/
+reels/*/out/
