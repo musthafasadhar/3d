@@ -98,3 +98,16 @@ This project is open source and available under the [MIT License](LICENSE).
 Looking for more beautiful templates and UI components? Check out:
 
 **[Aniq UI Templates](https://www.aniq-ui.com/en/templates)**
+
+## 🔊 Text-to-Speech (ElevenLabs)
+
+Set your key in `.env.local` (git-ignored):
+
+```bash
+ELEVENLABS_API_KEY=your_key_here
+```
+
+- **CLI:** `ELEVENLABS_API_KEY=... npm run tts -- story.mp3 "Optional custom text"` saves an MP3.
+- **API route:** `POST /api/tts` with `{ "text": "..." }` returns an `audio/mpeg` stream.
+
+Uses voice `NOpBlnGInO9m6vDvFkFC` with model `eleven_v4`. Audio tags such as `[whispers]` or `[giggles]` are supported in the text.
