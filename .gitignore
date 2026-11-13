@@ -43,3 +43,7 @@ next-env.d.ts
 # lock files
 package-lock.json
 yarn.lock
+
+# python
+__pycache__/
+*.pyc

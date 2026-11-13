@@ -1,46 +1,53 @@
-# Sprout — clay character for reels
+# The cast
 
-A round orange root-vegetable character with tall black eyes, a tiny smile and a
-two-leaf sprout, built as a real 3D model so it stays identical in every reel.
+Three clay characters built as real 3D models, so they stay identical in every
+shot of every reel. Everything is procedural and seeded: rebuilding gives the
+same models.
 
-| File | What it is |
-| --- | --- |
-| `build_character.py` | Builds the character, set, lights and camera from scratch. Seeded, so it always produces the same model. |
-| `model/sprout.blend` | Blender scene (character + set + lighting + hero camera), ready to pose and animate. |
-| `model/sprout.glb` | The character alone, for three.js / React Three Fiber or any other 3D tool. |
-| `renders/sprout_hero_9x16_4k.png` | Hero still, 2160×3840 (vertical 4K), muted blue seat. |
-| `renders/sprout_reference_match.png` | Same framing and mossy seat as the original reference image. |
-| `renders/sprout_turnaround.png` | Front / three-quarter / side / back sheet. |
+| Character | Builder | Notes |
+|---|---|---|
+| **Avani** | `avani.py` → `build_avani()` | Round orange character, tall black eyes, two-leaf sprout. Sits; 2.3 units tall. |
+| **Doctor** | `humans.py` → `build_doctor()` | Dark hair in a high bun, big round glasses, white coat over navy scrubs, stethoscope, clipboard. 5.9 units tall. |
+| **Patient** | `humans.py` → `build_patient()` | Wavy dark hair, round glasses, black jacket over white hoodie, cargo trousers, white trainers, navy mail bag. 4.8 units tall. |
 
-## Re-rendering
+Every builder takes `mouth=` and `blink=` so a shot can be rendered in the few
+face states the edit needs (closed, talking, eyes shut). The humans have a
+`<Name>_Head` pivot for head turns.
+
+## Files
+
+| Path | What it is |
+|---|---|
+| `claykit.py` | Shared tools: clay material, soft low-poly blobs, limbs, pressed-on details, lights, render settings. |
+| `sheet.py` | Studio renders: turnarounds, faces, the line-up. |
+| `scene_night.py` | Avani's night clearing (warm key, orange rim, blurred blue backdrop). |
+| `model/*.glb` | Each character on its own, for three.js / React Three Fiber or any 3D tool. |
+| `model/cast.blend` | Blender file with all three in the studio. |
+| `renders/` | Character sheets, the line-up and Avani's hero still. |
+
+## Rendering
 
 ```bash
 pip install bpy==5.3.0
 
-# hero reel frame on the blue seat
-python3 build_character.py --render hero:hero:1080:1920:128
-
-# reference framing on the mossy seat
-python3 build_character.py --surface moss --render ref:ref:1642:1985:128
+python3 sheet.py --who doctor --view threeq --size 900x1200 --samples 96 --out renders/doctor.png
+python3 sheet.py --who patient --view face --mouth open --out renders/patient_talking.png
+python3 sheet.py --who lineup --size 1600x1000 --out renders/cast_lineup.png
+python3 scene_night.py --render hero:hero:1080:1920:128
 ```
 
-`--render` is `name:view:width:height:samples`; views are `hero`, `ref`, `front`,
-`threeq`, `side`, `back`. Rendering is CPU path tracing (Cycles) with denoising.
+Views: `front`, `threeq`, `side`, `back`, `face`. Rendering is CPU path tracing
+(Cycles) with denoising, so no GPU is needed.
 
-## Character sheet
+## Keep fixed between reels
 
-Keep these fixed between reels:
-
-- **Body** — tall egg, slightly heavier at the bottom, soft low-poly facets with
-  thumb-smoothed edges; matte orange clay `#E4622A`.
-- **Eyes** — two tall rounded-rectangle tablets of near-black clay, raised from the
-  face, each with one white rounded glint in the upper half.
-- **Mouth** — a very small upturned stroke, centred below the eyes.
-- **Limbs** — two small arm nubs low on the sides; two stubby log legs pointing
-  forward (it sits).
-- **Sprout** — short green stem with two plump leaves, the left one larger and
-  flatter, the right one smaller and more upright.
-- **Light** — warm key from camera right, orange rim on both edges, weak cool fill,
-  dark blue night backdrop with drifting warm dust motes and shallow depth of field.
-
-Colours live in `PALETTE` at the top of the script.
+- **Avani** — tall egg body in orange clay `#E4581C`, soft low-poly facets; two tall
+  rounded-rectangle eyes with one white glint each; tiny upturned mouth (a small
+  dark oval when talking); two arm nubs, two stubby legs pointing forward; short
+  stem with two plump leaves, the left larger and flatter.
+- **Doctor** — skin `#F0B28A`, hair `#33221E`, coat `#E9E5DD`, scrubs `#232C50`;
+  side-swept fringe, a lock in front of each ear, bun with stray wisps; thin
+  round frames; dot eyes, short brows, small orange wedge nose, small smile.
+- **Patient** — skin `#F4B78F`, hair `#261A1D`, jacket `#201F28`, hoodie
+  `#EFE9DE`, bag `#24335C`; mop of wavy locks with a fringe to the top of the
+  glasses; larger head than the Doctor; hands in pockets.
