@@ -1,0 +1,32 @@
+Each overlay is full-frame 1080x1920 ProRes 4444 WITH transparency (and its own sound effects).
+Place it on a track above BASE_zooms_only_no_graphics_1080x1920.mp4 at the start time in its filename.
+'back' = behind-head element (your silhouette is already cut out of it), 'front' = sits on top of you.
+Stack all 'back' overlays below all 'front' overlays. Delete any one you don't like - nothing else changes.
+
+  0.00s  ->   2.10s   back   01_hook_AI-VIDEOS_behind-head__start_00.00s.mov
+  1.90s  ->   3.43s   back   02_LAKHS-of-views_behind-head__start_01.90s.mov
+  1.97s  ->   3.43s   front  03_views-counter_card__start_01.97s.mov
+  3.43s  ->   5.90s   back   04_CLAUDE_behind-head__start_03.43s.mov
+  4.50s  ->   7.30s   front  05_subscription-card_strike__start_04.50s.mov
+  7.30s  ->   9.33s   back   06_FREE_behind-head__start_07.30s.mov
+  7.33s  ->   7.67s   front  07_flash_FREE__start_07.33s.mov
+  9.60s  ->  11.40s   front  08_RS0-per-month_caption__start_09.60s.mov
+ 11.27s  ->  13.30s   back   09_5-VIDEOS-DAILY_behind-head__start_11.27s.mov
+ 13.30s  ->  16.20s   back   10_dark-mood_background-dim__start_13.30s.mov
+ 13.50s  ->  16.20s   back   11_halo-ring_behind-head__start_13.50s.mov
+ 13.30s  ->  16.20s   front  12_REC-camera-frame__start_13.30s.mov
+ 14.07s  ->  16.20s   back   13_SECRET-TRICK_behind-head__start_14.07s.mov
+ 15.07s  ->  16.20s   front  14_nobody-tells-you_pill__start_15.07s.mov
+ 16.17s  ->  16.47s   front  15_flash_cut__start_16.17s.mov
+ 16.20s  ->  17.10s   front  16_but-ILL-TELL-YOU_caption__start_16.20s.mov
+ 17.10s  ->  19.13s   back   17_FULL-PROCESS_behind-head__start_17.10s.mov
+ 18.00s  ->  19.13s   front  18_wont-fit-in-1-reel_pill__start_18.00s.mov
+ 19.57s  ->  21.50s   front  19_step-1-2-3_tracker__start_19.57s.mov
+ 20.07s  ->  21.50s   back   20_STEP-BY-STEP_behind-head__start_20.07s.mov
+ 20.57s  ->  24.10s   front  21_document-card__start_20.57s.mov
+ 21.77s  ->  24.23s   back   22_read-FULL-DOC_ENJOY_behind-head__start_21.77s.mov
+ 24.10s  ->  26.80s   back   23_FOLLOW_behind-head__start_24.10s.mov
+ 24.47s  ->  26.80s   front  24_follow-button-card__start_24.47s.mov
+ 25.40s  ->  26.80s   front  25_comment-your-ID_card__start_25.40s.mov
+ 27.10s  ->  28.10s   front  26_paper-plane_fly__start_27.10s.mov
+ 27.47s  ->  28.10s   front  27_DM-sent_notification__start_27.47s.mov
