@@ -1,0 +1,769 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Reel B-roll</title>
+<style>html,body{margin:0;background:#f6faf2}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script>
+const W = 1080, H = 1920, CX = W / 2;
+let BA = 1;
+const cv = document.getElementById('c');
+let ctx = cv.getContext('2d');
+const FONT = '"Inter Display", "Inter", sans-serif';
+let AVATAR = null;
+window.setAvatar = (src) => new Promise(r => { const i = new Image(); i.onload = () => { AVATAR = i; r(); }; i.src = src; });
+
+// ---------- math ----------
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const eOut = t => 1 - Math.pow(1 - t, 3);
+const eInOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const eBack = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+const eExpo = t => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+function spring(t, f = 7, d = 5) { if (t <= 0) return 0; return 1 - Math.exp(-d * t) * Math.cos(f * t * Math.PI * .5); }
+function rand(seed) { let s = seed; return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
+
+// ---------- primitives ----------
+function rr(x, y, w, h, r) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); }
+function shadow(blur = 60, oy = 30, a = .16, col = '40,80,20') { ctx.shadowColor = `rgba(${col},${a})`; ctx.shadowBlur = blur; ctx.shadowOffsetY = oy; ctx.shadowOffsetX = 0; }
+function noShadow() { ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; }
+
+// clay card: soft white extruded slab
+function clay(x, y, w, h, r, opt = {}) {
+  const depth = opt.depth ?? 14;
+  const top = opt.top ?? '#ffffff', bot = opt.bot ?? '#eef2ec', side = opt.side ?? '#d9dfd5';
+  ctx.save();
+  shadow(opt.blur ?? 70, opt.oy ?? 40, opt.sa ?? .18);
+  rr(x, y + depth, w, h, r); ctx.fillStyle = side; ctx.fill();
+  noShadow();
+  rr(x, y, w, h, r);
+  const g = ctx.createLinearGradient(x, y, x, y + h); g.addColorStop(0, top); g.addColorStop(1, bot);
+  ctx.fillStyle = g; ctx.fill();
+  // rim light
+  ctx.save(); rr(x, y, w, h, r); ctx.clip();
+  const rg = ctx.createLinearGradient(x, y, x, y + 40); rg.addColorStop(0, 'rgba(255,255,255,.95)'); rg.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.strokeStyle = rg; ctx.lineWidth = 6; rr(x + 2, y + 2, w - 4, h - 4, r); ctx.stroke();
+  ctx.restore();
+  ctx.restore();
+}
+
+// skeleton line
+function bar(x, y, w, h, col = 'rgba(60,80,55,.12)') { rr(x, y, Math.max(h, w), h, h / 2); ctx.fillStyle = col; ctx.fill(); }
+
+// ---------- background ----------
+const grid = document.createElement('canvas'); grid.width = W; grid.height = H;
+(function buildGrid() {
+  const g = grid.getContext('2d');
+  const s = 120, x0 = 60, y0 = 360, cols = 9, rows = 10;
+  g.strokeStyle = 'rgba(96,170,60,.30)'; g.lineWidth = 2;
+  for (let i = 0; i <= cols; i++) { g.beginPath(); g.moveTo(x0 + i * s, y0 - 40); g.lineTo(x0 + i * s, y0 + rows * s + 40); g.stroke(); }
+  for (let j = 0; j <= rows; j++) { g.beginPath(); g.moveTo(x0 - 40, y0 + j * s); g.lineTo(x0 + cols * s + 40, y0 + j * s); g.stroke(); }
+  g.fillStyle = 'rgba(96,170,60,.55)';
+  for (let i = 0; i <= cols; i++) for (let j = 0; j <= rows; j++) if ((i + j) % 2 === 0) { g.beginPath(); g.arc(x0 + i * s, y0 + j * s, 4, 0, 7); g.fill(); }
+  g.globalCompositeOperation = 'destination-in';
+  const m = g.createRadialGradient(W / 2, H / 2, 80, W / 2, H / 2, 640);
+  m.addColorStop(0, 'rgba(0,0,0,1)'); m.addColorStop(.7, 'rgba(0,0,0,.6)'); m.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = m; g.fillRect(0, 0, W, H);
+})();
+
+function blob(pts, tip, tcol) {
+  ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i += 3) ctx.bezierCurveTo(pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], pts[i + 2][0], pts[i + 2][1]);
+  ctx.closePath();
+  const g = ctx.createLinearGradient(tip[0], tip[1], tip[2], tip[3]);
+  g.addColorStop(0, tcol); g.addColorStop(.55, 'rgba(150,210,110,.35)'); g.addColorStop(1, 'rgba(240,248,234,0)');
+  ctx.fillStyle = g; ctx.fill();
+}
+
+function background(t) {
+  ctx.fillStyle = '#f5f9f1'; ctx.fillRect(0, 0, W, H);
+  const a = Math.sin(t * .35) * 30, b = Math.cos(t * .27) * 26;
+  ctx.save();
+  ctx.filter = 'blur(6px)';
+  // top-left sweeping blade
+  blob([[-60, -60], [300 + a, -60], [420 + b, 120], [690 + a, 430], [430, 330 + b], [180, 330], [-60, 760 + a], [-60, 400], [-60, 0], [-60, -60]], [640 + a, 420, 120, 140], 'rgba(92,178,44,.95)');
+  // pale inner lobe
+  blob([[-60, 820], [60, 520 + b], [220, 350], [520, 360 + a], [360, 380], [120, 600], [-60, 1100], [-60, 1000], [-60, 900], [-60, 820]], [500, 360, 0, 900], 'rgba(150,210,110,.55)');
+  // bottom-right blade
+  blob([[W + 60, H + 60], [760 - a, H + 60], [700, 1500 + b], [720 + a, 1330], [800, 1520], [900, 1620 - b], [W + 60, 1640], [W + 60, 1800], [W + 60, H], [W + 60, H + 60]], [720 + a, 1340, 980, 1900], 'rgba(92,178,44,.95)');
+  blob([[W + 60, 1700], [760, 1680 + a], [740, 1420], [W + 60, 1100 + b], [W + 60, 1300], [W + 60, 1500], [W + 60, 1600], [W + 60, 1650], [W + 60, 1680], [W + 60, 1700]], [760, 1500, W, 1200], 'rgba(150,210,110,.5)');
+  ctx.filter = 'none';
+  ctx.restore();
+  // soft white haze center
+  const hz = ctx.createRadialGradient(CX, H * .52, 50, CX, H * .52, 820);
+  hz.addColorStop(0, 'rgba(250,253,247,.75)'); hz.addColorStop(1, 'rgba(250,253,247,0)');
+  ctx.fillStyle = hz; ctx.fillRect(0, 0, W, H);
+  ctx.globalAlpha = BA * .9; ctx.drawImage(grid, Math.sin(t * .2) * 8, Math.cos(t * .17) * 8); ctx.globalAlpha = BA * 1;
+}
+
+// ---------- icons ----------
+function igGradient(s) {
+  const g = ctx.createRadialGradient(-s * .32, s * .62, 0, -s * .32, s * .62, s * 1.45);
+  g.addColorStop(0, '#ffdc7a'); g.addColorStop(.18, '#fdb34b'); g.addColorStop(.36, '#f7743a');
+  g.addColorStop(.52, '#e8336a'); g.addColorStop(.72, '#c1359a'); g.addColorStop(1, '#6b45d8');
+  return g;
+}
+function igLinear(x0, y0, x1, y1) {
+  const g = ctx.createLinearGradient(x0, y0, x1, y1);
+  g.addColorStop(0, '#fdb34b'); g.addColorStop(.3, '#f7743a'); g.addColorStop(.55, '#e8336a'); g.addColorStop(.8, '#c1359a'); g.addColorStop(1, '#6b45d8');
+  return g;
+}
+function igGlyph(s, col) {
+  ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = s * .085;
+  rr(-s * .3, -s * .3, s * .6, s * .6, s * .17); ctx.stroke();
+  ctx.beginPath(); ctx.arc(0, 0, s * .14, 0, 7); ctx.stroke();
+  ctx.beginPath(); ctx.arc(s * .175, -s * .175, s * .045, 0, 7); ctx.fill();
+}
+// glossy 3D app icon
+function igIcon(x, y, s, rot = 0, alpha = 1, yaw = 0) {
+  ctx.save(); ctx.globalAlpha *= alpha; ctx.translate(x, y); ctx.rotate(rot); ctx.scale(1 - Math.abs(yaw) * .25, 1);
+  const r = s * .27, d = s * .1;
+  shadow(s * .5, s * .22, .28, '120,30,70');
+  for (let i = d; i > 0; i -= 2) {
+    rr(-s / 2 + i * .35 * yaw, -s / 2 + i, s, s, r);
+    ctx.fillStyle = i === d ? '#8d2a6c' : `rgb(${150 - i * 2},${40},${100 - i})`; ctx.fill(); if (i === d) noShadow();
+  }
+  rr(-s / 2, -s / 2, s, s, r); ctx.fillStyle = igGradient(s); ctx.fill();
+  ctx.save(); rr(-s / 2, -s / 2, s, s, r); ctx.clip();
+  const gl = ctx.createLinearGradient(0, -s / 2, 0, s * .1); gl.addColorStop(0, 'rgba(255,255,255,.42)'); gl.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = gl; ctx.beginPath(); ctx.ellipse(-s * .05, -s * .42, s * .62, s * .38, -.15, 0, 7); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = s * .025; rr(-s / 2 + s * .02, -s / 2 + s * .02, s - s * .04, s - s * .04, r * .95); ctx.stroke();
+  ctx.restore();
+  ctx.save(); ctx.translate(s * .012, s * .03); igGlyph(s, 'rgba(110,20,60,.35)'); ctx.restore();
+  igGlyph(s, '#ffffff');
+  ctx.restore();
+}
+
+// Meta infinity tube
+function metaPts(R, n = 220) {
+  const p = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n * Math.PI * 2;
+    let x = Math.sin(t) * R, y = Math.sin(2 * t) * R * .52;
+    if (x < 0) x *= .86;
+    // slight lean so loops read like the mark
+    x += y * .1;
+    p.push([x, -y]);
+  }
+  return p;
+}
+function strokePts(pts, a, b) {
+  ctx.beginPath(); ctx.moveTo(pts[a][0], pts[a][1]);
+  for (let i = a + 1; i <= b; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  ctx.stroke();
+}
+function metaLogo(x, y, R, draw = 1, alpha = 1) {
+  const pts = metaPts(R), n = pts.length - 1, L = R * .2;
+  const end = Math.floor(n * clamp(draw));
+  if (end < 2) return;
+  ctx.save(); ctx.globalAlpha *= alpha; ctx.translate(x, y); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  const half = Math.floor(n / 2);
+  const segs = [[0, Math.min(end, half)], [half, end]].filter(s => s[1] > s[0]);
+  for (const [a, b] of segs) {
+    shadow(L * 1.2, L * .5, .25, '10,50,140');
+    ctx.strokeStyle = '#0a46b8'; ctx.lineWidth = L; ctx.save(); ctx.translate(0, L * .18); strokePts(pts, a, b); ctx.restore();
+    noShadow();
+    const g = ctx.createLinearGradient(-R, -R * .5, R, R * .5); g.addColorStop(0, '#0064e0'); g.addColorStop(.5, '#2b7cf6'); g.addColorStop(1, '#0082fb');
+    ctx.strokeStyle = g; ctx.lineWidth = L * .92; strokePts(pts, a, b);
+    ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = L * .22; ctx.save(); ctx.translate(-L * .1, -L * .2); strokePts(pts, a, b); ctx.restore();
+  }
+  ctx.restore();
+}
+function metaTile(x, y, s, rot, draw, alpha = 1) {
+  ctx.save(); ctx.globalAlpha *= alpha; ctx.translate(x, y); ctx.rotate(rot);
+  clay(-s / 2, -s / 2, s, s, s * .26, { depth: s * .06, top: '#ffffff', bot: '#eceff3', side: '#d2d7de', sa: .22, blur: s * .3, oy: s * .14 });
+  metaLogo(0, 0, s * .34, draw);
+  ctx.restore();
+}
+
+// Meta AI ring avatar
+function aiRing(x, y, r, t, glow = 0) {
+  ctx.save(); ctx.translate(x, y);
+  if (glow > 0) { const g = ctx.createRadialGradient(0, 0, r * .5, 0, 0, r * 2.4); g.addColorStop(0, `rgba(80,110,255,${.35 * glow})`); g.addColorStop(1, 'rgba(80,110,255,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r * 2.4, 0, 7); ctx.fill(); }
+  const cg = ctx.createConicGradient(t * 1.6, 0, 0);
+  cg.addColorStop(0, '#0064e0'); cg.addColorStop(.25, '#7b4dff'); cg.addColorStop(.5, '#ff4fa3'); cg.addColorStop(.75, '#33c3ff'); cg.addColorStop(1, '#0064e0');
+  ctx.strokeStyle = cg; ctx.lineWidth = r * .36; ctx.beginPath(); ctx.arc(0, 0, r * .78, 0, 7); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = r * .08; ctx.beginPath(); ctx.arc(0, 0, r * .86, Math.PI * 1.1, Math.PI * 1.6); ctx.stroke();
+  ctx.restore();
+}
+
+function cursor(x, y, press = 0, alpha = 1) {
+  if (alpha <= 0) return;
+  ctx.save(); ctx.globalAlpha *= alpha; ctx.translate(x, y); const s = 1.9 * (1 - press * .18); ctx.scale(s, s);
+  shadow(16, 8, .3, '0,0,0');
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, 34); ctx.lineTo(8.5, 26); ctx.lineTo(14, 38.5); ctx.lineTo(19.5, 36); ctx.lineTo(14, 24); ctx.lineTo(25, 24); ctx.closePath();
+  ctx.fillStyle = '#fff'; ctx.fill(); noShadow(); ctx.strokeStyle = '#111'; ctx.lineWidth = 2.4; ctx.lineJoin = 'round'; ctx.stroke();
+  ctx.restore();
+}
+function ripple(x, y, p, col = '255,255,255') {
+  if (p <= 0 || p >= 1) return;
+  ctx.save(); ctx.strokeStyle = `rgba(${col},${(1 - p) * .9})`; ctx.lineWidth = 10 * (1 - p) + 2;
+  ctx.beginPath(); ctx.arc(x, y, 20 + p * 90, 0, 7); ctx.stroke();
+  ctx.fillStyle = `rgba(${col},${(1 - p) * .25})`; ctx.beginPath(); ctx.arc(x, y, 20 + p * 60, 0, 7); ctx.fill(); ctx.restore();
+}
+function sparkle(x, y, s, a = 1, col = '#ffffff') {
+  if (a <= 0 || s <= 0) return;
+  ctx.save(); ctx.globalAlpha *= a; ctx.translate(x, y); ctx.fillStyle = col;
+  shadow(s * 1.5, 0, .6, '255,255,255');
+  ctx.beginPath(); ctx.moveTo(0, -s);
+  ctx.quadraticCurveTo(s * .12, -s * .12, s, 0); ctx.quadraticCurveTo(s * .12, s * .12, 0, s);
+  ctx.quadraticCurveTo(-s * .12, s * .12, -s, 0); ctx.quadraticCurveTo(-s * .12, -s * .12, 0, -s); ctx.fill();
+  ctx.restore();
+}
+function heart(x, y, s, col) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(s / 40, s / 40); ctx.beginPath();
+  ctx.moveTo(0, 14); ctx.bezierCurveTo(-30, -6, -18, -32, 0, -16); ctx.bezierCurveTo(18, -32, 30, -6, 0, 14);
+  ctx.fillStyle = col; ctx.fill(); ctx.restore();
+}
+function eyeIcon(x, y, s, col) {
+  ctx.save(); ctx.translate(x, y); ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = s * .12;
+  ctx.beginPath(); ctx.moveTo(-s, 0); ctx.quadraticCurveTo(0, -s * .95, s, 0); ctx.quadraticCurveTo(0, s * .95, -s, 0); ctx.stroke();
+  ctx.beginPath(); ctx.arc(0, 0, s * .32, 0, 7); ctx.fill(); ctx.restore();
+}
+function playTri(x, y, s, col = '#fff') { ctx.save(); ctx.translate(x, y); ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(-s * .4, -s * .5); ctx.lineTo(s * .55, 0); ctx.lineTo(-s * .4, s * .5); ctx.closePath(); ctx.lineJoin = 'round'; ctx.lineWidth = s * .2; ctx.strokeStyle = col; ctx.stroke(); ctx.fill(); ctx.restore(); }
+function planeIcon(x, y, s, col) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(-.35); ctx.strokeStyle = col; ctx.lineWidth = s * .13; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(-s, -s * .15); ctx.lineTo(s, -s * .6); ctx.lineTo(s * .1, s * .9); ctx.lineTo(-s * .2, s * .05); ctx.closePath(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-s * .2, s * .05); ctx.lineTo(s, -s * .6); ctx.stroke(); ctx.restore();
+}
+function searchIcon(x, y, s, col) { ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = s * .2; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(x - s * .15, y - s * .15, s * .5, 0, 7); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x + s * .22, y + s * .22); ctx.lineTo(x + s * .6, y + s * .6); ctx.stroke(); ctx.restore(); }
+function check(x, y, s, p, col = '#fff') { if (p <= 0) return; ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = s * .22; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); const a = [x - s * .45, y], b = [x - s * .1, y + s * .35], c = [x + s * .5, y - s * .35]; ctx.moveTo(...a); const p1 = clamp(p * 2), p2 = clamp(p * 2 - 1); ctx.lineTo(lerp(a[0], b[0], p1), lerp(a[1], b[1], p1)); if (p2 > 0) ctx.lineTo(lerp(b[0], c[0], p2), lerp(b[1], c[1], p2)); ctx.stroke(); ctx.restore(); }
+function personPlus(x, y, s, col) { ctx.save(); ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = s * .14; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(x - s * .2, y - s * .3, s * .3, 0, 7); ctx.stroke(); ctx.beginPath(); ctx.arc(x - s * .2, y + s * .65, s * .55, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x + s * .55, y - s * .3); ctx.lineTo(x + s * .55, y + s * .2); ctx.moveTo(x + s * .3, y - s * .05); ctx.lineTo(x + s * .8, y - s * .05); ctx.stroke(); ctx.restore(); }
+function bubbleIcon(x, y, s, col) { ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = s * .14; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.arc(x, y, s * .6, Math.PI * .75, Math.PI * 2.55); ctx.lineTo(x - s * .7, y + s * .7); ctx.closePath(); ctx.stroke(); ctx.restore(); }
+
+function avatarCircle(x, y, r, ring = 'ig', ringP = 1, sat = 1) {
+  ctx.save();
+  if (ring) {
+    ctx.lineWidth = r * .1;
+    ctx.strokeStyle = ring === 'ig' ? igLinear(x - r, y + r, x + r, y - r) : '#cfd5cc';
+    ctx.beginPath(); ctx.arc(x, y, r * 1.12, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * ringP); ctx.stroke();
+  }
+  ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = '#fff'; ctx.fill();
+  ctx.beginPath(); ctx.arc(x, y, r * .93, 0, 7); ctx.clip();
+  if (AVATAR) { ctx.filter = sat < 1 ? `saturate(${sat}) brightness(${.9 + sat * .1})` : 'none'; const k = r * .93 / .8; ctx.drawImage(AVATAR, x - k, y - k, k * 2, k * 2); ctx.filter = 'none'; }
+  ctx.restore();
+}
+
+// abstract thumbnail fill
+const THUMBS = [['#ff9a5a', '#e8336a'], ['#7b6cff', '#33c3ff'], ['#5ccf7a', '#1f9e6a'], ['#ffd36e', '#f7743a'], ['#c1359a', '#6b45d8'], ['#2b7cf6', '#7b4dff'], ['#ff6f91', '#ffc36e'], ['#35d0c0', '#2b7cf6'], ['#f7743a', '#c1359a']];
+function thumb(x, y, w, h, r, k, grey = 0) {
+  const c = THUMBS[k % THUMBS.length];
+  const g = ctx.createLinearGradient(x, y, x + w, y + h); g.addColorStop(0, c[0]); g.addColorStop(1, c[1]);
+  rr(x, y, w, h, r); ctx.fillStyle = g; ctx.fill();
+  ctx.save(); rr(x, y, w, h, r); ctx.clip();
+  ctx.fillStyle = 'rgba(255,255,255,.22)'; ctx.beginPath(); ctx.arc(x + w * .78, y + h * .22, w * .35, 0, 7); ctx.fill();
+  ctx.fillStyle = 'rgba(0,0,0,.08)'; ctx.beginPath(); ctx.ellipse(x + w * .3, y + h * 1.02, w * .7, h * .38, 0, 0, 7); ctx.fill();
+  if (grey > 0) { ctx.fillStyle = `rgba(214,220,210,${grey})`; ctx.fillRect(x, y, w, h); }
+  ctx.restore();
+}
+
+// phone frame
+function phone(x, y, w, h, content) {
+  clay(x - 14, y - 14, w + 28, h + 28, 78, { depth: 18, top: '#fdfdfb', bot: '#e9eee6', side: '#cfd6ca', sa: .24, blur: 90, oy: 50 });
+  rr(x, y, w, h, 64); ctx.fillStyle = '#fbfcfa'; ctx.fill();
+  ctx.save(); rr(x, y, w, h, 64); ctx.clip(); content(x, y, w, h); ctx.restore();
+  // island
+  rr(x + w / 2 - 70, y + 22, 140, 38, 19); ctx.fillStyle = '#1d211c'; ctx.fill();
+}
+
+// ---------- scenes ----------
+// S1 0-5 : posting consistently, views stuck
+function S1(t) {
+  const ip = spring(prog(t, 0.05, 1.3) * 2.2, 3.2, 4.2);
+  const iy = lerp(H + 300, 560, ip) + Math.sin(t * 1.6) * 10;
+  const rot = lerp(.9, -.12, ip) + Math.sin(t * 1.2) * .03;
+  // reel cards
+  const cards = [[-300, -.14], [0, 0], [300, .14]];
+  cards.forEach(([dx, r], i) => {
+    const p = eBack(prog(t, 1.0 + i * .22, 1.55 + i * .22));
+    if (p <= 0) return;
+    const x = CX + dx * p, y = 1130 + Math.abs(dx) * .12 + Math.sin(t * 1.4 + i) * 8, cw = 250, ch = 420;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(r * p); ctx.scale(lerp(.6, 1, p), lerp(.6, 1, p)); ctx.globalAlpha = BA * clamp(p * 2);
+    clay(-cw / 2 - 12, -ch / 2 - 12, cw + 24, ch + 24, 40, { depth: 10 });
+    const dull = prog(t, 3.2, 4.2);
+    thumb(-cw / 2, -ch / 2, cw, ch, 30, i * 3 + 1, dull * .55);
+    playTri(0, -30, 50, 'rgba(255,255,255,.9)');
+    // view meter that stalls
+    const fill = .16 * eOut(prog(t, 1.7 + i * .2, 2.6 + i * .2)) + Math.sin(t * 8 + i) * .004 * prog(t, 2.6, 3);
+    eyeIcon(-cw / 2 + 40, ch / 2 - 44, 15, '#fff');
+    bar(-cw / 2 + 70, ch / 2 - 52, cw - 100, 16, 'rgba(255,255,255,.35)');
+    bar(-cw / 2 + 70, ch / 2 - 52, (cw - 100) * fill, 16, '#ffffff');
+    ctx.restore();
+  });
+  // flatline chart card
+  const cp = eOut(prog(t, 1.8, 2.5));
+  if (cp > 0) {
+    const cy = lerp(1720, 1560, cp);
+    ctx.save(); ctx.globalAlpha = BA * cp;
+    clay(130, cy, 820, 220, 44, { depth: 12 });
+    ctx.strokeStyle = 'rgba(60,80,55,.08)'; ctx.lineWidth = 2;
+    for (let k = 1; k < 4; k++) { ctx.beginPath(); ctx.moveTo(180, cy + k * 50); ctx.lineTo(900, cy + k * 50); ctx.stroke(); }
+    const lp = prog(t, 2.2, 4.4);
+    ctx.lineWidth = 9; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#9aa596';
+    ctx.beginPath();
+    let lx = 180, ly = cy + 150;
+    for (let k = 0; k <= 80 * lp; k++) { lx = 180 + k * 9; ly = cy + 150 + Math.sin(k * .7) * 5 + (k > 40 ? Math.sin(k * .3) * 3 : -k * .15); k === 0 ? ctx.moveTo(lx, ly) : ctx.lineTo(lx, ly); }
+    ctx.stroke();
+    if (lp > 0) { ctx.fillStyle = '#9aa596'; ctx.beginPath(); ctx.arc(lx, ly, 14 + Math.sin(t * 6) * 2, 0, 7); ctx.fill(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(lx, ly, 6, 0, 7); ctx.fill(); }
+    ctx.restore();
+  }
+  igIcon(CX, iy, 330, rot, 1, Math.sin(t * .9) * .15);
+}
+
+// S2 5-10 : nobody knows why -> ask Meta directly
+function S2(t) {
+  const lt = t - 5;
+  const morph = eInOut(prog(lt, 2.1, 2.9));
+  const cy = 900;
+  // tangled orbit strings
+  if (morph < 1) {
+    ctx.save(); ctx.globalAlpha = BA * (1 - morph) * eOut(prog(lt, 0, .6));
+    for (let i = 0; i < 7; i++) {
+      ctx.save(); ctx.translate(CX, cy); ctx.rotate(i * .9 + lt * (.3 + i * .05) * (i % 2 ? 1 : -1));
+      ctx.strokeStyle = i % 2 ? 'rgba(120,150,110,.35)' : 'rgba(80,120,70,.25)'; ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.ellipse(0, 0, 330 * (1 - morph * .6), 120 + i * 18, 0, 0, 7); ctx.stroke();
+      const a = lt * (1.2 + i * .2) + i;
+      ctx.fillStyle = '#ffffff'; shadow(20, 6, .2); ctx.beginPath(); ctx.arc(Math.cos(a) * 330 * (1 - morph * .6), Math.sin(a) * (120 + i * 18), 16, 0, 7); ctx.fill(); noShadow();
+      ctx.restore();
+    }
+    // frosted mystery orb
+    const op = eBack(prog(lt, .1, .9));
+    const r = 190 * op * (1 - morph * .3);
+    ctx.save(); ctx.translate(CX, cy);
+    shadow(90, 40, .22);
+    const og = ctx.createRadialGradient(-r * .35, -r * .4, r * .1, 0, 0, r);
+    og.addColorStop(0, '#ffffff'); og.addColorStop(.6, '#e4eee0'); og.addColorStop(1, '#c6d6c0');
+    ctx.fillStyle = og; ctx.beginPath(); ctx.arc(0, 0, Math.max(r, 1), 0, 7); ctx.fill(); noShadow();
+    // churning inner fog
+    for (let k = 0; k < 5; k++) { ctx.fillStyle = `rgba(110,150,100,${.08 + k * .02})`; ctx.beginPath(); ctx.arc(Math.cos(lt * 1.3 + k * 1.7) * r * .35, Math.sin(lt * 1.1 + k * 2.1) * r * .3, r * (.3 + k * .05), 0, 7); ctx.fill(); }
+    ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.beginPath(); ctx.ellipse(-r * .35, -r * .45, r * .3, r * .16, -.6, 0, 7); ctx.fill();
+    ctx.restore();
+    ctx.restore();
+  }
+  // meta tile reveal
+  if (lt > 2.2) {
+    const p = spring(prog(lt, 2.2, 3.6) * 2.4, 3, 4.5);
+    const s = 520 * p;
+    const fl = Math.sin(lt * 1.5) * 12;
+    // flash
+    const fp = prog(lt, 2.4, 3.2);
+    if (fp > 0 && fp < 1) { ctx.fillStyle = `rgba(255,255,255,${(1 - fp) * .7})`; ctx.beginPath(); ctx.arc(CX, cy, 200 + fp * 700, 0, 7); ctx.fill(); }
+    metaTile(CX, cy + fl, Math.max(s, 1), Math.sin(lt * .9) * .04 - .05 * (1 - p), eOut(prog(lt, 2.6, 3.8)));
+    // shine sweep
+    const sw = prog(lt, 3.9, 4.6);
+    if (sw > 0 && sw < 1) {
+      ctx.save(); ctx.translate(CX, cy + fl); rr(-s / 2, -s / 2, s, s, s * .26); ctx.clip(); ctx.rotate(.5);
+      const sx = lerp(-s, s, sw); const g = ctx.createLinearGradient(sx - 80, 0, sx + 80, 0); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.5, 'rgba(255,255,255,.75)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g; ctx.fillRect(-s, -s, s * 2, s * 2); ctx.restore();
+    }
+    const sp = prog(lt, 3.0, 4.6);
+    [[-300, -240, 30, 0], [310, -200, 22, .2], [270, 300, 34, .35], [-280, 280, 20, .5]].forEach(([dx, dy, ss, d]) => {
+      const q = prog(sp, d, d + .5); sparkle(CX + dx, cy + dy + fl, ss * Math.sin(q * Math.PI), 1, '#ffffff');
+    });
+    // floating small IG chip & cards orbiting in
+    const ob = eOut(prog(lt, 3.2, 4.2));
+    if (ob > 0) {
+      igIcon(CX - 340 + Math.sin(lt) * 10, cy + 520 - ob * 60, 150, -.2, ob);
+      ctx.save(); ctx.globalAlpha = BA * ob; aiRing(CX + 330, cy + 480 - ob * 60 + Math.cos(lt) * 10, 78, lt, .8); ctx.restore();
+    }
+  }
+}
+
+// S3 10-15 : open Instagram -> messages -> search Meta
+function S3(t) {
+  const lt = t - 10;
+  const pp = spring(prog(lt, 0, 1.1) * 2.3, 3, 4.6);
+  const pw = 600, ph = 1220, px = CX - pw / 2, py = lerp(H + 100, 330, pp);
+  // tap schedule (screen-relative targets)
+  const taps = [[1.2, 'ig'], [2.3, 'plane'], [3.2, 'search'], [4.2, 'meta']];
+  const stage = lt < 1.35 ? 0 : lt < 2.45 ? 1 : lt < 3.35 ? 2 : 3;
+  const target = {
+    ig: [px + pw / 2, py + 560], plane: [px + pw - 70, py + 125], search: [px + pw / 2, py + 215], meta: [px + 140, py + 360]
+  };
+  phone(px, py, pw, ph, (x, y, w, h) => {
+    if (stage === 0) {
+      const g = ctx.createLinearGradient(x, y, x, y + h); g.addColorStop(0, '#eef7e8'); g.addColorStop(1, '#d6ebc9'); ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+      const cols = ['#f3d9c6', '#d8e2f7', '#e6dcf5', '#d5efe2', '#f7e7c3', '#e3ecd8', '#f2d3dc', '#d9edf2', '#ece3d6'];
+      for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) {
+        const ix = x + 105 + c * 195, iy = y + 200 + r * 180, k = r * 3 + c;
+        if (r === 2 && c === 1) continue;
+        rr(ix - 60, iy - 60, 120, 120, 34); ctx.fillStyle = cols[k % cols.length]; ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.beginPath(); ctx.arc(ix, iy, 22, 0, 7); ctx.fill();
+      }
+      const press = Math.sin(clamp((lt - 1.1) / .25) * Math.PI) * .12;
+      igIcon(x + w / 2, y + 560, 150 * (1 - press), 0, 1);
+    } else if (stage === 1) {
+      const sp = eOut(prog(lt, 1.35, 1.7));
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(x, y, w, h);
+      ctx.save(); ctx.globalAlpha = BA * sp;
+      bar(x + 40, y + 108, 170, 34, 'rgba(30,30,30,.85)');
+      heart(x + w - 160, y + 128, 44, 'rgba(0,0,0,0)'); ctx.strokeStyle = '#222'; ctx.lineWidth = 6; ctx.stroke();
+      const hl = prog(lt, 2.2, 2.4);
+      planeIcon(target.plane[0] - px + x, y + 125, 26, '#222');
+      if (hl > 0) { ctx.fillStyle = `rgba(0,100,224,${.12 * hl})`; ctx.beginPath(); ctx.arc(x + w - 70, y + 125, 46, 0, 7); ctx.fill(); }
+      // stories row
+      for (let k = 0; k < 4; k++) { const sx = x + 85 + k * 145; ctx.lineWidth = 6; ctx.strokeStyle = igLinear(sx - 55, y + 300, sx + 55, y + 200); ctx.beginPath(); ctx.arc(sx, y + 250, 56, 0, 7); ctx.stroke(); thumbCircle(sx, y + 250, 46, k + 2); }
+      // post
+      thumb(x, y + 360, w, 560, 0, 4); playTri(x + w / 2, y + 640, 70, 'rgba(255,255,255,.85)');
+      bar(x + 40, y + 960, 360, 22); bar(x + 40, y + 1000, 240, 22);
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(x, y, w, h);
+      const sp = eOut(prog(lt, 2.45, 2.85));
+      ctx.save(); ctx.translate((1 - sp) * 120, 0); ctx.globalAlpha = BA * sp;
+      bar(x + 40, y + 108, 200, 34, 'rgba(30,30,30,.85)');
+      // search pill
+      const act = stage === 3 ? eOut(prog(lt, 3.35, 3.6)) : 0;
+      rr(x + 30, y + 180, w - 60, 72, 36); ctx.fillStyle = act ? `rgba(0,100,224,${.06 + .04 * act})` : '#f0f2ef'; ctx.fill();
+      if (act) { ctx.strokeStyle = `rgba(0,100,224,${.6 * act})`; ctx.lineWidth = 4; ctx.stroke(); }
+      searchIcon(x + 80, y + 216, 26, '#7a8576');
+      if (stage === 3) {
+        // typing caret / short query bar
+        const q = eOut(prog(lt, 3.5, 3.9)); bar(x + 125, y + 205, 110 * q, 22, 'rgba(30,30,30,.7)');
+        if (Math.floor(lt * 3) % 2 === 0) { ctx.fillStyle = '#0064e0'; ctx.fillRect(x + 132 + 110 * q, y + 196, 4, 40); }
+        // meta AI result
+        const rp = eBack(prog(lt, 3.6, 4.0));
+        ctx.save(); ctx.globalAlpha *= clamp(rp); ctx.translate(0, (1 - rp) * 40);
+        rr(x + 24, y + 290, w - 48, 140, 30); ctx.fillStyle = `rgba(0,100,224,${.06 + .06 * prog(lt, 4.15, 4.3)})`; ctx.fill();
+        aiRing(x + 110, y + 360, 46, lt, 1);
+        bar(x + 190, y + 330, 200, 26, 'rgba(30,30,30,.8)'); bar(x + 190, y + 372, 300, 20);
+        // blue verified dot
+        ctx.fillStyle = '#0095f6'; ctx.beginPath(); ctx.arc(x + 412, y + 343, 14, 0, 7); ctx.fill(); check(x + 412, y + 343, 14, 1);
+        ctx.restore();
+        ctx.globalAlpha = BA * sp * (1 - prog(lt, 3.6, 3.9));
+      }
+      for (let k = 0; k < 6; k++) { const ry = y + 320 + k * 140; thumbCircle(x + 90, ry + 40, 46, k); bar(x + 165, ry + 20, 190 + (k * 37) % 90, 24, 'rgba(30,30,30,.7)'); bar(x + 165, ry + 60, 120 + (k * 53) % 140, 18); }
+      ctx.restore();
+    }
+  });
+  // cursor path
+  let cx_ = CX + 380, cy_ = py + 1300, press = 0;
+  const pts = [[CX + 380, py + 1300]].concat(taps.map(([tt, k]) => target[k]));
+  const times = [0.6].concat(taps.map(x => x[0]));
+  for (let i = 0; i < pts.length - 1; i++) {
+    if (lt >= times[i]) { const p = eInOut(prog(lt, times[i] + .05, times[i + 1] - .15)); cx_ = lerp(pts[i][0], pts[i + 1][0], p); cy_ = lerp(pts[i][1], pts[i + 1][1], p); }
+  }
+  taps.forEach(([tt, k]) => { press = Math.max(press, Math.sin(clamp((lt - tt + .08) / .2) * Math.PI)); ripple(target[k][0], target[k][1], prog(lt, tt, tt + .5), k === 'ig' ? '255,255,255' : '0,100,224'); });
+  cursor(cx_ + 6, cy_ + 6, press, eOut(prog(lt, .6, .9)));
+}
+function thumbCircle(x, y, r, k) { ctx.save(); ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.clip(); thumb(x - r, y - r, r * 2, r * 2, 0, k); ctx.restore(); }
+
+// S4 15-20 : paste prompt -> detailed report
+function S4(t) {
+  const lt = t - 15;
+  const pp = eOut(prog(lt, 0, .5));
+  const pw = 640, ph = 1300, px = CX - pw / 2, py = lerp(380, 300, pp);
+  ctx.save(); ctx.globalAlpha = BA * 1;
+  phone(px, py, pw, ph, (x, y, w, h) => {
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(x, y, w, h);
+    // header
+    aiRing(x + 90, y + 125, 34, lt, .5); bar(x + 150, y + 105, 160, 26, 'rgba(30,30,30,.85)'); bar(x + 150, y + 142, 100, 16);
+    ctx.fillStyle = '#eef0ec'; ctx.fillRect(x, y + 190, w, 2);
+    // input pill
+    const pasted = prog(lt, .95, 1.15);
+    rr(x + 28, y + h - 120, w - 150, 80, 40); ctx.fillStyle = '#f0f2ef'; ctx.fill();
+    const sent = prog(lt, 1.4, 1.75);
+    if (pasted > 0 && sent < 1) { ctx.save(); ctx.globalAlpha = BA * (1 - sent); bar(x + 60, y + h - 100, 300 * eOut(pasted), 16, 'rgba(30,30,30,.55)'); bar(x + 60, y + h - 74, 200 * eOut(pasted), 16, 'rgba(30,30,30,.35)'); ctx.restore(); }
+    const sb = 1 + Math.sin(clamp((lt - 1.3) / .2) * Math.PI) * -.15;
+    ctx.save(); ctx.translate(x + w - 70, y + h - 80); ctx.scale(sb, sb);
+    ctx.fillStyle = pasted > 0 ? igLinear(-40, 40, 40, -40) : '#d5dad2'; ctx.beginPath(); ctx.arc(0, 0, 42, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 7; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(0, 16); ctx.lineTo(0, -16); ctx.moveTo(-13, -3); ctx.lineTo(0, -16); ctx.lineTo(13, -3); ctx.stroke();
+    ctx.restore();
+    // user bubble
+    if (sent > 0) {
+      const bp = eBack(sent);
+      const bw = 430, bh = 200, bx = x + w - 40 - bw, by = lerp(y + h - 130, y + 230, eOut(sent));
+      ctx.save(); ctx.globalAlpha = BA * clamp(sent * 2); ctx.translate(bx + bw, by); ctx.scale(lerp(.6, 1, bp), lerp(.6, 1, bp)); ctx.translate(-bw, 0);
+      rr(0, 0, bw, bh, [40, 40, 10, 40]); ctx.fillStyle = (() => { const g = ctx.createLinearGradient(0, 0, bw, bh); g.addColorStop(0, '#7b4dff'); g.addColorStop(1, '#2b7cf6'); return g; })(); ctx.fill();
+      [330, 360, 300, 220].forEach((lw, k) => bar(34, 34 + k * 38, lw, 16, 'rgba(255,255,255,.85)'));
+      ctx.restore();
+    }
+    // typing dots
+    const ty = prog(lt, 1.9, 2.8);
+    if (ty > 0 && ty < 1) {
+      ctx.save(); ctx.globalAlpha = BA * Math.min(1, ty * 6, (1 - ty) * 6);
+      rr(x + 40, y + 470, 150, 74, 37); ctx.fillStyle = '#f0f2ef'; ctx.fill();
+      for (let k = 0; k < 3; k++) { const o = Math.sin(lt * 9 - k * .8) * 6; ctx.fillStyle = '#8a9486'; ctx.beginPath(); ctx.arc(x + 80 + k * 35, y + 507 + o, 10, 0, 7); ctx.fill(); }
+      ctx.restore();
+    }
+    // report card
+    const rp = prog(lt, 2.8, 3.5);
+    if (rp > 0) {
+      const rh = 680 * eOut(rp), rx = x + 34, ry = y + 470, rw = w - 68;
+      ctx.save(); rr(rx, ry, rw, rh, 36); ctx.fillStyle = '#f4f7f2'; ctx.fill(); ctx.clip();
+      // donut
+      const dp = eOut(prog(lt, 3.2, 4.2));
+      ctx.lineWidth = 26; ctx.strokeStyle = '#e1e7de'; ctx.beginPath(); ctx.arc(rx + 120, ry + 130, 72, 0, 7); ctx.stroke();
+      ctx.strokeStyle = (() => { const g = ctx.createLinearGradient(rx + 50, ry + 200, rx + 190, ry + 60); g.addColorStop(0, '#5cb82e'); g.addColorStop(1, '#2b7cf6'); return g; })();
+      ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(rx + 120, ry + 130, 72, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * .82 * dp); ctx.stroke();
+      // bars
+      [.9, .62, .78].forEach((v, k) => { const bp2 = eOut(prog(lt, 3.3 + k * .15, 4.1 + k * .15)); bar(rx + 240, ry + 80 + k * 40, 280, 20, '#e1e7de'); bar(rx + 240, ry + 80 + k * 40, 280 * v * bp2, 20, k === 1 ? '#2b7cf6' : '#5cb82e'); });
+      // checklist
+      for (let k = 0; k < 4; k++) {
+        const cy2 = ry + 280 + k * 96, cp2 = eBack(prog(lt, 3.6 + k * .32, 3.9 + k * .32));
+        ctx.save(); ctx.globalAlpha = BA * clamp(cp2);
+        rr(rx + 24, cy2, rw - 48, 78, 24); ctx.fillStyle = '#ffffff'; ctx.fill();
+        ctx.fillStyle = '#5cb82e'; ctx.beginPath(); ctx.arc(rx + 72, cy2 + 39, 22 * clamp(cp2, 0, 1.2), 0, 7); ctx.fill(); check(rx + 72, cy2 + 39, 22, prog(lt, 3.75 + k * .32, 4.0 + k * .32));
+        bar(rx + 115, cy2 + 22, 250 + (k * 41) % 80, 16, 'rgba(30,30,30,.6)'); bar(rx + 115, cy2 + 48, 160 + (k * 67) % 90, 12);
+        ctx.restore();
+      }
+      ctx.restore();
+    }
+  });
+  // floating clipboard doc flying into input
+  const cp = prog(lt, .2, 1.0);
+  if (cp < 1) {
+    const e = eInOut(cp);
+    const sx = lerp(W + 200, px + 250, e), sy = lerp(1150, py + ph - 80, e), sc = lerp(1, .25, eInOut(prog(cp, .5, 1)));
+    ctx.save(); ctx.globalAlpha = BA * (1 - prog(cp, .85, 1)); ctx.translate(sx, sy); ctx.rotate(lerp(.3, 0, e)); ctx.scale(sc, sc);
+    clay(-170, -220, 340, 440, 36, { depth: 12 });
+    for (let k = 0; k < 7; k++) bar(-120, -160 + k * 46, [240, 200, 230, 160, 220, 190, 120][k], 18, k === 0 ? 'rgba(123,77,255,.7)' : 'rgba(30,30,30,.18)');
+    sparkle(130, -190, 26, 1, '#7b4dff');
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+// S5 20-25 : change your whole account
+function S5(t) {
+  const lt = t - 20;
+  const ap = spring(prog(lt, 0, 1) * 2.2, 3, 4.5);
+  const cw = 820, ch = 1180, cx0 = CX - cw / 2, cy0 = lerp(H, 380, ap);
+  const tilt = Math.sin(lt * .8) * .015;
+  ctx.save(); ctx.translate(CX, cy0 + ch / 2); ctx.rotate(tilt); ctx.translate(-CX, -(cy0 + ch / 2));
+  clay(cx0, cy0, cw, ch, 60, { depth: 18 });
+  const glow = eOut(prog(lt, 2.6, 3.2));
+  avatarCircle(cx0 + 150, cy0 + 150, 86, glow > 0 ? 'ig' : 'grey', glow > 0 ? glow : 1, lerp(.25, 1, glow));
+  if (glow > 0) { ctx.lineWidth = 10; ctx.strokeStyle = '#cfd5cc'; ctx.globalAlpha = BA * (1 - glow); ctx.beginPath(); ctx.arc(cx0 + 150, cy0 + 150, 96, 0, 7); ctx.stroke(); ctx.globalAlpha = BA * 1; }
+  for (let k = 0; k < 3; k++) { bar(cx0 + 300 + k * 160, cy0 + 110, 90, 30, 'rgba(30,30,30,.75)'); bar(cx0 + 300 + k * 160, cy0 + 160, 120, 18); }
+  bar(cx0 + 70, cy0 + 280, 380, 22, 'rgba(30,30,30,.6)'); bar(cx0 + 70, cy0 + 318, 520, 18); bar(cx0 + 70, cy0 + 350, 300, 18);
+  const fb = eOut(prog(lt, 2.6, 3.0));
+  rr(cx0 + 70, cy0 + 400, cw - 140, 70, 22); ctx.fillStyle = fb ? igLinear(cx0 + 70, cy0 + 470, cx0 + cw - 70, cy0 + 400) : '#e6ebe3'; ctx.globalAlpha = BA * 1; ctx.fill();
+  if (fb < 1) { rr(cx0 + 70, cy0 + 400, cw - 140, 70, 22); ctx.fillStyle = `rgba(230,235,227,${1 - fb})`; ctx.fill(); }
+  // grid tiles flip
+  const gs = 8, tw = (cw - 140 - gs * 2) / 3, th = tw * 1.25;
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
+    const k = r * 3 + c, tx = cx0 + 70 + c * (tw + gs), ty = cy0 + 500 + r * (th + gs);
+    const ft = 1.05 + (r + c) * .22 + k * .02, fp = prog(lt, ft, ft + .38);
+    const sx = Math.abs(Math.cos(fp * Math.PI));
+    const after = fp >= .5;
+    ctx.save(); ctx.translate(tx + tw / 2, ty + th / 2); ctx.scale(Math.max(sx, .02), 1 + Math.sin(fp * Math.PI) * .04); ctx.translate(-tw / 2, -th / 2);
+    if (after) { thumb(0, 0, tw, th, 14, k); playTri(tw - 34, 30, 22, 'rgba(255,255,255,.95)'); }
+    else { rr(0, 0, tw, th, 14); ctx.fillStyle = '#dde3da'; ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.4)'; ctx.beginPath(); ctx.arc(tw / 2, th / 2, 24, 0, 7); ctx.fill(); }
+    ctx.restore();
+  }
+  // light sweep band
+  const sw = prog(lt, .9, 2.3);
+  if (sw > 0 && sw < 1) {
+    ctx.save(); rr(cx0, cy0, cw, ch, 60); ctx.clip(); ctx.translate(CX, cy0 + ch / 2); ctx.rotate(-.6);
+    const yy = lerp(-1100, 1100, sw); const g = ctx.createLinearGradient(0, yy - 120, 0, yy + 120);
+    g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.5, 'rgba(255,255,255,.7)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = g; ctx.fillRect(-1200, yy - 120, 2400, 240); ctx.restore();
+  }
+  ctx.restore();
+  // sparkles + floating reactions
+  const r1 = rand(7);
+  for (let k = 0; k < 10; k++) { const d = 2.6 + r1() * 1.6, q = prog(lt, d, d + .7); sparkle(cx0 + r1() * cw, cy0 + r1() * ch, 26 * Math.sin(q * Math.PI), 1, k % 2 ? '#ffffff' : '#ffd36e'); }
+  [[cx0 + cw - 40, cy0 + 560, 0], [cx0 - 10, cy0 + 900, 1], [cx0 + cw - 10, cy0 + 1080, 2]].forEach(([x, y, k]) => {
+    const q = eBack(prog(lt, 3.2 + k * .3, 3.6 + k * .3)); if (q <= 0) return;
+    ctx.save(); ctx.translate(x, y + Math.sin(lt * 2 + k) * 8); ctx.scale(q, q);
+    shadow(30, 12, .25, '200,40,90'); rr(-62, -46, 124, 92, 46); ctx.fillStyle = k === 1 ? igLinear(-62, 46, 62, -46) : '#ff3f6c'; ctx.fill(); noShadow();
+    if (k === 1) personPlus(0, 0, 30, '#fff'); else heart(0, 4, 50, '#fff');
+    ctx.restore();
+  });
+}
+
+// S6 25-29.5 : 500K+ views growth
+function S6(t) {
+  const lt = t - 25;
+  const ap = eOut(prog(lt, 0, .6));
+  const shake = Math.exp(-Math.max(0, lt - 2.0) * 6) * (lt > 2.0 ? 1 : 0);
+  ctx.save(); ctx.translate(Math.sin(lt * 70) * 8 * shake, Math.cos(lt * 60) * 8 * shake);
+  const gx = 110, gy = lerp(1500, 520, ap), gw = 860, gh = 900;
+  ctx.save(); ctx.globalAlpha = BA * ap;
+  clay(gx, gy, gw, gh, 56, { depth: 16 });
+  ctx.strokeStyle = 'rgba(60,80,55,.07)'; ctx.lineWidth = 2;
+  for (let k = 1; k < 6; k++) { ctx.beginPath(); ctx.moveTo(gx + 60, gy + k * 140); ctx.lineTo(gx + gw - 60, gy + k * 140); ctx.stroke(); }
+  // curve: slow then explosive
+  const lp = prog(lt, .5, 2.0);
+  const N = 120, pts = [];
+  for (let i = 0; i <= N * lp; i++) { const u = i / N; const v = Math.pow(u, 4.2) * .92 + Math.sin(u * 22) * .012 * (1 - u); pts.push([gx + 70 + u * (gw - 150), gy + gh - 90 - v * (gh - 190)]); }
+  if (pts.length > 1) {
+    // area
+    ctx.beginPath(); ctx.moveTo(pts[0][0], gy + gh - 60); pts.forEach(p => ctx.lineTo(p[0], p[1])); ctx.lineTo(pts[pts.length - 1][0], gy + gh - 60); ctx.closePath();
+    const ag = ctx.createLinearGradient(0, gy, 0, gy + gh); ag.addColorStop(0, 'rgba(92,184,46,.38)'); ag.addColorStop(1, 'rgba(92,184,46,0)'); ctx.fillStyle = ag; ctx.fill();
+    ctx.lineWidth = 14; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    const lg = ctx.createLinearGradient(gx, gy + gh, gx + gw, gy); lg.addColorStop(0, '#5cb82e'); lg.addColorStop(1, '#16a34a');
+    shadow(30, 0, .5, '92,184,46'); ctx.strokeStyle = lg; ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(...p) : ctx.moveTo(...p)); ctx.stroke(); noShadow();
+    const hp = pts[pts.length - 1];
+    ctx.fillStyle = '#fff'; shadow(30, 0, .7, '92,184,46'); ctx.beginPath(); ctx.arc(hp[0], hp[1], 22, 0, 7); ctx.fill(); noShadow();
+    ctx.fillStyle = '#16a34a'; ctx.beginPath(); ctx.arc(hp[0], hp[1], 11, 0, 7); ctx.fill();
+  }
+  ctx.restore();
+  // burst at peak
+  const bp = prog(lt, 2.0, 3.4);
+  if (bp > 0 && bp < 1) {
+    const px_ = gx + gw - 80, py_ = gy + 100, r2 = rand(11);
+    for (let k = 0; k < 26; k++) {
+      const a = r2() * Math.PI * 2, sp = 200 + r2() * 420, d = eOut(bp) * sp, s = 14 + r2() * 22;
+      const x = px_ + Math.cos(a) * d, y = py_ + Math.sin(a) * d + bp * bp * 160;
+      ctx.save(); ctx.globalAlpha = BA * (1 - bp);
+      if (k % 3 === 0) heart(x, y, s * 2, '#ff3f6c'); else if (k % 3 === 1) sparkle(x, y, s, 1, '#ffd36e'); else { ctx.fillStyle = '#5cb82e'; ctx.beginPath(); ctx.arc(x, y, s * .45, 0, 7); ctx.fill(); }
+      ctx.restore();
+    }
+    ctx.fillStyle = `rgba(255,255,255,${(1 - bp) * .8})`; ctx.beginPath(); ctx.arc(px_, py_, 30 + eOut(bp) * 260, 0, 7); ctx.fill();
+  }
+  // reel card with full meter
+  const rp = eBack(prog(lt, .7, 1.3));
+  if (rp > 0) {
+    const x = 250, y = 1530 + Math.sin(lt * 1.5) * 10, cw = 260, chh = 300;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(-.08); ctx.scale(rp, rp);
+    clay(-cw / 2 - 12, -chh / 2 - 12, cw + 24, chh + 24, 38, { depth: 10 });
+    thumb(-cw / 2, -chh / 2, cw, chh, 28, 0); playTri(0, -24, 50, 'rgba(255,255,255,.95)');
+    eyeIcon(-cw / 2 + 40, chh / 2 - 44, 15, '#fff');
+    bar(-cw / 2 + 70, chh / 2 - 52, cw - 100, 16, 'rgba(255,255,255,.35)');
+    bar(-cw / 2 + 70, chh / 2 - 52, (cw - 100) * (.15 + .85 * eExpo(prog(lt, 1.2, 2.2))), 16, '#ffffff');
+    ctx.restore();
+  }
+  // notification pills
+  [[760, 1560, 0, 2.3], [620, 1730, 1, 2.6], [880, 1720, 2, 2.9]].forEach(([x, y, k, d]) => {
+    const q = eBack(prog(lt, d, d + .35)); if (q <= 0) return;
+    ctx.save(); ctx.translate(x, y + Math.sin(lt * 2 + k) * 8); ctx.scale(q, q);
+    shadow(30, 14, .25, '200,40,90'); rr(-80, -52, 160, 104, 52); ctx.fillStyle = k === 0 ? '#ff3f6c' : k === 1 ? '#ffffff' : igLinear(-80, 52, 80, -52); ctx.fill(); noShadow();
+    if (k === 0) heart(0, 6, 56, '#fff'); else if (k === 1) bubbleIcon(0, 0, 36, '#ff3f6c'); else personPlus(0, 0, 34, '#fff');
+    ctx.restore();
+  });
+  // 3D IG icon riding the peak
+  const ip = spring(prog(lt, 1.9, 3.0) * 2, 3, 4.5);
+  if (ip > 0) igIcon(lerp(CX + 200, 830, ip), lerp(gy + 500, gy + 30, ip) + Math.sin(lt * 1.8) * 10, 190 * ip, .18, 1);
+  ctx.restore();
+}
+
+// S7 29.5-35 : follow + comment end card
+function S7(t) {
+  const lt = t - 29.5;
+  const ap = spring(prog(lt, .05, 1.1) * 2.2, 3, 4.5);
+  const ax = CX, ay = 560;
+  // rotating gradient halo
+  ctx.save(); ctx.globalAlpha = BA * clamp(ap);
+  const hg = ctx.createRadialGradient(ax, ay, 100, ax, ay, 420); hg.addColorStop(0, 'rgba(232,51,106,.18)'); hg.addColorStop(1, 'rgba(232,51,106,0)');
+  ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(ax, ay, 420, 0, 7); ctx.fill();
+  ctx.restore();
+  if (ap > 0) {
+    ctx.save(); ctx.translate(ax, ay); ctx.scale(ap, ap); ctx.translate(-ax, -ay);
+    shadow(80, 40, .25, '120,30,70'); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(ax, ay, 232, 0, 7); ctx.fill(); noShadow();
+    // ring
+    ctx.save(); ctx.translate(ax, ay); ctx.rotate(lt * .6);
+    const cg = ctx.createConicGradient(0, 0, 0); cg.addColorStop(0, '#fdb34b'); cg.addColorStop(.25, '#f7743a'); cg.addColorStop(.5, '#e8336a'); cg.addColorStop(.75, '#6b45d8'); cg.addColorStop(1, '#fdb34b');
+    ctx.strokeStyle = cg; ctx.lineWidth = 20; ctx.beginPath(); ctx.arc(0, 0, 218, 0, Math.PI * 2 * eOut(prog(lt, .2, 1.1))); ctx.stroke(); ctx.restore();
+    avatarCircle(ax, ay, 190, null);
+    ctx.restore();
+  }
+  // handle text with gradient + wipe
+  const tp = eOut(prog(lt, .6, 1.3));
+  if (tp > 0) {
+    ctx.save();
+    ctx.font = `900 104px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const tw = ctx.measureText('@ig_cyberwar').width;
+    ctx.beginPath(); ctx.rect(CX - tw / 2 - 20, 900, (tw + 40) * tp, 160); ctx.clip();
+    ctx.translate(0, (1 - tp) * 30);
+    shadow(40, 18, .18, '120,30,70');
+    ctx.fillStyle = igLinear(CX - tw / 2, 1010, CX + tw / 2, 930); ctx.fillText('@ig_cyberwar', CX, 975);
+    noShadow();
+    // glossy highlight
+    const sh = prog(lt, 1.3, 2.0);
+    if (sh > 0 && sh < 1) { ctx.globalCompositeOperation = 'source-atop'; const sx = lerp(CX - tw, CX + tw, sh); const g = ctx.createLinearGradient(sx - 60, 0, sx + 60, 0); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.5, 'rgba(255,255,255,.8)'); g.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = g; ctx.fillRect(CX - tw, 900, tw * 2, 160); }
+    ctx.restore();
+  }
+  // buttons
+  const bw = 400, bh = 130, by = 1110, fx = CX - bw - 15, mx = CX + 15;
+  const b1 = eBack(prog(lt, 1.0, 1.4)), b2 = eBack(prog(lt, 1.15, 1.55));
+  const fClick = 2.0, cClick = 2.9;
+  const fDone = eOut(prog(lt, fClick, fClick + .25));
+  const pr1 = 1 - Math.sin(clamp((lt - fClick + .1) / .25) * Math.PI) * .07;
+  const pr2 = 1 - Math.sin(clamp((lt - cClick + .1) / .25) * Math.PI) * .07;
+  if (b1 > 0) {
+    ctx.save(); ctx.translate(fx + bw / 2, by + bh / 2); ctx.scale(b1 * pr1, b1 * pr1);
+    shadow(40, 20, .3, '200,40,90');
+    rr(-bw / 2, -bh / 2 + 10, bw, bh, bh / 2); ctx.fillStyle = '#9b2a6a'; ctx.fill(); noShadow();
+    rr(-bw / 2, -bh / 2, bw, bh, bh / 2); ctx.fillStyle = igLinear(-bw / 2, bh / 2, bw / 2, -bh / 2); ctx.fill();
+    ctx.save(); rr(-bw / 2, -bh / 2, bw, bh, bh / 2); ctx.clip(); const gl = ctx.createLinearGradient(0, -bh / 2, 0, 0); gl.addColorStop(0, 'rgba(255,255,255,.4)'); gl.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = gl; ctx.fillRect(-bw / 2, -bh / 2, bw, bh / 2); ctx.restore();
+    ctx.fillStyle = '#fff'; ctx.font = `800 54px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if (fDone < .5) { ctx.globalAlpha = BA * (1 - fDone * 2); personPlus(-110, 2, 34, '#fff'); ctx.fillText('Follow', 40, 4); }
+    else { ctx.globalAlpha = BA * (fDone * 2 - 1); ctx.beginPath(); ctx.arc(-115, 2, 30, 0, 7); ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fill(); check(-115, 2, 30, prog(lt, fClick + .1, fClick + .4)); ctx.fillStyle = '#fff'; ctx.fillText('Following', 40, 4); }
+    ctx.restore();
+  }
+  if (b2 > 0) {
+    ctx.save(); ctx.translate(mx + bw / 2, by + bh / 2); ctx.scale(b2 * pr2, b2 * pr2);
+    clay(-bw / 2, -bh / 2, bw, bh, bh / 2, { depth: 10, blur: 40, oy: 20 });
+    ctx.fillStyle = '#1b1f1a'; ctx.font = `800 54px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    bubbleIcon(-120, 0, 34, '#e8336a'); ctx.fillText('Comment', 40, 4);
+    ctx.restore();
+  }
+  // heart burst on follow
+  const hb = prog(lt, fClick, fClick + 1.0);
+  if (hb > 0 && hb < 1) { const r3 = rand(5); for (let k = 0; k < 12; k++) { const a = -Math.PI / 2 + (r3() - .5) * 2.4, d = eOut(hb) * (160 + r3() * 200); ctx.save(); ctx.globalAlpha = BA * (1 - hb); heart(fx + bw / 2 + Math.cos(a) * d, by + Math.sin(a) * d, 30 + r3() * 26, k % 2 ? '#ff3f6c' : '#f7743a'); ctx.restore(); } }
+  // comment card
+  const ccp = eBack(prog(lt, cClick + .15, cClick + .6));
+  if (ccp > 0) {
+    const cw = 880, chh = 230, cx1 = CX - cw / 2, cy1 = lerp(1700, 1340, clamp(ccp, 0, 1.1));
+    ctx.save(); ctx.globalAlpha = BA * clamp(ccp * 2);
+    clay(cx1, cy1, cw, chh, 50, { depth: 14 });
+    ctx.fillStyle = '#e7ecf6'; ctx.beginPath(); ctx.arc(cx1 + 105, cy1 + 115, 62, 0, 7); ctx.fill();
+    ctx.fillStyle = '#9db4e6'; ctx.beginPath(); ctx.arc(cx1 + 105, cy1 + 98, 24, 0, 7); ctx.fill(); ctx.beginPath(); ctx.arc(cx1 + 105, cy1 + 160, 42, Math.PI, 0); ctx.fill();
+    const full = '@your_insta_id'; const n = Math.floor(full.length * prog(lt, cClick + .7, cClick + 1.8));
+    ctx.font = `800 52px ${FONT}`; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+    const str = full.slice(0, n); ctx.fillStyle = igLinear(cx1 + 200, cy1 + 140, cx1 + 600, cy1 + 90); ctx.fillText(str, cx1 + 200, cy1 + 100);
+    const tw2 = ctx.measureText(str).width;
+    if (Math.floor(lt * 2.5) % 2 === 0 || n < full.length) { ctx.fillStyle = '#e8336a'; ctx.fillRect(cx1 + 206 + tw2, cy1 + 70, 5, 62); }
+    ctx.fillStyle = 'rgba(60,80,55,.2)'; ctx.fillRect(cx1 + 200, cy1 + 150, 470, 3);
+    // send button
+    const sd = prog(lt, cClick + 2.0, cClick + 2.3);
+    const sbx = cx1 + cw - 105, sby = cy1 + 115, ss = 1 - Math.sin(clamp((lt - cClick - 1.95) / .25) * Math.PI) * .12;
+    ctx.save(); ctx.translate(sbx, sby); ctx.scale(ss, ss);
+    ctx.fillStyle = sd > 0 ? '#5cb82e' : igLinear(-50, 50, 50, -50); ctx.beginPath(); ctx.arc(0, 0, 56, 0, 7); ctx.fill();
+    if (sd > 0) check(0, 0, 34, sd); else { planeIcon(-2, 2, 24, '#fff'); }
+    ctx.restore();
+    ctx.restore();
+  }
+  // cursor
+  const c0 = [CX + 300, 1800], c1 = [fx + bw / 2 + 40, by + bh / 2 + 10], c2 = [mx + bw / 2 + 40, by + bh / 2 + 10], c3 = [CX + 335, 1460];
+  let cp = c0;
+  const mv = (a, b, t0, t1) => { const p = eInOut(prog(lt, t0, t1)); return [lerp(a[0], b[0], p), lerp(a[1], b[1], p)]; };
+  if (lt < fClick) cp = mv(c0, c1, 1.3, fClick - .1); else if (lt < cClick) cp = mv(c1, c2, fClick + .3, cClick - .1); else cp = mv(c2, c3, cClick + 1.2, cClick + 1.9);
+  const press = Math.max(Math.sin(clamp((lt - fClick + .1) / .25) * Math.PI), Math.sin(clamp((lt - cClick + .1) / .25) * Math.PI), Math.sin(clamp((lt - cClick - 1.95) / .25) * Math.PI));
+  ripple(c1[0] - 40, c1[1] - 10, prog(lt, fClick, fClick + .5)); ripple(c2[0] - 40, c2[1] - 10, prog(lt, cClick, cClick + .5), '232,51,106'); ripple(c3[0] - 30, c3[1] - 30, prog(lt, cClick + 2.0, cClick + 2.5), '92,184,46');
+  cursor(cp[0], cp[1], press, eOut(prog(lt, 1.2, 1.5)));
+  const sp2 = prog(lt, 4.9, 5.5);
+  if (sp2 > 0) { const r4 = rand(21); for (let k = 0; k < 8; k++) { const q = prog(sp2, r4() * .5, r4() * .5 + .5); sparkle(120 + r4() * 840, 300 + r4() * 1400, 28 * Math.sin(q * Math.PI), 1, '#ffffff'); } }
+}
+
+const SCENES = [[S1, 0, 5], [S2, 5, 10], [S3, 10, 15], [S4, 15, 20], [S5, 20, 25], [S6, 25, 29.5], [S7, 29.5, 35]];
+const XF = .38; // crossfade length
+
+const layer = document.createElement('canvas'); layer.width = W; layer.height = H;
+const lctx = layer.getContext('2d');
+window.renderFrame = function (t) {
+  BA = 1; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.filter = 'none'; noShadow();
+  background(t);
+  const main = ctx;
+  for (const [fn, a, b] of SCENES) {
+    const isLast = b === 35, isFirst = a === 0;
+    if (t < a - .01 || (!isLast && t > b + XF)) continue;
+    const inP = isFirst ? 1 : eOut(prog(t, a, a + XF));
+    const outP = isLast ? 0 : eInOut(prog(t, b, b + XF));
+    const alpha = Math.min(inP, 1 - outP);
+    if (alpha <= 0.001) continue;
+    // draw scene at full opacity into its own layer, then composite
+    lctx.setTransform(1, 0, 0, 1, 0, 0); lctx.globalAlpha = 1; lctx.clearRect(0, 0, W, H);
+    ctx = lctx; noShadow(); fn(t); noShadow(); ctx = main;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    const s = lerp(.94, 1, inP) * lerp(1, 1.1, outP);
+    ctx.translate(CX, H / 2); ctx.scale(s, s); ctx.translate(-CX, -H / 2 - outP * 120);
+    if (outP > 0) ctx.filter = `blur(${outP * 14}px)`;
+    ctx.drawImage(layer, 0, 0);
+    ctx.restore();
+  }
+};
+window.renderFrame(0);
+</script></body></html>
