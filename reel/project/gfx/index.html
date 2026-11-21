@@ -1,0 +1,389 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=block" rel="stylesheet">
+<style>
+:root{--green:#244b37;--deep:#173527;--ink:#14241e;--cream:#faf9f3;--yellow:#f0d682;--yit:#ebd17e;--olive:#5f7a45;--sage:#dfe8cf;--muted:#50685e}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;background:transparent;overflow:hidden}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden}
+.layer{position:absolute;inset:0;overflow:hidden}
+.abs{position:absolute;left:0;top:0;will-change:transform,opacity}
+.sans{font-family:'Plus Jakarta Sans',sans-serif}
+.serif{font-family:'Newsreader',serif;font-optical-sizing:auto}
+/* captions */
+.cap{position:absolute;left:0;width:1080px;text-align:center}
+.cap .ln{display:block;width:max-content;margin-left:auto;margin-right:auto;white-space:nowrap;line-height:1.02}
+.cap .w{display:inline-block;will-change:transform,opacity,filter}
+.cap .s{font-family:'Plus Jakarta Sans';font-weight:700;font-size:50px;letter-spacing:-0.01em;margin-top:6px;margin-bottom:6px}
+.cap .B{font-family:'Newsreader';font-weight:500;font-size:138px;letter-spacing:-0.025em;margin-top:-6px;margin-bottom:2px}
+.cap .B.it{font-style:italic;font-weight:500}
+.dark .s{color:#fff;font-size:52px;text-shadow:0 0 22px rgba(0,0,0,.65),0 3px 10px rgba(0,0,0,.7),0 1px 2px rgba(0,0,0,.6)}
+.dark .B{color:var(--cream);font-weight:600;font-size:146px;text-shadow:0 0 40px rgba(0,0,0,.65),0 6px 22px rgba(0,0,0,.6),0 2px 4px rgba(0,0,0,.55)}
+.dark .B.it{font-weight:600}
+.dark .B.ac{color:#f6dc8f}
+.light .s{color:var(--ink)}
+.light .B{color:var(--green)}
+.light .B.ac{color:var(--olive)}
+.green .s{color:var(--cream)}
+.green .B{color:var(--cream)}
+.green .B.ac{color:var(--yellow)}
+.strike{position:absolute;height:12px;border-radius:6px;background:#e5533d;box-shadow:0 3px 12px rgba(0,0,0,.35);transform-origin:left center}
+.kicker{font-family:'Plus Jakarta Sans';font-weight:700;font-size:25px;letter-spacing:.24em;text-transform:uppercase;white-space:nowrap}
+.kicker i{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--yellow);margin-right:16px;vertical-align:3px}
+.chip{display:flex;align-items:center;gap:16px;padding:18px 28px 18px 20px;border-radius:999px;background:var(--cream);color:var(--ink);font-family:'Plus Jakarta Sans';font-weight:700;font-size:34px;white-space:nowrap;box-shadow:0 14px 34px rgba(0,0,0,.32)}
+.chip .ic{width:56px;height:56px;border-radius:50%;background:#e8f0e2;display:flex;align-items:center;justify-content:center;color:var(--green)}
+.chip .ic svg{width:32px;height:32px}
+.card{border-radius:20px;overflow:hidden;box-shadow:0 22px 50px rgba(0,0,0,.38);background:#fff}
+.card img{display:block;width:100%}
+.node{width:132px;height:132px;border-radius:50%;background:var(--cream);display:flex;align-items:center;justify-content:center;color:var(--green);box-shadow:0 0 0 8px rgba(240,214,130,.22),0 0 46px rgba(240,214,130,.45),0 16px 30px rgba(0,0,0,.35)}
+.node svg{width:62px;height:62px}
+.nlab{font-family:'Plus Jakarta Sans';font-weight:700;font-size:33px;color:var(--cream);text-align:center;line-height:1.12;white-space:nowrap;text-shadow:0 2px 10px rgba(0,0,0,.35)}
+.paper{display:flex;align-items:center;gap:18px;padding:22px 30px;border-radius:22px;background:#fffdf6;color:var(--ink);font-family:'Plus Jakarta Sans';font-weight:800;font-size:42px;box-shadow:0 18px 40px rgba(0,0,0,.38);white-space:nowrap}
+.paper svg{width:46px;height:46px;color:var(--green)}
+.logochip{background:var(--cream);border-radius:26px;box-shadow:0 18px 44px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center}
+</style></head>
+<body><div id="stage">
+  <div class="layer" id="back"></div>
+  <div class="layer" id="behind"></div>
+  <div class="layer" id="front"></div>
+</div>
+<script>
+const Q = new URLSearchParams(location.search);
+const HEADTOP = +(Q.get('headtop')||470);           // head top (canvas px) during the statement scene
+const ICONS = {};
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const E={
+  oc:t=>1-Math.pow(1-t,3), oq:t=>1-Math.pow(1-t,5), ox:t=>t>=1?1:1-Math.pow(2,-10*t),
+  ic:t=>t*t*t, ioc:t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2,
+  ob:(t,s=1.7)=>{const c3=s+1;return 1+c3*Math.pow(t-1,3)+s*Math.pow(t-1,2)}
+};
+const P=(t,t0,d)=>clamp((t-t0)/d);
+// in/out envelope -> {a: 0..1 appear progress (eased), o: 0..1 out progress}
+function env(t,tin,tout,din=.32,dout=.22){return {i:P(t,tin,din), o:P(t,tout-dout,dout)}}
+function el(tag,cls,parent,html){const e=document.createElement(tag); if(cls)e.className=cls; if(html!==undefined)e.innerHTML=html; (parent||document.getElementById('front')).appendChild(e); return e}
+function set(e,{x=0,y=0,s=1,sx,sy,r=0,o=1,blur=0,rx=0,ry=0,persp=0}){
+  e.style.opacity=o<=0.001?0:o.toFixed(4);
+  e.style.visibility=o<=0.001?'hidden':'visible';
+  let tf=''; if(persp) tf+=`perspective(${persp}px) `;
+  tf+=`translate(${x.toFixed(2)}px,${y.toFixed(2)}px) rotate(${r.toFixed(3)}deg)`;
+  if(rx) tf+=` rotateX(${rx.toFixed(3)}deg)`; if(ry) tf+=` rotateY(${ry.toFixed(3)}deg)`;
+  tf+=` scale(${(sx??s).toFixed(4)},${(sy??s).toFixed(4)})`;
+  e.style.transform=tf; e.style.filter=blur>0.05?`blur(${blur.toFixed(2)}px)`:'none';
+}
+function icon(name,cls){return ICONS[name]||''}
+
+/* ---------------- CAPTIONS ---------------- */
+// line: [kind, [[text,t],...], flags]  kind: s | B | L(logo)   flags: it, ac
+const CAPS=[
+ {t0:.62,t1:1.24,th:'dark',y:1430,L:[['s',[['From the day a',.66]]],['B',[['student',.74]],'']]},
+ {t0:1.24,t1:3.12,th:'dark',y:1430,L:[['s',[['joins an',1.26]]],['B',[['institution',1.34]],'it ac']]},
+ {t0:3.14,t1:4.46,th:'dark',y:1430,L:[['s',[['until the',3.16],['course',3.30]]],['B',[['is complete',3.86]],'it ac']]},
+ {t0:4.46,t1:5.94,th:'dark',y:1430,L:[['s',[['and they',4.50]]],['B',[['step out',4.92]],'']]},
+ {t0:5.96,t1:8.14,th:'dark',y:1430,L:[['s',[['all of that',5.98],["student's",6.10]]],['B',[['information',7.04]],'it ac']]},
+ {t0:8.14,t1:9.22,th:'dark',y:1430,L:[['s',[['stays in',8.20]]],['B',[['one place',8.58]],'']]},
+ {t0:9.62,t1:11.10,th:'light',y:300,L:[['s',[['From the moment of',9.70]]],['B',[['admission',10.28]],'it ac']]},
+ {t0:11.10,t1:12.62,th:'light',y:300,L:[['s',[['their profile is',11.12]]],['B',[['created',11.94]],'it ac']]},
+ {t0:12.72,t1:18.62,th:'green',y:262,L:[['s',[['From there —',12.74]]]]},
+ {t0:18.62,t1:21.36,th:'green',y:318,L:[['s',[['every',18.86],['update',19.28]]],['B',[['connects',20.76]],'it ac'],['s',[['to that',21.0],['one profile',21.12]]]]},
+ {t0:21.58,t1:23.70,th:'dark',y:1430,L:[['s',[['No running to',21.62]]],['B',[['every department',22.60]],'']]},
+ {t0:23.70,t1:26.62,th:'dark',y:1430,L:[['s',[['to update',23.72],['details',24.16]]],['B',[['again & again',24.82]],'it ac']],strike:{line:1,t:25.42}},
+ {t0:26.72,t1:28.12,th:'dark',y:1430,L:[['s',[['Because in',26.78]]],['L',[['',27.40]]]]},
+ {t0:28.30,t1:29.30,th:'light',y:300,L:[['s',[['the student',28.30]]],['B',[['journey continues',28.62]],'']]},
+ {t0:29.30,t1:31.56,th:'light',y:300,L:[['s',[['in one',29.30]]],['B',[['connected system',29.40]],'it ac']]},
+ {t0:32.30,t1:34.40,th:'dark',y:1430,L:[['s',[['Need a',32.66],["student's",32.88]]],['B',[['information?',33.24]],'it ac']]},
+ {t0:34.40,t1:38.30,th:'dark',y:1430,L:[['s',[['No more searching through',34.46]]],['B',[['files,',35.36],['registers',35.90],['& apps',36.44]],'']],strike:{line:1,t:37.32}},
+ {t0:41.72,t1:43.32,th:'dark',y:1430,L:[['s',[["And that's the power of",41.76]]],['L',[['',42.86]]]]},
+];
+const capEls=[];
+function buildCaps(){
+  for(const g of CAPS){
+    const c=el('div','cap '+g.th); g.el=c; g.words=[]; g.lines=[];
+    for(const [k,ws,fl] of g.L){
+      const ln=el('div','ln '+(k==='L'?'Lg':k)+' '+(fl||''),c);
+      g.lines.push(ln);
+      if(k==='L'){ // logo chip as a "word"
+        const w=el('span','w',ln); w.innerHTML=`<div class="logochip" style="padding:26px 44px;margin:18px auto 0;width:max-content"><img src="assets/logo_full.png" style="height:118px;display:block"></div>`;
+        g.words.push({e:w,t:ws[0][1],k:'L'}); continue;
+      }
+      ws.forEach(([txt,t],i)=>{const w=el('span','w',ln); w.textContent=txt; g.words.push({e:w,t,k}); if(i<ws.length-1){ln.appendChild(document.createTextNode(' '))}});
+    }
+    if(g.strike){g.sEl=el('div','strike',c)}
+  }
+}
+function fitCaps(){
+  for(const g of CAPS){
+    for(const ln of g.lines){ if(ln.classList.contains('Lg')) continue; const max=g.th==='dark'?990:960;
+      let fs=parseFloat(getComputedStyle(ln).fontSize); let guard=0;
+      while(ln.offsetWidth>max && guard++<80){fs-=2; ln.style.fontSize=fs+'px'}
+    }
+    const h=g.el.offsetHeight; g.el.style.top=(g.y-h/2)+'px';
+  }
+}
+function drawCaps(t){
+  for(const g of CAPS){
+    const vis=t>=g.t0-0.02 && t<=g.t1+0.02; g.el.style.display=vis?'block':'none'; if(!vis) continue;
+    const out=P(t,g.t1-0.2,0.2), eo=E.ic(out);
+    for(const w of g.words){
+      const p=P(t,w.t-0.02,w.k==='s'?0.26:0.34);
+      if(w.k==='s'){const a=E.oc(p); set(w.e,{y:(1-a)*26-eo*18,o:a*(1-eo),blur:(1-a)*9+eo*8})}
+      else {const a=E.ox(p); const b=E.ob(clamp(p*1.0),1.5); set(w.e,{y:(1-a)*34-eo*24,s:lerp(.72,1,b)*(1-eo*.06),o:clamp(p*2.2)*(1-eo),blur:(1-clamp(p*1.6))*12+eo*10})}
+    }
+    if(g.strike){const ln=g.lines[g.strike.line]; const p=E.oq(P(t,g.strike.t,0.3));
+      const lr=ln.getBoundingClientRect(), cr=g.el.getBoundingClientRect();
+      // only span the visible words of the line
+      const ws=[...ln.querySelectorAll('.w')]; const a=ws[0].getBoundingClientRect(), b=ws[ws.length-1].getBoundingClientRect();
+      const x0=a.left-cr.left-10, x1=b.right-cr.left+10, y=(a.top+a.bottom)/2-cr.top+8;
+      g.sEl.style.left=x0+'px'; g.sEl.style.top=y+'px'; g.sEl.style.width=(x1-x0)+'px';
+      g.sEl.style.transform=`rotate(-3deg) scaleX(${p})`; g.sEl.style.opacity=(p>0?1:0)*(1-eo);
+    }
+  }
+}
+
+/* ---------------- BACKGROUNDS (back layer) ---------------- */
+const BK=document.getElementById('back');
+function asteriskSVG(color){ // 6-arm soft asterisk like site motif
+  let arms=''; for(let i=0;i<6;i++){arms+=`<rect x="-14" y="-100" width="28" height="100" rx="14" fill="${color}" transform="rotate(${i*60})"/>`}
+  return `<svg viewBox="-110 -110 220 220" width="100%" height="100%"><g>${arms}</g></svg>`;
+}
+function grain(op){return `<svg width="1080" height="1920" style="position:absolute;inset:0;opacity:${op};mix-blend-mode:overlay"><filter id="g${op*100|0}"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#g${op*100|0})"/></svg>`}
+let bgCream, bgGreen, bgCream2, asts=[];
+function buildBacks(){
+  bgCream=el('div','abs',BK); Object.assign(bgCream.style,{width:'1080px',height:'1920px',background:'radial-gradient(1200px 900px at 80% 8%, #e7efdc 0%, rgba(231,239,220,0) 60%), radial-gradient(900px 900px at 0% 100%, #f1e6c4 0%, rgba(241,230,196,0) 55%), #faf9f3'});
+  bgCream.innerHTML=grain(.35);
+  bgGreen=el('div','abs',BK); Object.assign(bgGreen.style,{width:'1080px',height:'1920px',background:'radial-gradient(900px 900px at 50% 46%, #2f5f45 0%, rgba(47,95,69,0) 70%), radial-gradient(1100px 700px at 100% 0%, #1d4a35 0%, rgba(29,74,53,0) 70%), linear-gradient(180deg,#1a3a2b,#132d21)'});
+  bgGreen.innerHTML=grain(.5);
+  const A=[[150,260,330,'#3f7a55',.55],[930,700,420,'#4f8a5f',.35],[260,1500,380,'#3b6e4f',.45],[880,1680,260,'#5c9468',.30]];
+  for(const [x,y,sz,c,o] of A){const a=el('div','abs',bgGreen); a.innerHTML=asteriskSVG(c); Object.assign(a.style,{width:sz+'px',height:sz+'px',left:(x-sz/2)+'px',top:(y-sz/2)+'px',opacity:o,filter:'blur(7px)'}); asts.push({e:a,x,y,sz,o})}
+  bgCream2=el('div','abs',BK); Object.assign(bgCream2.style,{width:'1080px',height:'1920px',background:'radial-gradient(1000px 800px at 10% 5%, #e3ecd6 0%, rgba(227,236,214,0) 60%), radial-gradient(1000px 900px at 100% 95%, #f3e7bf 0%, rgba(243,231,191,0) 55%), #faf9f3'});
+  bgCream2.innerHTML=grain(.35);
+}
+function drawBacks(t){
+  // scene 3 cream: visible 9.10 -> 13.2 (covered by green wipe from 12.62)
+  const c1=t>=9.10&&t<13.3; set(bgCream,{o:c1?1:0});
+  // green: circle wipe from hub
+  const gIn=E.ox(P(t,12.62,0.55)); const gOn=t>=12.62&&t<21.85;
+  set(bgGreen,{o:gOn?1:0}); bgGreen.style.clipPath=`circle(${(gIn*2300).toFixed(1)}px at 540px 930px)`;
+  asts.forEach((a,i)=>{set(a.e,{x:Math.sin(t*.35+i)*28,y:Math.cos(t*.27+i*2)*34,r:t*(i%2?7:-6)+i*20,o:a.o})});
+  const c2=t>=28.10&&t<32.05; set(bgCream2,{o:c2?1:0});
+}
+
+/* ---------------- FRONT ELEMENTS ---------------- */
+let shadeB, introChip, jr={}, s2=[], s3={}, s4={}, s5={}, s6={}, s7=[], s8={}, endc={}, flash;
+function buildFront(){
+  const F=document.getElementById('front');
+  shadeB=el('div','abs'); F.insertBefore(shadeB,F.firstChild); Object.assign(shadeB.style,{width:'1080px',height:'1920px',background:'linear-gradient(to top, rgba(6,13,10,.86) 0%, rgba(6,13,10,.66) 18%, rgba(6,13,10,.38) 32%, rgba(6,13,10,0) 48%)'});
+  // intro logo chip
+  introChip=el('div','abs logochip'); introChip.innerHTML='<img src="assets/logo_full.png" style="height:64px;display:block">'; Object.assign(introChip.style,{padding:'20px 32px',left:'0px',top:'0px'});
+  // journey line (3.1-5.95)
+  jr.wrap=el('div','abs'); Object.assign(jr.wrap.style,{width:'1080px',height:'520px'});
+  jr.wrap.innerHTML=`<svg width="1080" height="520" style="position:absolute;inset:0;overflow:visible">
+    <line id="jbase" x1="170" y1="300" x2="910" y2="300" stroke="rgba(250,249,243,.35)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 16"/>
+    <line id="jfill" x1="170" y1="300" x2="170" y2="300" stroke="#f0d682" stroke-width="7" stroke-linecap="round"/>
+    <circle id="jdot" cx="170" cy="300" r="15" fill="#f0d682"/><circle id="jglow" cx="170" cy="300" r="34" fill="#f0d682" opacity=".25"/></svg>`;
+  jr.n1=el('div','abs chip',jr.wrap,`<span class="ic">${icon('graduation-cap')}</span>Admission`);
+  jr.n2=el('div','abs chip',jr.wrap,`<span class="ic">${icon('check')}</span>Course complete`);
+  jr.n1.style.fontSize='30px'; jr.n2.style.fontSize='30px';
+  // scene 2 scattered real UI cards
+  const S2=[['st_attendance',190,215,-6,7.04],['st_term',892,182,5,7.22],['st_fees',178,432,4,7.40],['st_transport',902,410,-4,7.58]];
+  for(const [n,x,y,r,t] of S2){const c=el('div','abs card'); c.innerHTML=`<img src="assets/${n}.png">`; c.style.width='300px'; s2.push({e:c,x,y,r,t})}
+  // scene 3 : kicker + enrol dialog + cursor + profile card
+  s3.k=el('div','abs kicker','',`<i></i>Students &amp; admissions`); s3.k.style.color='#244b37';
+  s3.d=el('div','abs card'); s3.d.innerHTML='<img src="assets/enrol_dialog.png">'; s3.d.style.width='700px'; s3.d.style.borderRadius='26px'; s3.d.style.boxShadow='0 30px 70px rgba(20,36,30,.28), 0 6px 18px rgba(20,36,30,.12)';
+  s3.ring=el('div','abs'); Object.assign(s3.ring.style,{width:'330px',height:'64px',borderRadius:'14px',border:'5px solid #f0d682'});
+  s3.cur=el('div','abs'); s3.cur.innerHTML=`<svg width="64" height="64" viewBox="0 0 24 24"><path d="M5 3l14 8-6 1.6L10 19z" fill="#14241e" stroke="#faf9f3" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+  s3.p=el('div','abs'); s3.p.innerHTML=`<div class="card" style="width:980px;border-radius:24px;box-shadow:0 30px 70px rgba(20,36,30,.28)"><img src="assets/st_welcome.png"></div>
+     <div style="display:flex;gap:16px;margin-top:22px;justify-content:center">
+       <div class="card" style="width:232px;border-radius:16px;box-shadow:0 14px 30px rgba(20,36,30,.2)"><img src="assets/st_attendance.png"></div>
+       <div class="card" style="width:232px;border-radius:16px;box-shadow:0 14px 30px rgba(20,36,30,.2)"><img src="assets/st_term.png"></div>
+       <div class="card" style="width:232px;border-radius:16px;box-shadow:0 14px 30px rgba(20,36,30,.2)"><img src="assets/st_fees.png"></div>
+       <div class="card" style="width:232px;border-radius:16px;box-shadow:0 14px 30px rgba(20,36,30,.2)"><img src="assets/st_transport.png"></div></div>`;
+  s3.badge=el('div','abs chip'); s3.badge.innerHTML=`<span class="ic" style="background:#244b37;color:#f0d682">${icon('check')}</span>Profile created`; s3.badge.style.fontSize='34px';
+  // scene 4 : hub + nodes
+  s4.k=el('div','abs kicker','',`<i></i>One connected profile`); s4.k.style.color='#faf9f3';
+  s4.svg=el('div','abs'); s4.svg.innerHTML=`<svg width="1080" height="1920" style="position:absolute;inset:0;overflow:visible"><g id="lines"></g><g id="pulses"></g></svg>`;
+  s4.hc=[540,930]; s4.R=345;
+  const NODES=[['indian-rupee','Fees',13.64],['clipboard-check','Exams',14.18],['trending-up','Academic<br>performance',14.84],['users','Parent<br>information',15.88],['bus','Transport',16.92]];
+  s4.nodes=NODES.map(([ic,lab,t],i)=>{const ang=(-90+i*72)*Math.PI/180; const x=s4.hc[0]+s4.R*Math.cos(ang), y=s4.hc[1]+s4.R*Math.sin(ang);
+    const n=el('div','abs node'); n.innerHTML=icon(ic); const l=el('div','abs nlab'); l.innerHTML=lab;
+    const ln=document.createElementNS('http://www.w3.org/2000/svg','line'); const dx=x-s4.hc[0], dy=y-s4.hc[1], L=Math.hypot(dx,dy);
+    const x1=s4.hc[0]+dx/L*122, y1=s4.hc[1]+dy/L*122, x2=x-dx/L*76, y2=y-dy/L*76;
+    ln.setAttribute('x1',x1);ln.setAttribute('y1',y1);ln.setAttribute('x2',x2);ln.setAttribute('y2',y2);
+    ln.setAttribute('stroke','#f0d682');ln.setAttribute('stroke-width','5');ln.setAttribute('stroke-linecap','round');ln.setAttribute('stroke-dasharray','3 15');
+    s4.svg.querySelector('#lines').appendChild(ln);
+    const pl=[]; for(let k=0;k<2;k++){const c=document.createElementNS('http://www.w3.org/2000/svg','circle'); c.setAttribute('r','11'); c.setAttribute('fill','#fff6d6'); c.style.filter='drop-shadow(0 0 10px #f0d682)'; s4.svg.querySelector('#pulses').appendChild(c); pl.push(c)}
+    return {n,l,ln,x,y,t,x1,y1,x2,y2,len:Math.hypot(x2-x1,y2-y1),pl}});
+  s4.hub=el('div','abs'); s4.hub.innerHTML=`<div style="width:236px;height:236px;border-radius:50%;background:#faf9f3;display:flex;align-items:center;justify-content:center;color:#244b37;box-shadow:0 0 0 14px rgba(240,214,130,.25),0 0 80px rgba(240,214,130,.55),0 24px 50px rgba(0,0,0,.4)">${icon('user-round').replace('<svg','<svg style="width:112px;height:112px"')}</div>`;
+  s4.hl=el('div','abs'); s4.hl.innerHTML=`<div style="background:#f0d682;color:#14241e;font-family:'Plus Jakarta Sans';font-weight:800;font-size:30px;padding:12px 26px;border-radius:999px;white-space:nowrap;box-shadow:0 10px 24px rgba(0,0,0,.3)">Student profile</div>`;
+  s4.rip=[0,1,2].map(()=>{const r=el('div','abs'); Object.assign(r.style,{width:'236px',height:'236px',borderRadius:'50%',border:'5px solid #f0d682'}); return r});
+  // scene 5 department chips
+  const D=[['building-2','Admissions office',300,165,22.60],['calculator','Accounts',800,140,22.84],['file-pen-line','Exam cell',255,335,23.08],['bus','Transport desk',805,318,23.32]];
+  s5.ch=D.map(([ic,tx,x,y,t])=>{const c=el('div','abs chip'); c.innerHTML=`<span class="ic">${icon(ic)}</span>${tx}`; c.style.fontSize='31px'; return {e:c,x,y,t}});
+  s5.svg=el('div','abs'); s5.svg.innerHTML=`<svg width="1080" height="520" style="position:absolute;inset:0;overflow:visible"><defs><mask id="runmask" maskUnits="userSpaceOnUse" x="0" y="0" width="1080" height="520"><path id="runm" d="M 300 165 C 520 60, 620 60, 800 140 C 900 240, 500 250, 255 335 C 420 430, 640 420, 805 318" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round"/></mask></defs><path id="run" mask="url(#runmask)" d="M 300 165 C 520 60, 620 60, 800 140 C 900 240, 500 250, 255 335 C 420 430, 640 420, 805 318" fill="none" stroke="#f0d682" stroke-width="6" stroke-linecap="round" stroke-dasharray="4 18"/></svg>`;
+  // scene 6 browser frame with real student desk
+  s6.k=el('div','abs kicker','',`<i></i>Student desk · demo campus`); s6.k.style.color='#244b37';
+  s6.b=el('div','abs'); s6.b.innerHTML=`<div style="width:960px;border-radius:28px;background:#fff;box-shadow:0 34px 80px rgba(20,36,30,.30),0 6px 18px rgba(20,36,30,.12);overflow:hidden">
+     <div style="height:58px;background:#f1f4ee;display:flex;align-items:center;padding:0 22px;gap:10px;border-bottom:1px solid #e2e8df">
+       <span style="width:15px;height:15px;border-radius:50%;background:#e5533d"></span><span style="width:15px;height:15px;border-radius:50%;background:#f0c24b"></span><span style="width:15px;height:15px;border-radius:50%;background:#59b36b"></span>
+       <span style="margin-left:22px;flex:1;height:36px;border-radius:18px;background:#fff;display:flex;align-items:center;padding:0 18px;font-family:'Plus Jakarta Sans';font-weight:600;font-size:20px;color:#50685e">taaraerp.com/app/desk</span></div>
+     <div id="vp" style="width:960px;height:645px;overflow:hidden;position:relative"><img id="sd" src="assets/student_desk.png" style="width:960px;display:block;transform-origin:50% 30%"></div></div>`;
+  s6.pills=['Attendance','Results','Fees','Transport'].map((tx,i)=>{const c=el('div','abs chip'); c.innerHTML=tx; Object.assign(c.style,{fontSize:'28px',padding:'14px 26px',background:'#244b37',color:'#faf9f3',boxShadow:'0 10px 24px rgba(20,36,30,.25)'}); return {e:c,t:29.70+i*0.16}});
+  // scene 7 paper chips
+  const P7=[['folder-open','Files',240,215,-7,35.36],['book-open','Registers',560,150,4,35.90],['smartphone','Apps',860,240,7,36.44]];
+  for(const [ic,tx,x,y,r,t] of P7){const c=el('div','abs paper'); c.innerHTML=`${icon(ic)}${tx}<span class="xx" style="position:absolute;right:-22px;top:-22px;width:64px;height:64px;border-radius:50%;background:#e5533d;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.35)">${icon('x').replace('<svg','<svg style="width:40px;height:40px;color:#fff" stroke-width="3"')}</span>`; c.style.position='absolute'; s7.push({e:c,x,y,r,t,x2:c.querySelector('.xx')})}
+  // scene 8 behind-head words (behind layer) + kicker (front)
+  const BH=document.getElementById('behind');
+  s8.words=[['student',39.68,40.50,''],['profile',40.46,41.20,''],['journey',41.18,41.82,'it']].map(([w,t0,t1,f])=>{const e=el('div','abs serif',BH); e.textContent=w; Object.assign(e.style,{fontSize:'262px',fontWeight:500,letterSpacing:'-0.03em',color:f?'#f0d682':'#faf9f3',fontStyle:f?'italic':'normal',whiteSpace:'nowrap',lineHeight:'1',textShadow:'0 10px 40px rgba(0,0,0,.35)'}); return {e,t0,t1}});
+  s8.k1=el('div','abs kicker','',`<i></i>One`); s8.k2=el('div','abs kicker','',`<i></i>One complete`);
+  [s8.k1,s8.k2].forEach(k=>{k.style.color='#faf9f3';k.style.fontSize='40px';k.style.textShadow='0 2px 12px rgba(0,0,0,.5)'});
+  // end card
+  endc.p=el('div','abs'); Object.assign(endc.p.style,{width:'1080px',height:'1920px',background:'radial-gradient(1000px 800px at 15% 0%, #e3ecd6 0%, rgba(227,236,214,0) 60%), radial-gradient(1100px 900px at 100% 100%, #f3e7bf 0%, rgba(243,231,191,0) 55%), #faf9f3',borderRadius:'56px 56px 0 0',overflow:'hidden'});
+  endc.p.innerHTML=grain(.35);
+  endc.ast=[[140,330,250,.16],[960,1500,330,.13],[900,250,150,.18]].map(([x,y,sz,o])=>{const a=el('div','abs',endc.p); a.innerHTML=asteriskSVG('#5f7a45'); Object.assign(a.style,{width:sz+'px',height:sz+'px',left:(x-sz/2)+'px',top:(y-sz/2)+'px'}); return {e:a,o}});
+  const C=(html,css)=>{const e=el('div','abs',endc.p,html); Object.assign(e.style,{width:'1080px',textAlign:'center'},css||{}); return e};
+  endc.logo=C(`<img src="assets/logo_full.png" style="height:150px">`,{top:'470px'});
+  endc.h1=C(`<span class="serif" style="font-size:118px;font-weight:500;letter-spacing:-.03em;color:#14241e">Your school.</span>`,{top:'720px'});
+  endc.h2=C(`<span class="serif" style="font-size:118px;font-weight:500;letter-spacing:-.03em;color:#14241e">One <i style="color:#5f7a45">connected</i> ERP.</span>`,{top:'846px'});
+  endc.sub=C(`<span class="sans" style="font-size:31px;font-weight:600;color:#50685e;letter-spacing:.01em">Admissions · Attendance · Exams · Fees · Transport</span>`,{top:'1040px'});
+  endc.price=C(`<span class="sans" style="display:inline-block;background:#f0d682;color:#14241e;font-size:34px;font-weight:800;padding:18px 34px;border-radius:999px">Annual plans from ₹45,000</span>`,{top:'1140px'});
+  endc.cta=C(`<span class="sans" style="display:inline-flex;align-items:center;gap:16px;background:#244b37;color:#faf9f3;font-size:38px;font-weight:700;padding:28px 46px;border-radius:22px;box-shadow:0 18px 40px rgba(36,75,55,.35)">Explore the demo campus ${icon('arrow-up-right').replace('<svg','<svg style="width:40px;height:40px"')}</span>`,{top:'1290px'});
+  endc.url=C(`<span class="sans" style="font-size:46px;font-weight:800;color:#244b37;letter-spacing:-.01em">taaraerp.com</span>`,{top:'1460px'});
+  endc.by=C(`<span class="sans" style="font-size:24px;font-weight:600;color:#82968e;letter-spacing:.18em;text-transform:uppercase">Developed by Mila Innovations</span>`,{top:'1730px'});
+  flash=el('div','abs'); Object.assign(flash.style,{width:'1080px',height:'1920px',background:'radial-gradient(900px 1200px at 50% 45%, rgba(255,247,214,.95), rgba(240,214,130,.35) 55%, rgba(240,214,130,0) 80%)'});
+}
+const FULLVIDEO=t=>!( (t>9.18&&t<21.72) || (t>28.18&&t<31.98) || t>43.3 );
+function drawFront(t){
+  // bottom shade on full-video caption scenes
+  let sh=0; const fv=[[0,9.4],[21.5,28.35],[31.8,43.6]];
+  for(const [a,b] of fv){ sh=Math.max(sh, P(t,a-0.1,0.3)*(1-P(t,b-0.3,0.3))) }
+  set(shadeB,{o:sh});
+  // intro logo chip
+  { const e=env(t,0.12,3.05,.5,.3); const a=E.ox(e.i), o=E.ic(e.o); const w=introChip.offsetWidth;
+    set(introChip,{x:540-w/2,y:lerp(40,92,a)-o*30,o:a*(1-o),blur:(1-a)*10+o*8,s:lerp(.9,1,a)}) }
+  // journey line
+  { const on=t>3.1&&t<6.05; jr.wrap.style.display=on?'block':'none';
+    if(on){ const e=env(t,3.16,5.98,.3,.25), o=E.ic(e.o); set(jr.wrap,{o:1-o,y:-o*20,blur:o*8});
+      const pr=E.ioc(P(t,3.30,1.65)); const x=170+740*pr;
+      const f=jr.wrap.querySelector('#jfill'); f.setAttribute('x2',x); f.style.opacity=e.i>0?1:0;
+      jr.wrap.querySelector('#jbase').style.opacity=E.oc(e.i);
+      for(const id of ['#jdot','#jglow']){const c=jr.wrap.querySelector(id); c.setAttribute('cx',x); c.style.opacity=E.oc(e.i)*(id==='#jglow'?.25+.15*Math.sin(t*12):1)}
+      const a1=E.ob(P(t,3.18,.4)); set(jr.n1,{x:170-jr.n1.offsetWidth/2,y:345,s:lerp(.6,1,a1),o:clamp(P(t,3.18,.2))});
+      const a2=E.ob(P(t,4.92,.4)); set(jr.n2,{x:910-jr.n2.offsetWidth/2-60,y:345,s:lerp(.6,1,a2),o:clamp(P(t,4.92,.2))});
+    } }
+  // scene 2 cards
+  { for(const [i,c] of s2.entries()){
+      const on=t>c.t-0.05&&t<9.45; c.e.style.display=on?'block':'none'; if(!on) continue;
+      const a=P(t,c.t,.45), ab=E.ob(a,1.4); const conv=E.ioc(P(t,8.50,.45)); const fly=E.ic(P(t,9.08,.3));
+      const fx=c.x+Math.sin(t*1.6+i)*6, fy=c.y+Math.cos(t*1.3+i*1.7)*7;
+      const tx=540+(i-1.5)*14, ty=262+(i-1.5)*-10;
+      const cx=lerp(fx,tx,conv), cy=lerp(fy,ty,conv);
+      const sc=lerp(.55,1,ab)*lerp(1,1.04,conv)*lerp(1,2.2,fly);
+      set(c.e,{x:cx-150,y:cy-92+fly*240,s:sc,r:lerp(c.r+(1-ab)*-10, [-5,3,-2,1][i],conv),o:clamp(a*3)*(1-fly),blur:fly*14});
+    } }
+  // scene 3
+  { const on=t>9.1&&t<13.0; for(const e of [s3.k,s3.d,s3.cur,s3.p,s3.badge,s3.ring]) e.style.display=on?'block':'none';
+    if(on){
+      const k=E.oc(P(t,9.40,.4)), ko=E.ic(P(t,12.35,.25)); set(s3.k,{x:540-s3.k.offsetWidth/2,y:142-(1-k)*14,o:k*(1-ko)});
+      const a=E.ox(P(t,9.46,.75)); const out=E.ic(P(t,11.94,.32));
+      const dx=190, dy=452; const drift=lerp(1,1.025,P(t,9.6,2.3));
+      set(s3.d,{x:dx,y:dy+(1-a)*260-out*40,s:lerp(.86,1,a)*drift*lerp(1,.86,out),rx:(1-a)*18,persp:1400,o:clamp(P(t,9.46,.25))*(1-out),blur:out*10});
+      // cursor to confirm button
+      const dW=700*drift, dH=700*2172/1530*drift; const bx=dx+0.83*700, by=dy+0.947*(700*2172/1530);
+      const mv=E.ioc(P(t,10.95,.62)); const cxp=lerp(980,bx,mv), cyp=lerp(1340,by,mv);
+      const click=P(t,11.62,.18); const cs=1-0.18*Math.sin(Math.PI*click);
+      set(s3.cur,{x:cxp-10,y:cyp-6,s:cs,o:clamp(P(t,10.95,.15))*(1-out)});
+      const rg=P(t,11.66,.45); set(s3.ring,{x:bx-165+(-6),y:by-32,s:lerp(.9,1.25,E.oc(rg)),o:(rg>0&&rg<1?1-rg:0)});
+      const pa=P(t,12.00,.55), pb=E.ob(pa,1.3), pout=E.ic(P(t,12.50,.30));
+      set(s3.p,{x:50,y:lerp(820,700,E.ox(pa))-pout*-120,s:lerp(.7,1,pb)*lerp(1,.25,pout),o:clamp(pa*2.5)*(1-pout),blur:pout*8});
+      s3.p.style.transformOrigin='490px 230px';
+      const ba=P(t,12.18,.4); set(s3.badge,{x:540-s3.badge.offsetWidth/2,y:600,s:lerp(.5,1,E.ob(ba)),o:clamp(ba*3)*(1-pout)});
+    } }
+  // scene 4
+  { const on=t>12.6&&t<21.8; for(const e of [s4.k,s4.svg,s4.hub,s4.hl,...s4.rip]) e.style.display=on?'block':'none'; s4.nodes.forEach(n=>{n.n.style.display=on?'flex':'none';n.l.style.display=on?'block':'none'});
+    if(on){
+      const ex=E.ic(P(t,21.12,.28)); // exit
+      const k=E.oc(P(t,12.95,.4)); set(s4.k,{x:540-s4.k.offsetWidth/2,y:150-(1-k)*14,o:k*(1-ex)});
+      const ha=P(t,12.70,.5), hb=E.ob(ha,1.5); const bump=Math.exp(-6*Math.max(0,t-20.76))*(t>=20.76?1:0)*Math.sin(Math.min(1,(t-20.76)/.25)*Math.PI);
+      const hs=lerp(.2,1,hb)*(1+.12*bump)*(1-ex*.4)*(1+.012*Math.sin(t*2.2));
+      set(s4.hub,{x:s4.hc[0]-118,y:s4.hc[1]-118,s:hs,o:clamp(ha*3)*(1-ex)});
+      const la=P(t,13.05,.4); set(s4.hl,{x:540-s4.hl.offsetWidth/2,y:s4.hc[1]+138,s:lerp(.6,1,E.ob(la)),o:clamp(la*3)*(1-ex)});
+      s4.rip.forEach((r,i)=>{const rt=P(t,20.76+i*.16,.9); set(r,{x:s4.hc[0]-118,y:s4.hc[1]-118,s:1+rt*1.6,o:(rt>0&&rt<1)?(1-rt)*.9*(1-ex):0})});
+      s4.nodes.forEach((n,i)=>{
+        const lp=E.oc(P(t,n.t-.22,.3)); // line draw
+        n.ln.setAttribute('x2',lerp(n.x1,n.x2,lp)); n.ln.setAttribute('y2',lerp(n.y1,n.y2,lp)); n.ln.style.opacity=(lp>0?1:0)*(1-ex);
+        const a=P(t,n.t,.45), b=E.ob(a,1.8); const fl=Math.sin(t*1.8+i*1.3)*5;
+        set(n.n,{x:n.x-66,y:n.y-66+fl,s:lerp(.2,1,b)*(1-ex*.5),o:clamp(a*3)*(1-ex)});
+        const la=P(t,n.t+.08,.35); const lw=n.l.offsetWidth; set(n.l,{x:n.x-lw/2,y:n.y+80+fl+(1-E.oc(la))*14,o:E.oc(la)*(1-ex)});
+        // pulses node->hub
+        n.pl.forEach((c,k)=>{ if(t<18.86||t>21.3){c.style.opacity=0;return}
+          const per=.85; const ph=((t-18.86+i*.17+k*per/2)%per)/per; const q=E.ioc(ph);
+          c.setAttribute('cx',lerp(n.x2,n.x1,q)); c.setAttribute('cy',lerp(n.y2,n.y1,q)); c.style.opacity=(Math.sin(ph*Math.PI))*(1-ex)});
+      });
+    } }
+  // scene 5 department chips
+  { const on=t>22.5&&t<26.1; s5.svg.style.display=on?'block':'none'; s5.ch.forEach(c=>c.e.style.display=on?'flex':'none');
+    if(on){ const ex=E.ic(P(t,25.42,.45)); const shake=(t>25.42&&t<25.75)?Math.sin(t*90)*8*(1-P(t,25.42,.33)):0;
+      s5.ch.forEach((c,i)=>{const a=P(t,c.t,.42); const w=c.e.offsetWidth; set(c.e,{x:c.x-w/2+shake,y:c.y-46+Math.sin(t*1.7+i)*5+ex*-30,s:lerp(.5,1,E.ob(a,1.6))*(1-ex*.2),r:(1-E.oc(a))*-8,o:clamp(a*3)*(1-ex),blur:ex*10})});
+      const p=s5.svg.querySelector('#run'), m=s5.svg.querySelector('#runm'); const L=m.getTotalLength(); const dp=E.ioc(P(t,22.70,1.05));
+      m.setAttribute('stroke-dasharray',`${L} ${L}`); m.setAttribute('stroke-dashoffset',`${L*(1-dp)}`); p.style.opacity=(1-ex)*.9;
+    } }
+  // scene 6 browser
+  { const on=t>28.1&&t<32.1; for(const e of [s6.k,s6.b]) e.style.display=on?'block':'none'; s6.pills.forEach(p=>p.e.style.display=on?'flex':'none');
+    if(on){ const ex=E.ic(P(t,31.30,.30));
+      const k=E.oc(P(t,28.40,.4)); set(s6.k,{x:540-s6.k.offsetWidth/2,y:142-(1-k)*14,o:k*(1-ex)});
+      const a=E.ox(P(t,28.30,.8)); set(s6.b,{x:60,y:470+(1-a)*300+ex*60,rx:(1-a)*16,persp:1600,s:lerp(.88,1,a)*(1-ex*.08),o:clamp(P(t,28.30,.3))*(1-ex),blur:ex*10});
+      const z=E.ioc(P(t,29.40,2.1)); s6.b.querySelector('#sd').style.transform=`translateY(${(-z*40).toFixed(1)}px) scale(${(1+z*.42).toFixed(4)})`;
+      let x=540; const widths=s6.pills.map(p=>p.e.offsetWidth); const tot=widths.reduce((a,b)=>a+b,0)+3*16; let cx=540-tot/2;
+      s6.pills.forEach((p,i)=>{const pa=P(t,p.t,.4); set(p.e,{x:cx,y:1262+(1-E.oc(pa))*20,s:lerp(.7,1,E.ob(pa)),o:clamp(pa*3)*(1-ex)}); cx+=widths[i]+16});
+    } }
+  // scene 7 paper chips
+  { s7.forEach((c,i)=>{const on=t>c.t-.05&&t<38.3; c.e.style.display=on?'flex':'none'; if(!on) return;
+      const a=P(t,c.t,.5); const drop=E.ob(a,1.4); const fall=Math.max(0,t-37.62-i*.06); const fy=2600*fall*fall; const fr=fall*160*(i%2?1:-1);
+      const w=c.e.offsetWidth; set(c.e,{x:c.x-w/2+fall*(i-1)*120,y:c.y-50+lerp(-260,0,drop)+fy+Math.sin(t*1.5+i)*4,r:c.r+fr,o:clamp(a*3)});
+      const xa=P(t,37.32+i*.07,.3); set(c.x2,{s:lerp(0,1,E.ob(xa,2.2)),o:clamp(xa*4)});
+    }) }
+  // scene 8 statement
+  { const on=t>39.4&&t<41.95; [s8.k1,s8.k2].forEach(k=>k.style.display=on?'block':'none'); s8.words.forEach(w=>w.e.style.display=on?'block':'none');
+    if(on){ const base=HEADTOP; // top of head in canvas px
+      const k1=P(t,39.52,.3), k1o=P(t,40.84,.14), k2=P(t,41.0,.28), k2o=P(t,41.62,.2);
+      set(s8.k1,{x:540-s8.k1.offsetWidth/2,y:base-215+(1-E.oc(k1))*16,o:E.oc(k1)*(1-k1o),blur:(1-k1)*6});
+      set(s8.k2,{x:540-s8.k2.offsetWidth/2,y:base-215+(1-E.oc(k2))*16,o:E.oc(k2)*(1-E.ic(k2o)),blur:(1-k2)*6});
+      s8.words.forEach(w=>{const a=P(t,w.t0,.38), o=P(t,w.t1-.16,.18); const ww=w.e.offsetWidth;
+        set(w.e,{x:540-ww/2,y:base-150+(1-E.ox(a))*60-E.ic(o)*30,s:lerp(1.18,1,E.ox(a)),o:clamp(a*2.5)*(1-E.ic(o)),blur:(1-clamp(a*1.6))*16+o*12})});
+    } }
+  // end card
+  { const on=t>43.25; endc.p.style.display=on?'block':'none';
+    if(on){ const a=E.ox(P(t,43.30,.55)); set(endc.p,{y:(1-a)*1920}); endc.p.style.borderRadius=`${(1-a)*70}px ${(1-a)*70}px 0 0`;
+      endc.ast.forEach((s,i)=>set(s.e,{r:t*(i?8:-10),o:s.o,y:Math.sin(t*.8+i)*12}));
+      const items=[[endc.logo,43.62],[endc.h1,43.88],[endc.h2,44.05],[endc.sub,44.32],[endc.price,44.52],[endc.cta,44.72],[endc.url,44.92],[endc.by,45.10]];
+      for(const [e,t0] of items){const p=P(t,t0,.5); set(e,{y:parseFloat(e.dataset.top||(e.dataset.top=parseFloat(e.style.top)))*0+(1-E.ox(p))*40,o:E.oc(clamp(p*1.4)),blur:(1-clamp(p*1.5))*10})}
+      // subtle logo shine via scale breathing
+      const lp=P(t,43.62,.6); endc.logo.style.transform+=` scale(${lerp(.9,1,E.ob(lp,1.4)).toFixed(4)})`;
+    } }
+  // transition flashes
+  { let f=0; for(const tt of [9.20,12.66,21.52,28.20,31.78,43.30]){ const d=t-tt; if(d>-.08&&d<.32){ f=Math.max(f, d<0? (d+.08)/.08 : 1-d/.32) } }
+    set(flash,{o:f*.32}); flash.style.display=f>0?'block':'none'; }
+}
+function layoutStatic(){
+  // fix end card children: keep given top via style.top; transform handles motion
+}
+window.renderFrame=(t,layer)=>{
+  for(const L of ['back','behind','front']) document.getElementById(L).style.display=(L===layer)?'block':'none';
+  drawBacks(t); drawCaps(t); drawFront(t);
+  return true;
+};
+window.layersAt=(t)=>{const L=['front']; if((t>9.08&&t<21.9)||(t>28.08&&t<32.1)) L.push('back'); if(t>39.55&&t<41.9) L.push('behind'); return L};
+(async()=>{
+  const names=['indian-rupee','clipboard-check','trending-up','users','bus','user-round','folder-open','book-open','smartphone','x','check','graduation-cap','building-2','calculator','file-pen-line','arrow-up-right','sparkles'];
+  for(const n of names){ const r=await fetch('assets/icons/'+n+'.svg'); let s=await r.text(); s=s.replace(/<!--.*?-->/s,'').replace(/width="24"/,'').replace(/height="24"/,''); ICONS[n]=s }
+  await document.fonts.load("500 100px Newsreader"); await document.fonts.load("italic 500 100px Newsreader");
+  for(const w of [500,600,700,800]) await document.fonts.load(`${w} 40px "Plus Jakarta Sans"`);
+  await document.fonts.load('800 34px "Plus Jakarta Sans"','₹45,000');
+  buildBacks(); buildCaps(); buildFront();
+  await Promise.all([...document.images].map(i=>i.complete?1:new Promise(r=>{i.onload=r;i.onerror=r})));
+  await document.fonts.ready;
+  fitCaps();
+  window.READY=true;
+})();
+</script></body></html>
