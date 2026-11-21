@@ -132,54 +132,113 @@ fo0 = int(45.4 * SR); fade[fo0:] = np.linspace(1, 0, N - fo0) ** 1.5
 mus *= fade
 
 # ---------------- SFX ----------------
+import json
 sfx = np.zeros((2, N))
+EV = json.load(open(f'{S}/cap_events.json'))
+def nz(n): return rng.standard_normal(n)
 def whoosh(d=0.45, f0=600, f1=4200, g=0.22):
     n = int(d * SR); tt = np.arange(n) / SR; u = tt / d
-    x = rng.standard_normal(n); out = np.zeros(n)
+    x = nz(n); out = np.zeros(n)
     centers = np.geomspace(min(f0, f1) * 0.8, max(f0, f1) * 1.2, 7)
     pos = np.log2(f0) + (np.log2(f1) - np.log2(f0)) * np.sin(np.pi * u / 2) ** 1.2
     for c in centers:
-        band = bp_fft(x, c, 2.2)
-        w = np.exp(-0.5 * ((np.log2(c) - pos) / 0.55) ** 2)
-        out += band * w
+        out += bp_fft(x, c, 2.2) * np.exp(-0.5 * ((np.log2(c) - pos) / 0.55) ** 2)
     e = np.sin(np.pi * np.clip(u, 0, 1)) ** 1.6
     return lp_fft(out * e, 9000) * g / 1.5
-def pop(f=880, g=0.16):
-    n = int(0.09 * SR); tt = np.arange(n) / SR
-    ff = f * (1 + 0.6 * np.exp(-tt * 60)); ph = 2 * np.pi * np.cumsum(ff) / SR
-    return np.sin(ph) * np.exp(-tt * 38) * g
-def click(g=0.18):
+def airin(d=0.24, g=0.10):           # short rising air that lands on the hit
+    n = int(d * SR); tt = np.arange(n) / SR; u = tt / d
+    x = whoosh(d, 900, 6500, 1.0); e = u ** 2.2
+    return x / (np.abs(x).max() + 1e-9) * e * g
+def thump(f0=160, f1=55, d=0.22, g=0.25):
+    n = int(d * SR); tt = np.arange(n) / SR
+    f = f1 + (f0 - f1) * np.exp(-tt * 30); return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 14) * g
+def click(g=0.18, hp=2500):
+    n = int(0.025 * SR); tt = np.arange(n) / SR
+    return hp_fft(nz(n), hp) * np.exp(-tt * 300) * g
+def pop(f=880, g=0.16, d=0.09):
+    n = int(d * SR); tt = np.arange(n) / SR
+    ff = f * (1 + 0.7 * np.exp(-tt * 70)); ph = 2 * np.pi * np.cumsum(ff) / SR
+    return np.sin(ph) * np.exp(-tt * 40) * g
+def hit(g=1.0, bright=1.0):          # keyword impact: thump + click + pop
+    a = thump(170, 52, 0.26, 0.30 * g); b = np.zeros_like(a)
+    c = click(0.16 * g * bright); b[:len(c)] += c
+    p = pop(1250, 0.10 * g * bright, 0.08); b[:len(p)] += p
+    return a + b
+def tick(f=2400, g=0.06):
     n = int(0.03 * SR); tt = np.arange(n) / SR
-    return hp_fft(rng.standard_normal(n), 2500) * np.exp(-tt * 260) * g
+    return (np.sin(2 * np.pi * f * tt) * np.exp(-tt * 160) * 0.7 + hp_fft(nz(n), 4000) * np.exp(-tt * 400) * 0.5) * g
+def sparkle(g=0.06):
+    n = int(0.7 * SR); tt = np.arange(n) / SR; s_ = np.zeros(n)
+    for k, m in enumerate([96, 100, 103, 108]):
+        on = k * 0.05; e = np.clip((tt - on) * 200, 0, 1) * np.exp(-np.maximum(0, tt - on) * 7)
+        s_ += np.sin(2 * np.pi * mtof(m) * tt) * e
+    return s_ / 4 * g
 def shimmer(g=0.12):
-    n = int(1.4 * SR); tt = np.arange(n) / SR; s = np.zeros(n)
+    n = int(1.4 * SR); tt = np.arange(n) / SR; s_ = np.zeros(n)
     for k, m in enumerate([84, 88, 91, 96, 100]):
-        s += np.sin(2 * np.pi * mtof(m) * tt + k) * np.exp(-tt * (2.2 + k * 0.4)) * np.clip((tt - k * 0.045) * 60, 0, 1)
-    return s / 5 * g
-def thud(g=0.30):
-    n = int(0.25 * SR); tt = np.arange(n) / SR
-    f = 70 + 120 * np.exp(-tt * 40); return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 16) * g
-def swipe(g=0.10):
+        s_ += np.sin(2 * np.pi * mtof(m) * tt + k) * np.exp(-tt * (2.2 + k * 0.4)) * np.clip((tt - k * 0.045) * 60, 0, 1)
+    return s_ / 5 * g
+def boom(g=0.35):
+    n = int(0.9 * SR); tt = np.arange(n) / SR
+    f = 38 + 60 * np.exp(-tt * 9); return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 4.5) * g
+def riser(d=0.5, g=0.08):
+    n = int(d * SR); tt = np.arange(n) / SR; u = tt / d
+    return whoosh(d, 500, 7000, 1.0) / 0.2 * u ** 3 * g
+def swipe(g=0.12):
     n = int(0.22 * SR); tt = np.arange(n) / SR
-    return bp_fft(rng.standard_normal(n), 3200, 1.0) * np.sin(np.pi * tt / tt[-1]) * g
+    return bp_fft(nz(n), 3200, 1.0) * np.sin(np.pi * tt / tt[-1]) * g
+def paper(g=0.08):
+    n = int(0.12 * SR); tt = np.arange(n) / SR
+    return bp_fft(nz(n), 2200, 0.8) * np.exp(-tt * 30) * g
 
-for tt0 in [9.10, 12.56, 21.38, 28.10, 31.58]: add(sfx, whoosh(), tt0, 0, 1.0)
-add(sfx, whoosh(0.6, 400, 3000, 0.26), 43.22, 0, 1.0)
-for k, tt0 in enumerate([7.04, 7.22, 7.40, 7.58]): add(sfx, pop(760 + k * 90, 0.10), tt0, [-.5, .5, -.4, .4][k])
-for k, tt0 in enumerate([13.64, 14.18, 14.84, 15.88, 16.92]): add(sfx, pop(880 + k * 70, 0.15), tt0, [0, .5, .3, -.3, -.5][k])
-add(sfx, pop(620, 0.14), 12.72, 0)
-for k, tt0 in enumerate([22.60, 22.84, 23.08, 23.32]): add(sfx, pop(700 + k * 80, 0.10), tt0, [-.4, .4, -.4, .4][k])
-for k, tt0 in enumerate([35.36, 35.90, 36.44]): add(sfx, thud(0.16), tt0 + 0.12, [-.4, 0, .4][k]); add(sfx, pop(600 + k * 60, 0.07), tt0 + 0.12, 0)
-add(sfx, click(0.22), 11.64, 0.2)
-add(sfx, shimmer(0.10), 11.96, 0)
-add(sfx, swipe(0.09), 25.40, 0); add(sfx, swipe(0.09), 37.30, 0)
+# --- text-driven sound effects (from caption timeline) ---
+for e in EV:
+    t0, k = e['t'], e['k']; pan = float(rng.uniform(-.25, .25))
+    if k == 's':
+        add(sfx, tick(float(rng.uniform(2100, 2900)), 0.055), t0, pan)
+    elif k == 'B':
+        add(sfx, airin(0.22, 0.09), t0 - 0.20, 0)
+        add(sfx, hit(0.9 if e['th'] == 'dark' else 0.75), t0 + 0.05, 0)
+        add(sfx, sparkle(0.035), t0 + 0.38, pan)
+    elif k == 'L':
+        add(sfx, airin(0.26, 0.10), t0 - 0.24, 0); add(sfx, hit(1.0), t0 + 0.04, 0)
+        add(sfx, boom(0.22), t0 + 0.04, 0); add(sfx, shimmer(0.12), t0 + 0.05, 0)
+    elif k == 'strike':
+        add(sfx, swipe(0.14), t0 - 0.02, 0); add(sfx, thump(120, 60, 0.2, 0.16), t0 + 0.12, 0)
+# --- scene transitions ---
+for tt0 in [9.12, 12.58, 21.40, 28.12, 31.60]:
+    add(sfx, riser(0.42, 0.06), tt0 - 0.42, 0)
+    add(sfx, whoosh(0.5, 500, 4500, 0.26), tt0 - 0.05, -0.2); add(sfx, whoosh(0.5, 600, 5200, 0.20), tt0, 0.2)
+    add(sfx, boom(0.16), tt0 + 0.12, 0)
+add(sfx, riser(1.2, 0.07), 42.1, 0)
+add(sfx, whoosh(0.6, 400, 3000, 0.28), 43.22, 0); add(sfx, boom(0.30), 43.36, 0); add(sfx, shimmer(0.12), 43.62, 0)
+for k, tt0 in enumerate([43.88, 44.05, 44.32, 44.52, 44.72, 44.92]): add(sfx, tick(1800 + 150 * k, 0.07), tt0, 0)
+# --- graphics ---
+add(sfx, pop(700, 0.10), 0.14, 0); add(sfx, airin(0.2, 0.06), -0.0, 0)          # intro logo chip
+add(sfx, pop(520, 0.10), 3.18, -.3); add(sfx, pop(990, 0.11), 4.92, .3)          # journey chips
+add(sfx, whoosh(1.5, 300, 900, 0.05), 3.3, 0)                                     # journey line travel
+for k, tt0 in enumerate([7.04, 7.22, 7.40, 7.58]): add(sfx, paper(0.10), tt0, [-.5, .5, -.4, .4][k]); add(sfx, pop(760 + k * 90, 0.08), tt0, 0)
+add(sfx, whoosh(0.35, 800, 3000, 0.10), 8.50, 0)                                  # cards converge
+add(sfx, click(0.24), 11.64, 0.2); add(sfx, shimmer(0.10), 12.0, 0)               # confirm click / profile
+PENTA = [65, 67, 69, 72, 74]
+for k, tt0 in enumerate([13.64, 14.18, 14.84, 15.88, 16.92]):
+    add(sfx, pop(mtof(PENTA[k] + 12), 0.15, 0.12), tt0, [0, .5, .3, -.3, -.5][k]); add(sfx, thump(140, 70, 0.12, 0.10), tt0, 0)
+add(sfx, pop(520, 0.12), 12.72, 0)
+add(sfx, boom(0.18), 20.80, 0); add(sfx, shimmer(0.08), 20.78, 0)                 # hub "connects" pulse
+for k, tt0 in enumerate([22.60, 22.84, 23.08, 23.32]): add(sfx, pop(700 + k * 80, 0.09), tt0, [-.4, .4, -.4, .4][k]); add(sfx, paper(0.06), tt0, 0)
+add(sfx, whoosh(1.0, 700, 2200, 0.06), 22.70, 0)
+for k, tt0 in enumerate([29.70, 29.86, 30.02, 30.18]): add(sfx, tick(2000 + k * 200, 0.07), tt0, 0)
+for k, tt0 in enumerate([35.36, 35.90, 36.44]): add(sfx, thump(150, 60, 0.18, 0.14), tt0 + 0.14, [-.4, 0, .4][k]); add(sfx, paper(0.10), tt0 + 0.12, [-.4, 0, .4][k])
 for k in range(3): add(sfx, pop(1100, 0.08), 37.32 + k * 0.07, [-.4, 0, .4][k])
-add(sfx, whoosh(0.4, 900, 200, 0.12), 37.62, 0)
-add(sfx, shimmer(0.13), 27.40, 0); add(sfx, shimmer(0.16), 42.86, 0)
-add(sfx, pop(520, 0.10), 3.18, -.3); add(sfx, pop(990, 0.10), 4.92, .3)
-add(sfx, shimmer(0.07), 20.76, 0)
-for tt0 in [39.68, 40.50, 41.20]: add(sfx, thud(0.14), tt0, 0)
-add(sfx, shimmer(0.10), 43.62, 0)
+add(sfx, whoosh(0.5, 900, 200, 0.14), 37.62, 0)
+for tt0 in [39.68, 40.46, 41.18]: add(sfx, hit(1.0), tt0 + 0.05, 0); add(sfx, airin(0.2, 0.08), tt0 - 0.18, 0)
+add(sfx, sparkle(0.05), 41.6, 0)
+# --- light reverb on the SFX bus ---
+irn = int(0.5 * SR); ir = rng.standard_normal(irn) * np.exp(-np.arange(irn) / SR * 9); ir = lp_fft(ir, 6000); ir /= np.sqrt((ir ** 2).sum())
+for ch in range(2):
+    wet = np.fft.irfft(np.fft.rfft(sfx[ch], N + irn) * np.fft.rfft(ir, N + irn), N + irn)[:N]
+    sfx[ch] = sfx[ch] + 0.22 * wet
+sfx *= 1.25
 
 # ---------------- VOICE ----------------
 subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', f'{S}/src.mp4', '-vn', '-af',

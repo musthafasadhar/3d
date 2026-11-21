@@ -1,7 +1,7 @@
 <!doctype html>
 <html><head><meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter+Tight:ital,wght@0,500..900;1,500..900&display=block" rel="stylesheet">
 <style>
 :root{--green:#244b37;--deep:#173527;--ink:#14241e;--cream:#faf9f3;--yellow:#f0d682;--yit:#ebd17e;--olive:#5f7a45;--sage:#dfe8cf;--muted:#50685e}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -9,37 +9,41 @@ html,body{width:1080px;height:1920px;background:transparent;overflow:hidden}
 #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden}
 .layer{position:absolute;inset:0;overflow:hidden}
 .abs{position:absolute;left:0;top:0;will-change:transform,opacity}
-.sans{font-family:'Plus Jakarta Sans',sans-serif}
+.sans{font-family:'Inter Tight',sans-serif}
 .serif{font-family:'Newsreader',serif;font-optical-sizing:auto}
 /* captions */
 .cap{position:absolute;left:0;width:1080px;text-align:center}
 .cap .ln{display:block;width:max-content;margin-left:auto;margin-right:auto;white-space:nowrap;line-height:1.02}
 .cap .w{display:inline-block;will-change:transform,opacity,filter}
-.cap .s{font-family:'Plus Jakarta Sans';font-weight:700;font-size:50px;letter-spacing:-0.01em;margin-top:6px;margin-bottom:6px}
-.cap .B{font-family:'Newsreader';font-weight:500;font-size:138px;letter-spacing:-0.025em;margin-top:-6px;margin-bottom:2px}
-.cap .B.it{font-style:italic;font-weight:500}
-.dark .s{color:#fff;font-size:52px;text-shadow:0 0 22px rgba(0,0,0,.65),0 3px 10px rgba(0,0,0,.7),0 1px 2px rgba(0,0,0,.6)}
-.dark .B{color:var(--cream);font-weight:600;font-size:146px;text-shadow:0 0 40px rgba(0,0,0,.65),0 6px 22px rgba(0,0,0,.6),0 2px 4px rgba(0,0,0,.55)}
-.dark .B.it{font-weight:600}
-.dark .B.ac{color:#f6dc8f}
-.light .s{color:var(--ink)}
-.light .B{color:var(--green)}
-.light .B.ac{color:var(--olive)}
-.green .s{color:var(--cream)}
-.green .B{color:var(--cream)}
-.green .B.ac{color:var(--yellow)}
+.cap .s{font-family:'Inter Tight';font-weight:800;font-size:54px;letter-spacing:-0.025em;margin-top:4px;margin-bottom:4px}
+.cap .B{font-family:'Inter Tight';font-weight:900;font-size:168px;line-height:.98;margin-top:-4px;margin-bottom:0}
+.dark .s{color:#fff;text-shadow:0 0 22px rgba(0,0,0,.65),0 3px 10px rgba(0,0,0,.7),0 1px 2px rgba(0,0,0,.6)}
+.green .s{color:#faf9f3;text-shadow:0 2px 12px rgba(0,0,0,.35)}
+.light .s{color:#14241e}
+.dark .ln.B,.green .ln.B{filter:drop-shadow(0 10px 22px rgba(0,0,0,.55)) drop-shadow(0 2px 3px rgba(0,0,0,.45))}
+.light .ln.B{filter:drop-shadow(0 8px 16px rgba(20,36,30,.16))}
+/* letter gradient system */
+.lt{display:inline-block;white-space:pre;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+    padding:.14em .07em .16em .07em;margin:-.14em -.115em -.16em -.07em;background-repeat:no-repeat;will-change:transform,opacity,filter}
+.gt{-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;padding:.12em .08em;margin:-.12em -.08em;display:inline-block}
+.gw{--g:linear-gradient(180deg,#ffffff 0%,#ffffff 42%,#cfd9d3 100%)}
+.gg{--g:linear-gradient(180deg,#fff7dc 0%,#f8df92 38%,#e7b24c 78%,#d39a35 100%)}
+.gm{--g:linear-gradient(180deg,#f2fff9 0%,#9af2cb 40%,#2cc890 80%,#14a571 100%)}
+.gd{--g:linear-gradient(180deg,#2f7356 0%,#174f3b 55%,#0e4b38 100%)}
+.ge{--g:linear-gradient(180deg,#2bbf86 0%,#14935f 50%,#0b6646 100%)}
+.lt,.gt{background-image:linear-gradient(100deg,rgba(255,255,255,0) 40%,rgba(255,255,255,.9) 50%,rgba(255,255,255,0) 60%),var(--g);background-size:320% 100%,100% 100%;background-position:100% 0,0 0}
 .strike{position:absolute;height:12px;border-radius:6px;background:#e5533d;box-shadow:0 3px 12px rgba(0,0,0,.35);transform-origin:left center}
-.kicker{font-family:'Plus Jakarta Sans';font-weight:700;font-size:25px;letter-spacing:.24em;text-transform:uppercase;white-space:nowrap}
+.kicker{font-family:'Inter Tight';font-weight:700;font-size:25px;letter-spacing:.24em;text-transform:uppercase;white-space:nowrap}
 .kicker i{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--yellow);margin-right:16px;vertical-align:3px}
-.chip{display:flex;align-items:center;gap:16px;padding:18px 28px 18px 20px;border-radius:999px;background:var(--cream);color:var(--ink);font-family:'Plus Jakarta Sans';font-weight:700;font-size:34px;white-space:nowrap;box-shadow:0 14px 34px rgba(0,0,0,.32)}
+.chip{display:flex;align-items:center;gap:16px;padding:18px 28px 18px 20px;border-radius:999px;background:var(--cream);color:var(--ink);font-family:'Inter Tight';font-weight:700;font-size:34px;white-space:nowrap;box-shadow:0 14px 34px rgba(0,0,0,.32)}
 .chip .ic{width:56px;height:56px;border-radius:50%;background:#e8f0e2;display:flex;align-items:center;justify-content:center;color:var(--green)}
 .chip .ic svg{width:32px;height:32px}
 .card{border-radius:20px;overflow:hidden;box-shadow:0 22px 50px rgba(0,0,0,.38);background:#fff}
 .card img{display:block;width:100%}
 .node{width:132px;height:132px;border-radius:50%;background:var(--cream);display:flex;align-items:center;justify-content:center;color:var(--green);box-shadow:0 0 0 8px rgba(240,214,130,.22),0 0 46px rgba(240,214,130,.45),0 16px 30px rgba(0,0,0,.35)}
 .node svg{width:62px;height:62px}
-.nlab{font-family:'Plus Jakarta Sans';font-weight:700;font-size:33px;color:var(--cream);text-align:center;line-height:1.12;white-space:nowrap;text-shadow:0 2px 10px rgba(0,0,0,.35)}
-.paper{display:flex;align-items:center;gap:18px;padding:22px 30px;border-radius:22px;background:#fffdf6;color:var(--ink);font-family:'Plus Jakarta Sans';font-weight:800;font-size:42px;box-shadow:0 18px 40px rgba(0,0,0,.38);white-space:nowrap}
+.nlab{font-family:'Inter Tight';font-weight:700;font-size:33px;color:var(--cream);text-align:center;line-height:1.12;white-space:nowrap;text-shadow:0 2px 10px rgba(0,0,0,.35)}
+.paper{display:flex;align-items:center;gap:18px;padding:22px 30px;border-radius:22px;background:#fffdf6;color:var(--ink);font-family:'Inter Tight';font-weight:800;font-size:42px;box-shadow:0 18px 40px rgba(0,0,0,.38);white-space:nowrap}
 .paper svg{width:46px;height:46px;color:var(--green)}
 .logochip{background:var(--cream);border-radius:26px;box-shadow:0 18px 44px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center}
 </style></head>
@@ -70,33 +74,42 @@ function set(e,{x=0,y=0,s=1,sx,sy,r=0,o=1,blur=0,rx=0,ry=0,persp=0}){
   tf+=`translate(${x.toFixed(2)}px,${y.toFixed(2)}px) rotate(${r.toFixed(3)}deg)`;
   if(rx) tf+=` rotateX(${rx.toFixed(3)}deg)`; if(ry) tf+=` rotateY(${ry.toFixed(3)}deg)`;
   tf+=` scale(${(sx??s).toFixed(4)},${(sy??s).toFixed(4)})`;
-  e.style.transform=tf; e.style.filter=blur>0.05?`blur(${blur.toFixed(2)}px)`:'none';
+  e.style.transform=tf; const fx=e.dataset.fx||''; e.style.filter=((blur>0.05?`blur(${blur.toFixed(2)}px) `:'')+fx)||'none';
 }
 function icon(name,cls){return ICONS[name]||''}
 
 /* ---------------- CAPTIONS ---------------- */
 // line: [kind, [[text,t],...], flags]  kind: s | B | L(logo)   flags: it, ac
 const CAPS=[
- {t0:.62,t1:1.24,th:'dark',y:1430,L:[['s',[['From the day a',.66]]],['B',[['student',.74]],'']]},
- {t0:1.24,t1:3.12,th:'dark',y:1430,L:[['s',[['joins an',1.26]]],['B',[['institution',1.34]],'it ac']]},
- {t0:3.14,t1:4.46,th:'dark',y:1430,L:[['s',[['until the',3.16],['course',3.30]]],['B',[['is complete',3.86]],'it ac']]},
- {t0:4.46,t1:5.94,th:'dark',y:1430,L:[['s',[['and they',4.50]]],['B',[['step out',4.92]],'']]},
- {t0:5.96,t1:8.14,th:'dark',y:1430,L:[['s',[['all of that',5.98],["student's",6.10]]],['B',[['information',7.04]],'it ac']]},
- {t0:8.14,t1:9.22,th:'dark',y:1430,L:[['s',[['stays in',8.20]]],['B',[['one place',8.58]],'']]},
- {t0:9.62,t1:11.10,th:'light',y:300,L:[['s',[['From the moment of',9.70]]],['B',[['admission',10.28]],'it ac']]},
- {t0:11.10,t1:12.62,th:'light',y:300,L:[['s',[['their profile is',11.12]]],['B',[['created',11.94]],'it ac']]},
+ {t0:.62,t1:1.24,th:'dark',y:1430,L:[['s',[['From the day a',.66]]],['B',[['student',.74]],'gw']]},
+ {t0:1.24,t1:3.12,th:'dark',y:1430,L:[['s',[['joins an',1.26]]],['B',[['institution',1.34]],'gg']]},
+ {t0:3.14,t1:4.46,th:'dark',y:1430,L:[['s',[['until the',3.16],['course',3.30]]],['B',[['is complete',3.86]],'gm']]},
+ {t0:4.46,t1:5.94,th:'dark',y:1430,L:[['s',[['and they',4.50]]],['B',[['step out',4.92]],'gw']]},
+ {t0:5.96,t1:8.14,th:'dark',y:1430,L:[['s',[['all of that',5.98],["student's",6.10]]],['B',[['information',7.04]],'gg']]},
+ {t0:8.14,t1:9.22,th:'dark',y:1430,L:[['s',[['stays in',8.20]]],['B',[['one place',8.58]],'gm']]},
+ {t0:9.62,t1:11.10,th:'light',y:300,L:[['s',[['From the moment of',9.70]]],['B',[['admission',10.28]],'ge']]},
+ {t0:11.10,t1:12.62,th:'light',y:300,L:[['s',[['their profile is',11.12]]],['B',[['created',11.94]],'gd']]},
  {t0:12.72,t1:18.62,th:'green',y:262,L:[['s',[['From there —',12.74]]]]},
- {t0:18.62,t1:21.36,th:'green',y:318,L:[['s',[['every',18.86],['update',19.28]]],['B',[['connects',20.76]],'it ac'],['s',[['to that',21.0],['one profile',21.12]]]]},
- {t0:21.58,t1:23.70,th:'dark',y:1430,L:[['s',[['No running to',21.62]]],['B',[['every department',22.60]],'']]},
- {t0:23.70,t1:26.62,th:'dark',y:1430,L:[['s',[['to update',23.72],['details',24.16]]],['B',[['again & again',24.82]],'it ac']],strike:{line:1,t:25.42}},
+ {t0:18.62,t1:21.36,th:'green',y:318,L:[['s',[['every',18.86],['update',19.28]]],['B',[['connects',20.76]],'gg'],['s',[['to that',21.0],['one profile',21.12]]]]},
+ {t0:21.58,t1:23.70,th:'dark',y:1430,L:[['s',[['No running to',21.62]]],['B',[['every department',22.60]],'gw']]},
+ {t0:23.70,t1:26.62,th:'dark',y:1430,L:[['s',[['to update',23.72],['details',24.16]]],['B',[['again & again',24.82]],'gg']],strike:{line:1,t:25.42}},
  {t0:26.72,t1:28.12,th:'dark',y:1430,L:[['s',[['Because in',26.78]]],['L',[['',27.40]]]]},
- {t0:28.30,t1:29.30,th:'light',y:300,L:[['s',[['the student',28.30]]],['B',[['journey continues',28.62]],'']]},
- {t0:29.30,t1:31.56,th:'light',y:300,L:[['s',[['in one',29.30]]],['B',[['connected system',29.40]],'it ac']]},
- {t0:32.30,t1:34.40,th:'dark',y:1430,L:[['s',[['Need a',32.66],["student's",32.88]]],['B',[['information?',33.24]],'it ac']]},
- {t0:34.40,t1:38.30,th:'dark',y:1430,L:[['s',[['No more searching through',34.46]]],['B',[['files,',35.36],['registers',35.90],['& apps',36.44]],'']],strike:{line:1,t:37.32}},
+ {t0:28.30,t1:29.30,th:'light',y:300,L:[['s',[['the student',28.30]]],['B',[['journey continues',28.62]],'gd']]},
+ {t0:29.30,t1:31.56,th:'light',y:300,L:[['s',[['in one',29.30]]],['B',[['connected system',29.40]],'ge']]},
+ {t0:32.30,t1:34.40,th:'dark',y:1430,L:[['s',[['Need a',32.66],["student's",32.88]]],['B',[['information?',33.24]],'gg']]},
+ {t0:34.40,t1:38.30,th:'dark',y:1430,L:[['s',[['No more searching through',34.46]]],['B',[['files,',35.36],['registers',35.90],['& apps',36.44]],'gw']],strike:{line:1,t:37.32}},
  {t0:41.72,t1:43.32,th:'dark',y:1430,L:[['s',[["And that's the power of",41.76]]],['L',[['',42.86]]]]},
 ];
 const capEls=[];
+function makeLetters(parent,txt,cls){ const L=[]; [...txt].forEach((ch,j)=>{const sp=el('span','lt '+cls,parent); sp.textContent=ch; if(ch===' ') sp.style.marginRight='.025em'; L.push({e:sp,j,rot:((j*37)%11-5)*1.6})}); return L }
+// letter-by-letter pop with gradient shine
+function animLetters(L,t0,t,{dur=.36,stag=null,amp=1}={}){
+  const n=L.length; const st=stag??Math.min(.035,.26/Math.max(1,n));
+  for(const l of L){ const p=P(t,t0+l.j*st,dur); const a=E.ob(p,1.9), b=E.ox(p);
+    set(l.e,{y:(1-b)*80*amp,s:lerp(.35,1,a),r:(1-E.oc(p))*l.rot*amp,o:clamp(p*3.2),blur:(1-clamp(p*2.2))*9});
+    const sp=(t-(t0+.32+st*n)-l.j*.028)/.42; // shine sweep after build
+    l.e.style.backgroundPosition=`${(100-clamp(sp)*100).toFixed(1)}% 0, 0 0`;
+  } }
 function buildCaps(){
   for(const g of CAPS){
     const c=el('div','cap '+g.th); g.el=c; g.words=[]; g.lines=[];
@@ -107,16 +120,18 @@ function buildCaps(){
         const w=el('span','w',ln); w.innerHTML=`<div class="logochip" style="padding:26px 44px;margin:18px auto 0;width:max-content"><img src="assets/logo_full.png" style="height:118px;display:block"></div>`;
         g.words.push({e:w,t:ws[0][1],k:'L'}); continue;
       }
-      ws.forEach(([txt,t],i)=>{const w=el('span','w',ln); w.textContent=txt; g.words.push({e:w,t,k}); if(i<ws.length-1){ln.appendChild(document.createTextNode(' '))}});
+      ws.forEach(([txt,t],i)=>{const w=el('span','w',ln);
+        if(k==='B'){ const L=makeLetters(w,txt+(i<ws.length-1?' ':''),fl||'gw'); g.words.push({e:w,t,k,L}); }
+        else { w.textContent=txt; g.words.push({e:w,t,k}); if(i<ws.length-1){ln.appendChild(document.createTextNode(' '))} } });
     }
     if(g.strike){g.sEl=el('div','strike',c)}
   }
 }
 function fitCaps(){
   for(const g of CAPS){
-    for(const ln of g.lines){ if(ln.classList.contains('Lg')) continue; const max=g.th==='dark'?990:960;
+    for(const ln of g.lines){ if(ln.classList.contains('Lg')) continue; const max=g.th==='dark'?1000:980;
       let fs=parseFloat(getComputedStyle(ln).fontSize); let guard=0;
-      while(ln.offsetWidth>max && guard++<80){fs-=2; ln.style.fontSize=fs+'px'}
+      while(ln.getBoundingClientRect().width>max && guard++<120){fs-=2; ln.style.fontSize=fs+'px'}
     }
     const h=g.el.offsetHeight; g.el.style.top=(g.y-h/2)+'px';
   }
@@ -128,7 +143,10 @@ function drawCaps(t){
     for(const w of g.words){
       const p=P(t,w.t-0.02,w.k==='s'?0.26:0.34);
       if(w.k==='s'){const a=E.oc(p); set(w.e,{y:(1-a)*26-eo*18,o:a*(1-eo),blur:(1-a)*9+eo*8})}
-      else {const a=E.ox(p); const b=E.ob(clamp(p*1.0),1.5); set(w.e,{y:(1-a)*34-eo*24,s:lerp(.72,1,b)*(1-eo*.06),o:clamp(p*2.2)*(1-eo),blur:(1-clamp(p*1.6))*12+eo*10})}
+      else if(w.k==='B'){ const hit=Math.exp(-7*Math.max(0,t-w.t-.12))*(t>w.t+.12?1:0); // little settle punch
+        set(w.e,{y:-eo*30,s:(1+.05*hit*Math.sin(Math.min(1,(t-w.t-.12)/.18)*Math.PI))*(1-eo*.08),o:(t>=w.t-0.03?1:0)*(1-eo),blur:eo*12});
+        animLetters(w.L,w.t-0.02,t) }
+      else {const a=E.ox(p); const b=E.ob(clamp(p*1.0),1.5); set(w.e,{y:(1-a)*34-eo*24,s:lerp(.6,1,b)*(1-eo*.06),o:clamp(p*2.2)*(1-eo),blur:(1-clamp(p*1.6))*12+eo*10})}
     }
     if(g.strike){const ln=g.lines[g.strike.line]; const p=E.oq(P(t,g.strike.t,0.3));
       const lr=ln.getBoundingClientRect(), cr=g.el.getBoundingClientRect();
@@ -215,7 +233,7 @@ function buildFront(){
     const pl=[]; for(let k=0;k<2;k++){const c=document.createElementNS('http://www.w3.org/2000/svg','circle'); c.setAttribute('r','11'); c.setAttribute('fill','#fff6d6'); c.style.filter='drop-shadow(0 0 10px #f0d682)'; s4.svg.querySelector('#pulses').appendChild(c); pl.push(c)}
     return {n,l,ln,x,y,t,x1,y1,x2,y2,len:Math.hypot(x2-x1,y2-y1),pl}});
   s4.hub=el('div','abs'); s4.hub.innerHTML=`<div style="width:236px;height:236px;border-radius:50%;background:#faf9f3;display:flex;align-items:center;justify-content:center;color:#244b37;box-shadow:0 0 0 14px rgba(240,214,130,.25),0 0 80px rgba(240,214,130,.55),0 24px 50px rgba(0,0,0,.4)">${icon('user-round').replace('<svg','<svg style="width:112px;height:112px"')}</div>`;
-  s4.hl=el('div','abs'); s4.hl.innerHTML=`<div style="background:#f0d682;color:#14241e;font-family:'Plus Jakarta Sans';font-weight:800;font-size:30px;padding:12px 26px;border-radius:999px;white-space:nowrap;box-shadow:0 10px 24px rgba(0,0,0,.3)">Student profile</div>`;
+  s4.hl=el('div','abs'); s4.hl.innerHTML=`<div style="background:#f0d682;color:#14241e;font-family:'Inter Tight';font-weight:800;font-size:30px;padding:12px 26px;border-radius:999px;white-space:nowrap;box-shadow:0 10px 24px rgba(0,0,0,.3)">Student profile</div>`;
   s4.rip=[0,1,2].map(()=>{const r=el('div','abs'); Object.assign(r.style,{width:'236px',height:'236px',borderRadius:'50%',border:'5px solid #f0d682'}); return r});
   // scene 5 department chips
   const D=[['building-2','Admissions office',300,165,22.60],['calculator','Accounts',800,140,22.84],['file-pen-line','Exam cell',255,335,23.08],['bus','Transport desk',805,318,23.32]];
@@ -226,7 +244,7 @@ function buildFront(){
   s6.b=el('div','abs'); s6.b.innerHTML=`<div style="width:960px;border-radius:28px;background:#fff;box-shadow:0 34px 80px rgba(20,36,30,.30),0 6px 18px rgba(20,36,30,.12);overflow:hidden">
      <div style="height:58px;background:#f1f4ee;display:flex;align-items:center;padding:0 22px;gap:10px;border-bottom:1px solid #e2e8df">
        <span style="width:15px;height:15px;border-radius:50%;background:#e5533d"></span><span style="width:15px;height:15px;border-radius:50%;background:#f0c24b"></span><span style="width:15px;height:15px;border-radius:50%;background:#59b36b"></span>
-       <span style="margin-left:22px;flex:1;height:36px;border-radius:18px;background:#fff;display:flex;align-items:center;padding:0 18px;font-family:'Plus Jakarta Sans';font-weight:600;font-size:20px;color:#50685e">taaraerp.com/app/desk</span></div>
+       <span style="margin-left:22px;flex:1;height:36px;border-radius:18px;background:#fff;display:flex;align-items:center;padding:0 18px;font-family:'Inter Tight';font-weight:600;font-size:20px;color:#50685e">taaraerp.com/app/desk</span></div>
      <div id="vp" style="width:960px;height:645px;overflow:hidden;position:relative"><img id="sd" src="assets/student_desk.png" style="width:960px;display:block;transform-origin:50% 30%"></div></div>`;
   s6.pills=['Attendance','Results','Fees','Transport'].map((tx,i)=>{const c=el('div','abs chip'); c.innerHTML=tx; Object.assign(c.style,{fontSize:'28px',padding:'14px 26px',background:'#244b37',color:'#faf9f3',boxShadow:'0 10px 24px rgba(20,36,30,.25)'}); return {e:c,t:29.70+i*0.16}});
   // scene 7 paper chips
@@ -234,7 +252,7 @@ function buildFront(){
   for(const [ic,tx,x,y,r,t] of P7){const c=el('div','abs paper'); c.innerHTML=`${icon(ic)}${tx}<span class="xx" style="position:absolute;right:-22px;top:-22px;width:64px;height:64px;border-radius:50%;background:#e5533d;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.35)">${icon('x').replace('<svg','<svg style="width:40px;height:40px;color:#fff" stroke-width="3"')}</span>`; c.style.position='absolute'; s7.push({e:c,x,y,r,t,x2:c.querySelector('.xx')})}
   // scene 8 behind-head words (behind layer) + kicker (front)
   const BH=document.getElementById('behind');
-  s8.words=[['student',39.68,40.50,''],['profile',40.46,41.20,''],['journey',41.18,41.82,'it']].map(([w,t0,t1,f])=>{const e=el('div','abs serif',BH); e.textContent=w; Object.assign(e.style,{fontSize:'262px',fontWeight:500,letterSpacing:'-0.03em',color:f?'#f0d682':'#faf9f3',fontStyle:f?'italic':'normal',whiteSpace:'nowrap',lineHeight:'1',textShadow:'0 10px 40px rgba(0,0,0,.35)'}); return {e,t0,t1}});
+  s8.words=[['student',39.68,40.50,'gw'],['profile',40.46,41.20,'gw'],['journey',41.18,41.82,'gg']].map(([w,t0,t1,g])=>{const e=el('div','abs',BH); Object.assign(e.style,{fontFamily:'Inter Tight',fontWeight:900,fontSize:'250px',whiteSpace:'nowrap',lineHeight:'1'}); e.dataset.fx='drop-shadow(0 12px 30px rgba(0,0,0,.45))'; const L=makeLetters(e,w,g); return {e,t0,t1,L}});
   s8.k1=el('div','abs kicker','',`<i></i>One`); s8.k2=el('div','abs kicker','',`<i></i>One complete`);
   [s8.k1,s8.k2].forEach(k=>{k.style.color='#faf9f3';k.style.fontSize='40px';k.style.textShadow='0 2px 12px rgba(0,0,0,.5)'});
   // end card
@@ -243,8 +261,8 @@ function buildFront(){
   endc.ast=[[140,330,250,.16],[960,1500,330,.13],[900,250,150,.18]].map(([x,y,sz,o])=>{const a=el('div','abs',endc.p); a.innerHTML=asteriskSVG('#5f7a45'); Object.assign(a.style,{width:sz+'px',height:sz+'px',left:(x-sz/2)+'px',top:(y-sz/2)+'px'}); return {e:a,o}});
   const C=(html,css)=>{const e=el('div','abs',endc.p,html); Object.assign(e.style,{width:'1080px',textAlign:'center'},css||{}); return e};
   endc.logo=C(`<img src="assets/logo_full.png" style="height:150px">`,{top:'470px'});
-  endc.h1=C(`<span class="serif" style="font-size:118px;font-weight:500;letter-spacing:-.03em;color:#14241e">Your school.</span>`,{top:'720px'});
-  endc.h2=C(`<span class="serif" style="font-size:118px;font-weight:500;letter-spacing:-.03em;color:#14241e">One <i style="color:#5f7a45">connected</i> ERP.</span>`,{top:'846px'});
+  endc.h1=C(`<span style="font-family:'Inter Tight';font-size:112px;font-weight:900;letter-spacing:-.045em;word-spacing:.2em"><span class="gt gd">Your</span> <span class="gt gd">school.</span></span>`,{top:'716px'});
+  endc.h2=C(`<span style="font-family:'Inter Tight';font-size:104px;font-weight:900;letter-spacing:-.045em;word-spacing:.14em"><span class="gt gd">One</span> <span class="gt ge">connected</span> <span class="gt gd">ERP.</span></span>`,{top:'846px'});
   endc.sub=C(`<span class="sans" style="font-size:31px;font-weight:600;color:#50685e;letter-spacing:.01em">Admissions · Attendance · Exams · Fees · Transport</span>`,{top:'1040px'});
   endc.price=C(`<span class="sans" style="display:inline-block;background:#f0d682;color:#14241e;font-size:34px;font-weight:800;padding:18px 34px;border-radius:999px">Annual plans from ₹45,000</span>`,{top:'1140px'});
   endc.cta=C(`<span class="sans" style="display:inline-flex;align-items:center;gap:16px;background:#244b37;color:#faf9f3;font-size:38px;font-weight:700;padding:28px 46px;border-radius:22px;box-shadow:0 18px 40px rgba(36,75,55,.35)">Explore the demo campus ${icon('arrow-up-right').replace('<svg','<svg style="width:40px;height:40px"')}</span>`,{top:'1290px'});
@@ -350,7 +368,8 @@ function drawFront(t){
       set(s8.k1,{x:540-s8.k1.offsetWidth/2,y:base-215+(1-E.oc(k1))*16,o:E.oc(k1)*(1-k1o),blur:(1-k1)*6});
       set(s8.k2,{x:540-s8.k2.offsetWidth/2,y:base-215+(1-E.oc(k2))*16,o:E.oc(k2)*(1-E.ic(k2o)),blur:(1-k2)*6});
       s8.words.forEach(w=>{const a=P(t,w.t0,.38), o=P(t,w.t1-.16,.18); const ww=w.e.offsetWidth;
-        set(w.e,{x:540-ww/2,y:base-150+(1-E.ox(a))*60-E.ic(o)*30,s:lerp(1.18,1,E.ox(a)),o:clamp(a*2.5)*(1-E.ic(o)),blur:(1-clamp(a*1.6))*16+o*12})});
+        if(!w.fit){ w.fit=1; let fs=250; while(w.e.getBoundingClientRect().width>990&&fs>120){fs-=4; w.e.style.fontSize=fs+'px'} }
+        set(w.e,{x:540-ww/2,y:base-150-E.ic(o)*30,s:lerp(1.08,1,E.ox(a)),o:(t>=w.t0-.02?1:0)*(1-E.ic(o)),blur:o*12}); animLetters(w.L,w.t0,t,{dur:.34,amp:.8})});
     } }
   // end card
   { const on=t>43.25; endc.p.style.display=on?'block':'none';
@@ -373,13 +392,15 @@ window.renderFrame=(t,layer)=>{
   drawBacks(t); drawCaps(t); drawFront(t);
   return true;
 };
+window.capEvents=()=>{const ev=[]; for(const g of CAPS){ for(const w of g.words) ev.push({t:w.t,k:w.k,th:g.th,n:(w.L||[]).length}); if(g.strike) ev.push({t:g.strike.t,k:'strike'}) } return ev};
 window.layersAt=(t)=>{const L=['front']; if((t>9.08&&t<21.9)||(t>28.08&&t<32.1)) L.push('back'); if(t>39.55&&t<41.9) L.push('behind'); return L};
 (async()=>{
   const names=['indian-rupee','clipboard-check','trending-up','users','bus','user-round','folder-open','book-open','smartphone','x','check','graduation-cap','building-2','calculator','file-pen-line','arrow-up-right','sparkles'];
   for(const n of names){ const r=await fetch('assets/icons/'+n+'.svg'); let s=await r.text(); s=s.replace(/<!--.*?-->/s,'').replace(/width="24"/,'').replace(/height="24"/,''); ICONS[n]=s }
   await document.fonts.load("500 100px Newsreader"); await document.fonts.load("italic 500 100px Newsreader");
-  for(const w of [500,600,700,800]) await document.fonts.load(`${w} 40px "Plus Jakarta Sans"`);
-  await document.fonts.load('800 34px "Plus Jakarta Sans"','₹45,000');
+  for(const w of [500,600,700,800]) await document.fonts.load(`${w} 40px "Inter Tight"`);
+  for(const w of [700,800,900]) await document.fonts.load(`${w} 60px "Inter Tight"`);
+  await document.fonts.load('800 34px "Inter Tight"','₹45,000');
   buildBacks(); buildCaps(); buildFront();
   await Promise.all([...document.images].map(i=>i.complete?1:new Promise(r=>{i.onload=r;i.onerror=r})));
   await document.fonts.ready;

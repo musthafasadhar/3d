@@ -24,7 +24,8 @@ ZSEG = [(0.00, 0.45, 1.14, 1.00, 'ox'), (0.45, 3.12, 1.00, 1.03, 'lin'),
         (26.72, 28.20, 1.04, 1.08, 'lin'), (28.20, 32.05, 1.00, 1.00, 'lin'),
         (32.05, 34.40, 1.00, 1.03, 'lin'), (34.40, 38.40, 1.09, 1.12, 'lin'),
         (38.40, 41.70, 1.00, 1.04, 'lin'), (41.70, 47.0, 1.06, 1.10, 'lin')]
-BUMPS = [1.34, 8.58, 22.60, 24.82, 27.40, 33.24, 42.86]
+_EV = json.load(open(f'{S}/cap_events.json'))
+BUMPS = sorted([e['t'] + 0.06 for e in _EV if e['k'] in ('B', 'L') and e.get('th') == 'dark'] + [39.74, 40.52, 41.24])
 
 def zbase(t):
     for i, (a, b, z0, z1, e) in enumerate(ZSEG):
@@ -44,7 +45,7 @@ def zoom(t):
     for tb in BUMPS:
         d = t - tb
         if 0 <= d < 0.4:
-            z *= 1 + 0.022 * math.sin(math.pi * d / 0.4) * (1 - d / 0.4)
+            z *= 1 + 0.03 * math.sin(math.pi * d / 0.4) * (1 - d / 0.4)
     return z
 
 # ---------- PiP morph windows (start, end, direction) ----------
