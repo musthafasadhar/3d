@@ -6,10 +6,8 @@ W, H, FPS = 1080, 1920, 30
 NSRC = 1314
 TOTAL = int(round(46.6 * FPS))
 HT = json.load(open(f'{S}/headtrack.json'))
-GRADE = ("hqdn3d=1.0:1.0:3:3,"
-         "eq=contrast=1.05:saturation=1.05:gamma=1.0,"
-         "colorbalance=rs=-0.015:bs=0.025:rh=0.025:gh=0.008:bh=-0.02,"
-         "unsharp=5:5:0.40:5:5:0.0")
+GRADE = ("eq=contrast=1.02:saturation=1.0,"
+         "curves=all='0/0 0.6/0.595 0.85/0.83 1/0.96'")
 
 def clamp(x, a=0., b=1.): return max(a, min(b, x))
 def P(t, t0, d): return clamp((t - t0) / d)
@@ -129,7 +127,7 @@ def vignette():
     if VIG is None:
         yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
         d = np.sqrt(((xx - W / 2) / (W * 0.75)) ** 2 + ((yy - H * 0.45) / (H * 0.70)) ** 2)
-        VIG = (1 - 0.22 * np.clip(d - 0.55, 0, 1) ** 1.4)[..., None]
+        VIG = (1 - 0.10 * np.clip(d - 0.55, 0, 1) ** 1.4)[..., None]
     return VIG
 
 MCACHE = {}
