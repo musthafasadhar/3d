@@ -44,7 +44,11 @@ Source: https://pin.it/6Cvd1utLc · 720×1280 · 16.9 s · 30 fps · cuts at 4.4
 - Full-page capture, overview and all page copy are in this folder.
 
 ## House style learned so far (apply to future edits)
-- Gradient **bold** keyword captions (gold gradient + dark-green outline when the background is busy or yellow).
-- Clean edit: few effects, **no music/SFX clutter** (max 1–2 soft whooshes on big transitions).
+- **Caption font = ref-02 font: Inter Tight ExtraBold (800)**, tight tracking (−0.035em keyword, −0.04em lead words). File: `taara-erp-reel-01/assets/InterTight.ttf`.
+- Keyword = **gradient fill only** (lime-yellow `#F4FF86 → #E2FC52 → #C3EE2E`, top→bottom) + soft dark drop-shadow. **NO outline / stroke / border on text, ever.**
+- Lead words: white Inter Tight 800 at ~⅓ size, tucked onto the keyword (left-aligned); sub line right-aligned.
+- Use the same font for all on-screen text (pills, B-roll titles, end card).
+- Sound: subtle SFX are welcome: soft pops on keywords, ticks on UI pills, whooshes on B-roll transitions, a low hit on the hook, a chime on the end card. Keep them under the voice.
+- Add visuals that illustrate the words (UI cards, dashboard B-roll, website scroll).
 - Natural skin tone: iPhone HDR (HLG) footage must be tone-mapped properly (hable + gentle lift). Never apply a heavy LUT.
 - Don't compromise quality: render at 1080×1920 / 30 fps, encode at CRF ≤ 15.

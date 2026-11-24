@@ -116,7 +116,7 @@ caps = [
     dict(id="hook_lead", start=M(0.20), end=M(2.75), y=1250,
          lead=W(("Principal", 0.22), ("walks", 0.45), ("in…", 0.70)), big=[], sub=[]),
     dict(id="hook_behind", start=M(1.10), end=M(5.02) - 0.01, behind=True, y=488,
-         big=W(("5", 1.16), ("MINUTES", 1.70))),
+         big=W(("5", 1.16), ("Minutes", 1.70))),
     dict(id="perf", start=M(2.80), end=M(5.02) - 0.01, y=1250,
          lead=W(("&", 2.82), ("knows", 2.90), ("the", 3.0), ("entire", 3.05), ("institute's", 3.14)),
          big=W(("Performance", 3.52)), sub=[]),
@@ -129,11 +129,8 @@ caps = [
          big=W(("Reports", 16.10)), sub=W(("not", 17.12), ("anymore.", 17.28)), strike=M(16.92)),
     dict(id="easily", start=BROLL_OUT + 0.15, end=M(25.29) - 0.01, y=1250,
          lead=W(("see", 24.20), ("it", 24.30), ("all,", 24.40)), big=W(("Easily", 24.55)), sub=[]),
-    dict(id="vis", start=M(25.64), end=M(28.10), y=1250,
-         lead=W(("management", 25.84), ("gets", 26.50), ("clear", 26.74)),
-         big=W(("Visibility", 26.96)), sub=[], star=M(27.1)),
-    dict(id="dec", start=M(28.12), end=M(30.68) - 0.01, y=1300,
-         lead=W(("and", 28.12), ("takes", 28.40)), big=W(("Decisions", 28.62)),
+    dict(id="dec", start=M(28.30), end=M(30.68) - 0.01, y=1300,
+         lead=W(("and", 28.30), ("takes", 28.42)), big=W(("Decisions", 28.62)),
          sub=W(("—", 28.95), ("fast.", 29.0))),
     dict(id="data", start=M(30.93), end=M(33.71) - 0.01, y=1250,
          lead=W(("a", 31.0), ("principal's", 31.05), ("job", 31.76), ("isn't", 31.9), ("collecting", 32.0)),
@@ -153,14 +150,32 @@ pills = dict(start=M(5.32), end=M(11.37) - 0.01, y=1095, items=[
     ["chat", "Parents' concerns", round(M(10.38), 3)],
 ])
 
+calls = dict(end=round(M(15.75) - 0.01, 3), items=[
+    ["Accounts", round(M(13.74), 3), 50, 235],
+    ["Admissions", round(M(14.10), 3), 560, 300],
+    ["Exam cell", round(M(14.45), 3), 50, 375],
+])
+dash = dict(t_in=round(M(25.64), 4), t_out=round(M(28.30), 4), lead=round(M(25.84), 3), big=round(M(26.96), 3))
 broll = dict(t_in=round(BROLL_IN, 4), t_out=round(BROLL_OUT, 4),
              tag=round(M(19.10), 3), title1=round(M(21.80), 3), title2=round(M(23.30), 3))
 endcard = dict(t_in=round(END_IN, 4), dur=END_DUR, line1=round(M(37.14), 3), line2=round(M(38.16), 3),
                speech_end=round(N_SPEECH / FPS, 4))
 
-out = dict(fps=FPS, n=N, n_speech=N_SPEECH, frames=frames, caps=caps, pills=pills, broll=broll, endcard=endcard,
+# ---------------------------------------------------------------- sound design cues (output seconds)
+sfx = [["hit", M(1.16)]]
+for c in caps:
+    if c.get("big") and not c.get("behind"):
+        sfx.append(["pop", c["big"][0][1]])
+    if c.get("strike") is not None:
+        sfx.append(["swipe", c["strike"]])
+sfx += [["tick", it[2]] for it in pills["items"]] + [["tick", it[1]] for it in calls["items"]]
+sfx += [["whoosh", BROLL_IN - 0.12], ["whoosh_out", BROLL_OUT], ["whoosh", dash["t_in"] - 0.12], ["whoosh_out", dash["t_out"]],
+        ["pop", dash["big"]], ["whoosh", END_IN - 0.05], ["chime", endcard["line2"]]]
+sfx = [[k, round(t, 3)] for k, t in sorted(sfx, key=lambda x: x[1])]
+
+out = dict(fps=FPS, n=N, n_speech=N_SPEECH, frames=frames, caps=caps, pills=pills, calls=calls, dash=dash, broll=broll, endcard=endcard,
            segments=[dict(src_in=fa, src_out=fb, kind=k, out_in=oo) for fa, fb, k, oo in seg_frames],
-           sfx=[round(BROLL_IN, 3), round(END_IN, 3)])
+           sfx=sfx)
 json.dump(out, open(sys.argv[1], "w"))
 print("output frames", N, "=", round(N / FPS, 2), "s ; broll", round(BROLL_IN, 2), "-", round(BROLL_OUT, 2),
       "; end card", round(END_IN, 2))
