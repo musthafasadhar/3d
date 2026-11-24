@@ -1,0 +1,280 @@
+[
+ {
+  "lines": [
+   {
+    "t": "hey",
+    "k": "s",
+    "at": 0.05
+   },
+   {
+    "t": "GUYS",
+    "k": "b",
+    "at": 1.12
+   }
+  ],
+  "end": 1.52
+ },
+ {
+  "lines": [
+   {
+    "t": "this is",
+    "k": "s",
+    "at": 1.76
+   },
+   {
+    "t": "ASHWIN",
+    "k": "b",
+    "at": 2.3
+   }
+  ],
+  "end": 3.64
+ },
+ {
+  "lines": [
+   {
+    "t": "today I'm gonna",
+    "k": "s",
+    "at": 3.88
+   },
+   {
+    "t": "EXPLAIN",
+    "k": "b",
+    "at": 4.66
+   },
+   {
+    "t": "about",
+    "k": "s",
+    "at": 5.24
+   }
+  ],
+  "end": 5.6
+ },
+ {
+  "lines": [
+   {
+    "t": "AMAZON",
+    "k": "b",
+    "at": 5.84,
+    "s": 0.72
+   },
+   {
+    "t": "FLIPKART",
+    "k": "b",
+    "at": 6.54,
+    "s": 0.72
+   },
+   {
+    "t": "and",
+    "k": "s",
+    "at": 7.4
+   },
+   {
+    "t": "TWITTER",
+    "k": "b",
+    "at": 7.74,
+    "s": 0.72
+   }
+  ],
+  "end": 8.88
+ },
+ {
+  "lines": [
+   {
+    "t": "so you know, Amazon is an",
+    "k": "s",
+    "at": 9.12
+   },
+   {
+    "t": "E-COMMERCE",
+    "k": "b",
+    "at": 10.08
+   },
+   {
+    "t": "model",
+    "k": "s",
+    "at": 10.44
+   }
+  ],
+  "end": 10.78
+ },
+ {
+  "lines": [
+   {
+    "t": "where it will",
+    "k": "s",
+    "at": 11.02
+   },
+   {
+    "t": "SELL",
+    "k": "b",
+    "at": 12.56
+   },
+   {
+    "t": "the products",
+    "k": "s",
+    "at": 12.78
+   }
+  ],
+  "end": 13.22
+ },
+ {
+  "lines": [
+   {
+    "t": "to",
+    "k": "s",
+    "at": 13.46
+   },
+   {
+    "t": "EVERYONE",
+    "k": "b",
+    "at": 13.78
+   }
+  ],
+  "end": 14.94
+ },
+ {
+  "lines": [
+   {
+    "t": "FLIPKART",
+    "k": "b",
+    "at": 15.18,
+    "s": 0.8
+   },
+   {
+    "t": "is also a",
+    "k": "s",
+    "at": 15.52
+   },
+   {
+    "t": "PARALLEL ONE",
+    "k": "b",
+    "at": 16.56,
+    "s": 0.8
+   }
+  ],
+  "end": 16.88
+ },
+ {
+  "lines": [
+   {
+    "t": "and where we go for",
+    "k": "s",
+    "at": 17.12
+   },
+   {
+    "t": "TWITTER",
+    "k": "b",
+    "at": 18.76
+   }
+  ],
+  "end": 19.06
+ },
+ {
+  "lines": [
+   {
+    "t": "Twitter is a",
+    "k": "s",
+    "at": 19.3
+   },
+   {
+    "t": "DIFFERENT",
+    "k": "b",
+    "at": 20.02
+   },
+   {
+    "t": "thing",
+    "k": "s",
+    "at": 20.38
+   }
+  ],
+  "end": 20.56
+ },
+ {
+  "lines": [
+   {
+    "t": "where you can",
+    "k": "s",
+    "at": 20.8
+   },
+   {
+    "t": "CONNECT",
+    "k": "b",
+    "at": 21.38
+   },
+   {
+    "t": "with social people",
+    "k": "s",
+    "at": 21.8
+   }
+  ],
+  "end": 22.52
+ },
+ {
+  "lines": [
+   {
+    "t": "like, you know",
+    "k": "s",
+    "at": 22.76
+   },
+   {
+    "t": "ONE-TO-ONE",
+    "k": "b",
+    "at": 23.66
+   }
+  ],
+  "end": 24.24
+ },
+ {
+  "lines": [
+   {
+    "t": "that's called",
+    "k": "s",
+    "at": 24.48
+   },
+   {
+    "t": "TWITTER",
+    "k": "b",
+    "at": 25.18
+   }
+  ],
+  "end": 25.74
+ },
+ {
+  "lines": [
+   {
+    "t": "where you can",
+    "k": "s",
+    "at": 25.98
+   },
+   {
+    "t": "CHAT",
+    "k": "b",
+    "at": 26.68,
+    "s": 0.8
+   },
+   {
+    "t": "with some",
+    "k": "s",
+    "at": 26.9
+   },
+   {
+    "t": "EXPERTS",
+    "k": "b",
+    "at": 27.36,
+    "s": 0.8
+   }
+  ],
+  "end": 28.76
+ },
+ {
+  "lines": [
+   {
+    "t": "THANK YOU",
+    "k": "b",
+    "at": 29.0,
+    "s": 1.05
+   }
+  ],
+  "end": 40
+ }
+]
