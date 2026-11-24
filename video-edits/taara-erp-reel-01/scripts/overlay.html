@@ -1,0 +1,249 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Jakarta;src:url(../assets/PlusJakartaSans.ttf);font-weight:200 900}
+@font-face{font-family:News;src:url(../assets/Newsreader.ttf);font-weight:200 800}
+@font-face{font-family:NewsI;src:url(../assets/Newsreader-Italic.ttf);font-weight:200 800}
+:root{--cream:#FAF9E8;--green:#244B37;--ink:#233E32;--gold:#F0D682;--outline:#0E2519}
+html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:transparent}
+.layer{position:absolute;inset:0;width:1080px;height:1920px;overflow:hidden}
+*{box-sizing:border-box}
+/* ---------- captions ---------- */
+.cap{position:absolute;left:0;width:1080px;display:flex;justify-content:center;transform:translateY(-50%)}
+.blk{display:inline-flex;flex-direction:column;align-items:stretch;max-width:980px}
+.lead,.sub{font-family:Jakarta;font-weight:750;font-size:50px;line-height:1.05;letter-spacing:-.01em;white-space:nowrap}
+.lead{text-align:left;padding-left:6px;margin-bottom:-4px}
+.sub{text-align:right;padding-right:6px;margin-top:2px}
+.big{font-family:Jakarta;font-weight:850;line-height:1.0;letter-spacing:-.025em;white-space:nowrap;position:relative;text-align:center}
+.w{position:relative;display:inline-block;margin-right:.24em;will-change:transform,opacity,filter}
+.w:last-child{margin-right:0}
+.w .s{color:transparent;-webkit-text-stroke:12px var(--outline);text-shadow:0 6px 22px rgba(0,0,0,.55)}
+.w .f{position:absolute;left:0;top:0;color:#fff}
+.big .w .s{-webkit-text-stroke:18px var(--outline);text-shadow:0 10px 34px rgba(0,0,0,.6)}
+.big .w .f{background:linear-gradient(180deg,#FFF7D2 0%,#FCE28C 34%,#F4C04E 66%,#E39A2C 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.strike{position:absolute;left:-5%;width:110%;top:56%;height:16px;border-radius:9px;background:linear-gradient(90deg,#FF6B6E,#E5383B);
+  box-shadow:0 0 0 4px var(--outline),0 6px 16px rgba(0,0,0,.45);transform-origin:left center}
+.star{position:absolute;width:74px;height:58px;right:-46px;top:-30px;background:url(../assets/star.png) center/contain no-repeat;filter:drop-shadow(0 0 10px rgba(255,255,255,.8)) drop-shadow(0 4px 8px rgba(0,0,0,.4))}
+/* behind-the-head hook text */
+.behind .big .w .s{-webkit-text-stroke:10px rgba(14,37,25,.85)}
+/* ---------- feature pills ---------- */
+#pills{position:absolute;left:0;width:1080px}
+.pill{position:absolute;left:170px;width:740px;height:98px;border-radius:30px;display:flex;align-items:center;gap:22px;padding:0 26px 0 18px;
+  background:linear-gradient(95deg,rgba(17,40,29,.93),rgba(36,75,55,.88));border:2px solid rgba(240,214,130,.38);
+  box-shadow:0 14px 34px rgba(0,0,0,.38);color:var(--cream);font-family:Jakarta;font-weight:650;font-size:40px;letter-spacing:-.01em}
+.pill .ic{width:64px;height:64px;border-radius:20px;flex:none;display:grid;place-items:center;background:linear-gradient(160deg,#FCE6A0,#E9B24A)}
+.pill .ic svg{width:36px;height:36px;stroke:#173A28;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.pill .tx{flex:1;white-space:nowrap}
+.pill .ok{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:rgba(240,214,130,.18);border:2px solid rgba(240,214,130,.7)}
+.pill .ok svg{width:24px;height:24px;stroke:#F6D77E;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+/* ---------- b-roll ---------- */
+#broll{position:absolute;inset:0;overflow:hidden;background:var(--cream)}
+#broll .bg{position:absolute;inset:0;background:
+  radial-gradient(900px 700px at 50% 8%,rgba(240,214,130,.55),transparent 70%),
+  radial-gradient(800px 800px at 10% 95%,rgba(196,214,170,.55),transparent 70%),
+  radial-gradient(700px 700px at 95% 70%,rgba(227,224,238,.7),transparent 70%),var(--cream)}
+#stage{position:absolute;inset:0;perspective:1500px;perspective-origin:50% 22%}
+#win{position:absolute;left:540px;top:0;width:1440px;overflow:hidden;background:#fff;transform-origin:50% 0%;
+  box-shadow:0 40px 120px rgba(35,62,50,.28),0 0 0 1px rgba(35,62,50,.08)}
+#page{position:absolute;left:0;top:0;width:1440px;display:block}
+.chip{position:absolute;left:0;top:0;display:flex;align-items:center;gap:14px;padding:16px 28px 16px 16px;border-radius:26px;
+  font-family:Jakarta;font-weight:700;font-size:34px;color:var(--ink);box-shadow:0 18px 40px rgba(35,62,50,.22),inset 0 1px 0 rgba(255,255,255,.7);white-space:nowrap}
+.chip .ci{width:52px;height:52px;border-radius:16px;background:rgba(255,255,255,.75);display:grid;place-items:center}
+.chip svg{width:30px;height:30px;stroke:var(--ink);stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+#tag{position:absolute;left:50%;top:250px;display:flex;align-items:center;gap:14px;padding:14px 30px 14px 16px;border-radius:999px;background:#fff;
+  box-shadow:0 12px 32px rgba(35,62,50,.18);font-family:Jakarta;font-weight:700;font-size:32px;color:var(--ink);white-space:nowrap}
+#tag .dot{width:46px;height:46px;border-radius:50%;background:var(--green) url(../assets/star.png) center/30px no-repeat}
+#tag .dot{background-blend-mode:normal}
+#t1,#t2{position:absolute;left:0;width:1080px;text-align:center;white-space:nowrap}
+#t1{top:340px;font-family:Jakarta;font-weight:850;font-size:92px;letter-spacing:-.035em;line-height:1.05}
+#t1 span{background:linear-gradient(180deg,#3C7A57,#173A28);-webkit-background-clip:text;background-clip:text;color:transparent}
+#t2{top:448px;font-family:NewsI;font-weight:500;font-size:96px;letter-spacing:-.02em;color:#3E6B4F;line-height:1.05}
+#t2 .ul{position:absolute;left:50%;bottom:-14px;width:560px;height:30px;transform:translateX(-50%)}
+/* ---------- end card ---------- */
+#endbg{position:absolute;inset:0;background:
+  radial-gradient(900px 600px at 50% 0%,rgba(240,214,130,.6),transparent 70%),
+  radial-gradient(900px 800px at 0% 100%,rgba(196,214,170,.6),transparent 70%),
+  radial-gradient(700px 700px at 100% 60%,rgba(241,221,208,.7),transparent 70%),var(--cream)}
+#elogo{position:absolute;left:50%;top:96px;width:360px;transform:translateX(-50%)}
+#e1,#e2{position:absolute;left:0;width:1080px;text-align:center;white-space:nowrap;line-height:1.05}
+#e1{top:228px;font-family:News;font-weight:500;font-size:88px;color:var(--ink);letter-spacing:-.02em}
+#e2{top:326px;font-family:Jakarta;font-weight:850;font-size:86px;letter-spacing:-.035em}
+#e2 span{background:linear-gradient(90deg,#1F4D36 0%,#3F8A5C 45%,#C8962E 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#cardring{position:absolute;background:#fff;box-shadow:0 34px 90px rgba(35,62,50,.38)}
+#cta{position:absolute;left:50%;display:flex;align-items:center;gap:18px;padding:22px 40px;border-radius:999px;background:var(--green);color:var(--cream);
+  font-family:Jakarta;font-weight:750;font-size:38px;white-space:nowrap;box-shadow:0 16px 36px rgba(36,75,55,.35)}
+#cta svg{width:34px;height:34px;stroke:var(--gold);stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+#cta .url{color:var(--gold)}
+</style></head>
+<body>
+<div class="layer" id="L_under"></div>
+<div class="layer" id="L_behind"></div>
+<div class="layer" id="L_over"></div>
+<script>
+const ICONS={
+ users:'<circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M16 4.6a3 3 0 0 1 0 6"/><path d="M18 13.8c2 .6 3 2.4 3 5.2"/>',
+ rupee:'<path d="M6 4h12M6 9h12M9 4c4 0 6 1.5 6 5s-3 5-6 5H6l8 7"/>',
+ chart:'<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-6"/>',
+ cap:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/>',
+ chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.6A8 8 0 1 1 21 12z"/>',
+ check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+ book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/>',
+ bus:'<rect x="4" y="3" width="16" height="14" rx="3"/><path d="M4 10h16M8 21v-4M16 21v-4"/>',
+ library:'<path d="M5 4v16M10 4v16M15 5l4 15"/>',
+ arrow:'<path d="M7 17L17 7M9 7h8v8"/>'};
+const svg=(k)=>`<svg viewBox="0 0 24 24">${ICONS[k]}</svg>`;
+const cl=(x)=>Math.min(1,Math.max(0,x));
+const eOut=(x)=>1-Math.pow(1-cl(x),3);
+const eOutQ=(x)=>1-Math.pow(1-cl(x),5);
+const eIO=(x)=>{x=cl(x);return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2};
+const eBack=(x)=>{x=cl(x);const c1=1.5,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)};
+const lerp=(a,b,p)=>a+(b-a)*p;
+let TL=null, CAPS=[], PILLS=[], B={}, E={};
+
+function mkWord(txt,big){const w=document.createElement('span');w.className='w';
+  w.innerHTML=`<span class="s">${txt}</span><span class="f">${txt}</span>`;return w}
+
+function buildCaps(){
+  for(const c of TL.caps){
+    const host=document.getElementById(c.behind?'L_behind':'L_over');
+    const el=document.createElement('div');el.className='cap'+(c.behind?' behind':'');el.style.top=c.y+'px';
+    const blk=document.createElement('div');blk.className='blk';el.appendChild(blk);
+    const words=[];
+    for(const part of ['lead','big','sub']){
+      const arr=c[part]||[]; if(!arr.length) continue;
+      const line=document.createElement('div');line.className=part;blk.appendChild(line);
+      for(const [txt,t] of arr){const w=mkWord(txt);line.appendChild(w);words.push({el:w,t,big:part==='big'})}
+      if(part==='big'){
+        if(c.strike!=null){const s=document.createElement('div');s.className='strike';line.appendChild(s);c._strike=s}
+        if(c.star!=null){const s=document.createElement('div');s.className='star';line.appendChild(s);c._star=s}
+        c._big=line;
+      }
+    }
+    host.appendChild(el);
+    // fit big line
+    if(c._big){let fs=c.behind?190:168;c._big.style.fontSize=fs+'px';
+      const maxW=c.behind?1010:930;
+      while(c._big.scrollWidth>maxW&&fs>60){fs-=2;c._big.style.fontSize=fs+'px'}}
+    c._el=el;c._words=words;CAPS.push(c);
+  }
+}
+function renderCaps(t){
+  for(const c of CAPS){
+    const vis=t>=c.start-0.001&&t<c.end;
+    c._el.style.display=vis?'flex':'none'; if(!vis) continue;
+    const q=cl((t-(c.end-0.16))/0.16);
+    c._el.style.opacity=1-q; c._el.style.filter=q>0?`blur(${6*q}px)`:'none';
+    c._el.style.transform=`translateY(calc(-50% - ${14*q}px))`;
+    for(const w of c._words){
+      if(w.big){const p=(t-w.t)/0.28;const e=eOut(p);
+        w.el.style.opacity=eOut(p*1.7);
+        w.el.style.transform=`scale(${1.32-0.32*e})`;
+        w.el.style.filter=p<1?`blur(${12*(1-e)}px)`:'none';
+      }else{const p=(t-w.t)/0.2;const e=eOut(p);
+        w.el.style.opacity=e;w.el.style.transform=`translateY(${18*(1-e)}px)`;
+        w.el.style.filter=p<1?`blur(${6*(1-e)}px)`:'none';}
+    }
+    if(c._strike){const p=eOut((t-c.strike)/0.26);c._strike.style.transform=`rotate(-4deg) scaleX(${p})`;c._strike.style.opacity=p>0?1:0;
+      const f=c._big.querySelectorAll('.f');f.forEach(x=>x.style.filter=`saturate(${1-0.75*p}) brightness(${1-0.18*p})`)}
+    if(c._star){const p=(t-c.star)/0.4;c._star.style.opacity=cl(p*2);
+      c._star.style.transform=`scale(${p<=0?0:eBack(p)*(1+0.06*Math.sin((t-c.star)*7))}) rotate(${(1-eOut(p))*-120}deg)`}
+  }
+}
+/* pills */
+function buildPills(){
+  const host=document.getElementById('L_over');const box=document.createElement('div');box.id='pills';box.style.top=TL.pills.y+'px';host.appendChild(box);
+  TL.pills.items.forEach(([ic,txt,t],k)=>{const p=document.createElement('div');p.className='pill';p.style.top=(k*114)+'px';
+    p.innerHTML=`<div class="ic">${svg(ic)}</div><div class="tx">${txt}</div><div class="ok">${svg('check')}</div>`;box.appendChild(p);PILLS.push({el:p,t,k})});
+  PILLS.box=box;
+}
+function renderPills(t){
+  const P=TL.pills;const vis=t>=P.start&&t<P.end;PILLS.box.style.display=vis?'block':'none';if(!vis)return;
+  const n=PILLS.length;
+  for(const p of PILLS){
+    const a=(t-p.t)/0.4,e=eOut(a);
+    const exitStart=P.end-0.3+p.k*0.035, x=cl((t-exitStart)/0.2);
+    const isLast=(p.k===n-1||t<PILLS[p.k+1].t);
+    p.el.style.opacity=e*(1-x)*(isLast?1:0.88);
+    p.el.style.transform=`translateX(${90*(1-e)-70*eOut(x)}px) scale(${0.94+0.06*e})`;
+    p.el.style.filter=(a<1||x>0)?`blur(${10*(1-e)+8*x}px)`:'none';
+    p.el.style.borderColor=isLast?`rgba(246,215,126,${0.45+0.4*e})`:'rgba(240,214,130,.28)';
+    p.el.style.boxShadow=isLast?'0 14px 34px rgba(0,0,0,.4),0 0 26px rgba(246,215,126,.25)':'0 10px 26px rgba(0,0,0,.32)';
+    const ok=p.el.querySelector('.ok');const o2=eBack((t-p.t-0.3)/0.3);ok.style.transform=`scale(${Math.max(0,o2)})`;
+  }
+}
+/* b-roll */
+const CHIPS=[['users','Admissions','#F1DDD0'],['check','Attendance','#DEE6CC'],['rupee','Fees','#E3E0EE'],['book','Exams','#F5E7B7'],['library','Library','#DEE6CC'],['bus','Transport','#F1DDD0']];
+// phase1: [x,y,depth(scale),speed]; phase2: [x,y,scale,rot]
+const C1=[[150,760,1.15,.9],[900,980,0.85,.55],[120,1350,0.7,.4],[960,1500,1.25,1.0],[260,1780,1.0,.75],[820,620,0.75,.45]];
+const C2=[[170,800,1.0,-6],[905,790,0.95,5],[120,1500,0.92,4],[955,1520,1.0,-5],[330,1640,0.85,-3],[760,1660,0.88,4]];
+function buildBroll(){
+  const host=document.getElementById('L_over');const b=document.createElement('div');b.id='broll';
+  b.innerHTML=`<div class="bg"></div><div id="stage"><div id="win"><img id="page" src="../assets/site_full_1x.png"></div></div>
+   <div id="chips"></div><div id="tag"><div class="dot"></div>Taara ERP Dashboard</div>
+   <div id="t1"><span>Every key update,</span></div>
+   <div id="t2">in one single view.<svg class="ul" viewBox="0 0 560 30" preserveAspectRatio="none"><path id="ulp" d="M8 20 C 140 6, 300 4, 552 14" stroke="#E9B84A" stroke-width="9" fill="none" stroke-linecap="round"/></svg></div>`;
+  host.appendChild(b);
+  const ch=b.querySelector('#chips');
+  CHIPS.forEach(([ic,txt,bg])=>{const c=document.createElement('div');c.className='chip';c.style.background=bg;c.innerHTML=`<div class="ci">${svg(ic)}</div>${txt}`;ch.appendChild(c)});
+  B={el:b,win:b.querySelector('#win'),page:b.querySelector('#page'),chips:[...ch.children],tag:b.querySelector('#tag'),t1:b.querySelector('#t1'),t2:b.querySelector('#t2'),ul:b.querySelector('#ulp')};
+  const L=B.ul.getTotalLength();B.ul.style.strokeDasharray=L;B.ulL=L;
+}
+function renderBroll(t){
+  const R=TL.broll;const tau=t-R.t_in;const vis=t>=R.t_in&&t<R.t_out+0.3;B.el.style.display=vis?'block':'none';if(!vis)return;
+  // entry: slide up panel ; exit: fade/scale/blur
+  const ein=eOut(tau/0.38);const ex=eIO((t-R.t_out)/0.3);
+  B.el.style.transform=`scale(${1.22-0.22*ein+0.07*ex})`;
+  B.el.style.opacity=ein*(1-ex);const bl=18*(1-ein)+14*ex;B.el.style.filter=bl>0.2?`blur(${bl}px)`:'none';
+  // phase mix
+  const P2=eIO((tau-2.45)/0.8);
+  const scrollP=eIO((tau-0.25)/2.35);
+  const scroll=lerp(0,1399,scrollP);
+  const H=lerp(2700,1010,P2);
+  const rx=lerp(52,0,P2), rz=lerp(-9,0,P2), sc=lerp(0.98,0.6667,P2);
+  const y0=lerp(330,1140-1010*0.6667/2,P2);
+  const drift=Math.sin(tau*0.9)*1.2;
+  B.win.style.height=H+'px';B.win.style.borderRadius=lerp(18,54,P2)+'px';
+  B.win.style.transform=`translate3d(-50%,${y0}px,0) rotateX(${rx+drift*(1-P2)}deg) rotateZ(${rz}deg) scale(${sc})`;
+  B.page.style.transform=`translateY(${-scroll}px)`;
+  // chips
+  B.chips.forEach((c,k)=>{const a=C1[k],b2=C2[k];
+    const appear=eBack((tau-0.35-k*0.09)/0.45);
+    const x=lerp(a[0],b2[0],P2), y=lerp(a[1]-scroll*a[3]*0.55+400*(1-scrollP)*0,b2[1],P2)+Math.sin(tau*1.6+k)*10;
+    const s=lerp(a[2],b2[2],P2)*Math.max(0,appear);
+    const blur=(1-P2)*Math.abs(a[2]-1)*7;
+    c.style.transform=`translate(-50%,-50%) translate(${x}px,${y}px) rotate(${lerp(0,b2[3],P2)+Math.sin(tau*1.2+k*2)*2}deg) scale(${s})`;
+    c.style.filter=blur>0.3?`blur(${blur}px)`:'none';c.style.opacity=cl(appear*1.5);c.style.zIndex=Math.round(a[2]*10)});
+  const tg=eOut((t-R.tag)/0.4);B.tag.style.opacity=tg;B.tag.style.transform=`translate(-50%,${(1-tg)*-30}px) scale(${0.9+0.1*tg})`;
+  const a1=eOut((t-R.title1)/0.4);B.t1.style.opacity=a1;B.t1.style.transform=`translateY(${30*(1-a1)}px)`;B.t1.style.filter=a1<1?`blur(${10*(1-a1)}px)`:'none';
+  const a2=eOut((t-R.title2)/0.4);B.t2.style.opacity=a2;B.t2.style.transform=`translateY(${30*(1-a2)}px)`;B.t2.style.filter=a2<1?`blur(${10*(1-a2)}px)`:'none';
+  B.ul.style.strokeDashoffset=B.ulL*(1-eOut((t-R.title2-0.25)/0.5));
+}
+/* end card (under layer, card itself is composited by python) */
+function buildEnd(){
+  const host=document.getElementById('L_under');
+  host.innerHTML=`<div id="endbg"></div><img id="elogo" src="../assets/logo_t.png"><div id="e1">Better visibility.</div><div id="e2"><span>Smarter decisions.</span></div>
+   <div id="cardring"></div><div id="cta">Explore plans <span class="url">taaraerp.com</span>${svg('arrow')}</div>`;
+  E={logo:host.querySelector('#elogo'),e1:host.querySelector('#e1'),e2:host.querySelector('#e2'),ring:host.querySelector('#cardring'),cta:host.querySelector('#cta')};
+}
+function renderEnd(t,frame){
+  const R=TL.endcard;const p=eIO((t-R.t_in)/R.dur);
+  const lg=eOut((t-R.t_in-0.15)/0.5);E.logo.style.opacity=lg;E.logo.style.transform=`translate(-50%,${-20*(1-lg)}px)`;
+  const a1=eOut((t-R.line1)/0.45);E.e1.style.opacity=a1;E.e1.style.transform=`translateY(${26*(1-a1)}px)`;E.e1.style.filter=a1<1?`blur(${8*(1-a1)}px)`:'none';
+  const a2=eOut((t-R.line2)/0.45);E.e2.style.opacity=a2;E.e2.style.transform=`translateY(${26*(1-a2)}px) scale(${1.08-0.08*a2})`;E.e2.style.filter=a2<1?`blur(${8*(1-a2)}px)`:'none';
+  const c=frame.card; if(c){const [cx,cy,sc,rad,op]=c;const w=1080*sc,h=1920*sc,pad=8*p;
+    E.ring.style.left=(cx-w/2-pad)+'px';E.ring.style.top=(cy-h/2-pad)+'px';E.ring.style.width=(w+2*pad)+'px';E.ring.style.height=(h+2*pad)+'px';
+    E.ring.style.borderRadius=(rad+pad)+'px';E.ring.style.opacity=op*p;
+    const ct=eOut((t-R.t_in-0.35)/0.5);E.cta.style.top=(cy+h/2+44)+'px';E.cta.style.opacity=ct;E.cta.style.transform=`translate(-50%,${24*(1-ct)}px)`;}
+}
+window.init=async(tl)=>{TL=tl;buildCaps();buildPills();buildBroll();buildEnd();await document.fonts.ready;
+  await Promise.all([...document.images].map(i=>i.decode().catch(()=>{})));
+  // refit big lines after fonts load
+  for(const c of CAPS){if(c._big){let fs=c.behind?190:168;c._big.style.fontSize=fs+'px';const maxW=c.behind?1010:930;while(c._big.scrollWidth>maxW&&fs>60){fs-=2;c._big.style.fontSize=fs+'px'}}}
+  return true};
+window.render=(i,layer,sub)=>{const fr=TL.frames[Math.min(i,TL.frames.length-1)];const t=fr.t+(sub||0)/TL.fps;
+  for(const L of ['under','behind','over'])document.getElementById('L_'+L).style.display=(L===layer)?'block':'none';
+  if(layer==='over'){renderCaps(t);renderPills(t);renderBroll(t)}
+  else if(layer==='behind'){renderCaps(t)}
+  else if(layer==='under'){renderEnd(t,fr)}
+  return true};
+</script></body></html>
