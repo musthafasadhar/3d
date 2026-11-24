@@ -59,10 +59,12 @@ def over_layer(i, blur):
     return load_rgba(os.path.join(OV, "over", name + ".png"))
 
 
-def zoomed(frame, z):
+def zoomed(frame, z, shake=(0, 0)):
     ax, ay = ANCHOR
-    M = np.float32([[z, 0, ax * (1 - z)], [0, z, ay * (1 - z)]])
-    if abs(z - 1) < 1e-4:
+    if shake and (shake[0] or shake[1]):
+        z = max(z, 1.03)  # keep edges covered while shaking
+    M = np.float32([[z, 0, ax * (1 - z) + shake[0]], [0, z, ay * (1 - z) + shake[1]]])
+    if abs(z - 1) < 1e-4 and not (shake[0] or shake[1]):
         return frame.copy()
     return cv2.warpAffine(frame, M, (W, H), flags=cv2.INTER_LANCZOS4, borderMode=cv2.BORDER_REFLECT)
 
@@ -82,7 +84,7 @@ def rounded_mask(w, h, r):
 
 def render(i):
     f = tl["frames"][i]
-    base = zoomed(src[f["src"]], f["zoom"]).astype(np.float32) / 255.0
+    base = zoomed(src[f["src"]], f["zoom"], f.get("shake", (0, 0))).astype(np.float32) / 255.0
     # text behind the subject
     bp = os.path.join(OV, "behind", f"{i:05d}.png")
     if os.path.exists(bp):

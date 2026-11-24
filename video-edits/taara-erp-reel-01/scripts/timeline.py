@@ -13,7 +13,7 @@ HOLD = 42  # extra frames after the source ends (end card hold)
 # (source_in, source_out, framing)  -- cuts happen only in silences
 SEGMENTS = [
     (0.20, 5.02, "hook"),
-    (5.32, 11.37, "tight"),
+    (5.32, 11.37, "mg"),   # covered by 5 motion-graphics scenes
     (11.61, 15.75, "wide"),
     (15.95, 17.99, "tight"),
     (18.20, 18.73, "wide"),
@@ -57,6 +57,9 @@ BROLL_IN, BROLL_OUT = M(18.90), M(24.00)
 END_IN = M(37.27)
 END_DUR = 0.6
 
+# camera shakes (output s, strength px)
+SHAKES = [(M(1.16), 16), (M(1.70), 9), (M(3.52), 7)]  # stamp shake is done inside the MG scene
+
 frames = []
 for i in range(N):
     t = i / FPS
@@ -72,6 +75,8 @@ for i in range(N):
     # framing (zoom anchored on the face)
     if kind == "hook":
         z = 1.12 - 0.12 * ease_out_cubic(tau / 0.55) + 0.008 * max(0, tau - 0.55)
+    elif kind == "mg":
+        z = 1.0
     elif kind == "tight":
         z = 1.16 + 0.006 * tau
     elif kind == "wide":
@@ -103,7 +108,13 @@ for i in range(N):
         blur = 8 if 0.7 < tb_in < 2.4 else 5
     if END_IN - 0.02 <= t <= END_IN + END_DUR:
         blur = 3
-    frames.append(dict(i=i, t=round(t, 4), src=int(src), kind=kind, zoom=round(z, 5),
+    sx = sy = 0.0
+    for (ts, a) in SHAKES:
+        dt = t - ts
+        if 0 <= dt < 0.4:
+            dec = a * math.exp(-dt * 11)
+            sx += dec * math.sin(dt * 95); sy += dec * math.cos(dt * 77)
+    frames.append(dict(i=i, t=round(t, 4), src=int(src), kind=kind, zoom=round(z, 5), shake=[round(sx, 2), round(sy, 2)],
                        card=card, broll=broll, blur=blur))
 
 # ---------------------------------------------------------------- captions
@@ -142,7 +153,7 @@ caps = [
          lead=W(("So,", 36.14), ("choose", 36.30)), big=W(("Taara", 36.64), ("ERP", 36.82)), sub=[]),
 ]
 
-pills = dict(start=M(5.32), end=M(11.37) - 0.01, y=1095, items=[
+pills = dict(start=-1, end=-1, y=1095, items=[  # replaced by motion-graphics scenes
     ["users", "Students present today", round(M(5.74), 3)],
     ["rupee", "Fees collection", round(M(7.06), 3)],
     ["chart", "Academic performance", round(M(8.12), 3)],
@@ -150,6 +161,15 @@ pills = dict(start=M(5.32), end=M(11.37) - 0.01, y=1095, items=[
     ["chat", "Parents' concerns", round(M(10.38), 3)],
 ])
 
+T_MG_IN, T_MG_OUT = M(5.32), M(11.37) - 0.001
+cuts = [T_MG_IN, M(7.0), M(8.06), M(9.26), M(10.32), T_MG_OUT]
+mg = dict(t_in=round(T_MG_IN, 4), t_out=round(T_MG_OUT, 4), scenes=[
+    dict(kind="students", t0=round(cuts[0], 3), t1=round(cuts[1], 3), lead=round(M(5.42), 3), big=round(M(5.74), 3)),
+    dict(kind="fees", t0=round(cuts[1], 3), t1=round(cuts[2], 3), lead=round(cuts[1] + 0.02, 3), big=round(M(7.06), 3)),
+    dict(kind="academic", t0=round(cuts[2], 3), t1=round(cuts[3], 3), lead=round(cuts[2] + 0.02, 3), big=round(M(8.12), 3)),
+    dict(kind="admission", t0=round(cuts[3], 3), t1=round(cuts[4], 3), lead=round(cuts[3] + 0.02, 3), big=round(M(9.32), 3)),
+    dict(kind="parents", t0=round(cuts[4], 3), t1=round(cuts[5], 3), lead=round(cuts[4] + 0.02, 3), big=round(M(10.38), 3)),
+])
 calls = dict(end=round(M(15.75) - 0.01, 3), items=[
     ["Accounts", round(M(13.74), 3), 50, 235],
     ["Admissions", round(M(14.10), 3), 560, 300],
@@ -168,12 +188,25 @@ for c in caps:
         sfx.append(["pop", c["big"][0][1]])
     if c.get("strike") is not None:
         sfx.append(["swipe", c["strike"]])
-sfx += [["tick", it[2]] for it in pills["items"]] + [["tick", it[1]] for it in calls["items"]]
+sfx += [["tick", it[1]] for it in calls["items"]]
+# ---- first 10 seconds: dense text + motion-graphics sound design
+sfx += [["riser", M(1.16) - 0.62]]
+sfx += [["type", w[1]] for c in caps if c["id"] in ("hook_lead", "perf") for w in c["lead"]]
+sfx += [["clock", M(1.16) + 0.55 + 0.27 * k] for k in range(4)]
+sfx += [["pop", M(1.70)], ["shimmer", M(3.52) + 0.12]]
+sfx += [["whoosh", T_MG_IN - 0.12]] + [["swish", c - 0.06] for c in cuts[1:5]] + [["whoosh_out", T_MG_OUT - 0.05]]
+sc = mg["scenes"]
+sfx += [["pop", x["big"]] for x in sc]
+sfx += [["tick", sc[0]["big"] + 0.15 + 0.09 * k] for k in range(6)]
+sfx += [["coin", sc[1]["big"] + 0.28]]
+sfx += [["blip%d" % k, sc[2]["big"] + 0.12 + 0.08 * k] for k in range(6)]
+sfx += [["stamp", sc[3]["big"] + 0.3]]
+sfx += [["ping", sc[4]["big"] + 0.05 + 0.22 * k] for k in range(3)] + [["pop", sc[4]["big"] + 0.72]]
 sfx += [["whoosh", BROLL_IN - 0.12], ["whoosh_out", BROLL_OUT], ["whoosh", dash["t_in"] - 0.12], ["whoosh_out", dash["t_out"]],
         ["pop", dash["big"]], ["whoosh", END_IN - 0.05], ["chime", endcard["line2"]]]
 sfx = [[k, round(t, 3)] for k, t in sorted(sfx, key=lambda x: x[1])]
 
-out = dict(fps=FPS, n=N, n_speech=N_SPEECH, frames=frames, caps=caps, pills=pills, calls=calls, dash=dash, broll=broll, endcard=endcard,
+out = dict(fps=FPS, n=N, n_speech=N_SPEECH, frames=frames, caps=caps, pills=pills, calls=calls, dash=dash, mg=mg, broll=broll, endcard=endcard,
            segments=[dict(src_in=fa, src_out=fb, kind=k, out_in=oo) for fa, fb, k, oo in seg_frames],
            sfx=sfx)
 json.dump(out, open(sys.argv[1], "w"))

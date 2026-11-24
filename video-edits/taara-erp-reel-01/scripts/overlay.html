@@ -106,6 +106,62 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:transpa
 .chart{margin-top:22px;height:250px;border-radius:30px;background:#F6F8F0;padding:24px 28px;position:relative}
 .chart svg.cv{position:absolute;left:28px;right:28px;bottom:20px;width:824px;height:160px}
 #dnote{position:absolute;left:0;width:1080px;top:1560px;text-align:center;font-family:IT;font-weight:600;font-size:24px;color:#8a938c;letter-spacing:.02em}
+
+/* ---------- motion-graphics scenes (first 10 s) ---------- */
+#mg{position:absolute;inset:0;overflow:hidden}
+.scn{position:absolute;inset:0;overflow:hidden;display:none}
+.scn.white{background:radial-gradient(1200px 900px at 30% 10%,#ffffff,#F1F2EC 60%,#E6E8DF 100%)}
+.scn.green{background:radial-gradient(1000px 900px at 50% 30%,#245A3E,#163828 55%,#0D2419 100%)}
+.scn .grid{position:absolute;inset:-40px;background-image:linear-gradient(rgba(35,62,50,.06) 2px,transparent 2px),linear-gradient(90deg,rgba(35,62,50,.06) 2px,transparent 2px);background-size:90px 90px}
+.scn.green .grid{background-image:linear-gradient(rgba(214,250,80,.06) 2px,transparent 2px),linear-gradient(90deg,rgba(214,250,80,.06) 2px,transparent 2px)}
+.scn .sweep{position:absolute;left:-60%;top:-20%;width:60%;height:140%;transform:rotate(18deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent)}
+.scn.green .sweep{background:linear-gradient(90deg,transparent,rgba(214,250,80,.10),transparent)}
+.scn .ghost{position:absolute;left:0;width:1080px;top:1500px;text-align:center;font-family:IT;font-weight:900;font-size:330px;letter-spacing:-.06em;color:rgba(35,62,50,.05);white-space:nowrap}
+.scn.green .ghost{color:rgba(214,250,80,.06)}
+.scn .in{position:absolute;inset:0}
+.scn .ld{position:absolute;left:0;width:1080px;top:300px;text-align:center;font-family:IT;font-weight:800;font-size:60px;letter-spacing:-.04em;color:#233E32}
+.scn.green .ld{color:#fff}
+.scn .ld .hl{display:inline-block;padding:2px 18px 6px;border-radius:12px;background:#D7FA4E;color:#163828;margin-left:10px}
+.scn.green .ld .hl{background:#fff}
+.scn .bg2{position:absolute;left:0;width:1080px;top:370px;text-align:center;font-family:IT;font-weight:800;font-size:150px;letter-spacing:-.045em;line-height:1.02;white-space:nowrap}
+.scn .bg2 span{display:inline-block}
+.scn.white .bg2 span{background:linear-gradient(180deg,#5DB884 0%,#2E7350 52%,#173F2B 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 10px 22px rgba(35,62,50,.18))}
+.scn.green .bg2 span{background:linear-gradient(180deg,#F4FF86 0%,#E2FC52 42%,#C3EE2E 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 10px 30px rgba(0,0,0,.35))}
+/* students */
+.av{position:absolute;width:130px;height:130px;border-radius:40px;background:#fff;box-shadow:0 10px 26px rgba(35,62,50,.14);display:grid;place-items:center}
+.av svg{width:64px;height:64px;stroke:#9aa59e;stroke-width:2;fill:none;stroke-linecap:round}
+.av.on{background:linear-gradient(160deg,#3d8c5e,#1d4a33)}
+.av.on svg{stroke:#fff}
+.av .ck{position:absolute;right:-10px;top:-10px;width:48px;height:48px;border-radius:50%;background:#D7FA4E;display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.18)}
+.av .ck svg{width:28px;height:28px;stroke:#163828;stroke-width:3.4}
+.cnt{position:absolute;left:0;width:1080px;top:1560px;text-align:center;font-family:IT;font-weight:800;font-size:96px;letter-spacing:-.05em;color:#233E32}
+.cnt small{font-size:44px;font-weight:700;color:#6b766f;letter-spacing:-.03em}
+/* fees */
+.coin{position:absolute;left:540px;top:930px;width:400px;height:400px;margin:-200px 0 0 -200px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#FFF6B8,#F5D45A 45%,#D9A12E 80%,#B9821F);box-shadow:0 30px 60px rgba(0,0,0,.45),inset 0 -14px 0 rgba(0,0,0,.12),inset 0 10px 0 rgba(255,255,255,.35);
+  display:grid;place-items:center;font-family:IT;font-weight:900;font-size:240px;color:#8A5A12}
+.coin .rim{position:absolute;inset:22px;border-radius:50%;box-shadow:inset 0 0 0 6px rgba(138,90,18,.25)}
+.bar{position:absolute;left:150px;top:1290px;width:780px;height:44px;border-radius:22px;background:rgba(255,255,255,.12);overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:22px;background:linear-gradient(90deg,#C3EE2E,#F4FF86)}
+.barl{position:absolute;left:0;width:1080px;top:1360px;text-align:center;font-family:IT;font-weight:700;font-size:52px;letter-spacing:-.03em;color:#fff}
+.barl b{color:#E2FC52}
+/* academic */
+.chartbox{position:absolute;left:110px;top:760px;width:860px;height:760px;border-radius:50px;background:#fff;box-shadow:0 30px 70px rgba(35,62,50,.16)}
+.cb{position:absolute;bottom:70px;width:92px;border-radius:22px 22px 10px 10px;background:linear-gradient(180deg,#5DB884,#245A3E)}
+.cb.hi{background:linear-gradient(180deg,#E2FC52,#9CCB1E)}
+.badge{position:absolute;right:-30px;top:-60px;width:200px;height:200px;border-radius:50%;background:#D7FA4E;display:grid;place-items:center;font-family:IT;font-weight:900;font-size:96px;color:#163828;letter-spacing:-.05em;box-shadow:0 20px 40px rgba(35,62,50,.25)}
+/* admission */
+.form{position:absolute;left:220px;top:720px;width:640px;height:820px;border-radius:40px;background:#FAF9F2;box-shadow:0 40px 80px rgba(0,0,0,.4);padding:56px;font-family:IT}
+.form .ph{width:150px;height:150px;border-radius:50%;background:linear-gradient(160deg,#DEE6CC,#B8C9A0)}
+.form .ln{height:26px;border-radius:13px;background:#E3E5DC;margin-top:30px}
+.form .tt{font-weight:800;font-size:50px;letter-spacing:-.04em;color:#233E32;margin-top:36px}
+.stamp{position:absolute;left:540px;top:1260px;padding:20px 44px;border-radius:24px;border:10px solid #2E8A4E;color:#2E8A4E;font-family:IT;font-weight:900;font-size:118px;letter-spacing:-.02em;background:rgba(215,250,78,.25);white-space:nowrap}
+/* parents */
+.bub{position:absolute;left:70px;max-width:760px;display:flex;align-items:flex-end;gap:20px;font-family:IT}
+.bub .pa{width:104px;height:104px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:800;font-size:40px;color:#fff}
+.bub .tx{padding:30px 40px;border-radius:44px 44px 44px 12px;background:#fff;box-shadow:0 14px 34px rgba(35,62,50,.14);font-weight:700;font-size:56px;letter-spacing:-.03em;color:#233E32;white-space:nowrap}
+.res{position:absolute;left:540px;top:1500px;padding:26px 48px;border-radius:999px;background:linear-gradient(160deg,#3d8c5e,#1d4a33);color:#fff;font-family:IT;font-weight:800;font-size:56px;letter-spacing:-.035em;display:flex;align-items:center;gap:18px;white-space:nowrap;box-shadow:0 20px 40px rgba(29,74,51,.35)}
+.res svg{width:48px;height:48px;stroke:#D7FA4E;stroke-width:3.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
 </style></head>
 <body>
 <div class="layer" id="L_under"></div>
@@ -175,6 +231,8 @@ function renderCaps(t){
         w.el.style.opacity=e;w.el.style.transform=`translateY(${18*(1-e)}px)`;
         w.el.style.filter=p<1?`blur(${6*(1-e)}px)`:'none';}
     }
+    if(c.id==='perf'||c.id==='hook_behind'){const st=(c.id==='perf'?c._words.find(w=>w.big).t:c._words[c._words.length-1].t)+0.15;const sp=cl((t-st)/0.55);
+      c._big.querySelectorAll('.f').forEach(x=>{x.style.backgroundImage=`linear-gradient(105deg,transparent ${sp*160-40}%,rgba(255,255,255,.95) ${sp*160-25}%,transparent ${sp*160-10}%),linear-gradient(180deg,#F4FF86 0%,#E2FC52 42%,#C3EE2E 100%)`})}
     if(c._strike){const p=eOut((t-c.strike)/0.26);c._strike.style.transform=`rotate(-4deg) scaleX(${p})`;c._strike.style.opacity=p>0?1:0;
       const f=c._big.querySelectorAll('.f');f.forEach(x=>x.style.filter=`saturate(${1-0.75*p}) brightness(${1-0.18*p})`)}
     if(c._star){const p=(t-c.star)/0.4;c._star.style.opacity=cl(p*2);
@@ -315,14 +373,73 @@ function renderDash(t){const R=TL.dash;const tau=t-R.t_in;const vis=t>=R.t_in&&t
   D.arc.style.strokeDashoffset=D.arcL*(1-0.94*cnt);
   D.cpr.setAttribute('width',824*eIO((tau-0.55)/1.2));D.chart.style.opacity=cl((tau-0.45)/0.25);D.note.style.opacity=cl((tau-0.6)/0.3)*0.9;}
 
-window.init=async(tl)=>{TL=tl;buildCaps();buildPills();buildBroll();buildEnd();buildCalls();buildDash();await document.fonts.ready;
+/* motion-graphics scenes */
+let MG=[];
+const SC={
+ students:{cls:'white',ld:'how many',hl:'today',big:'Students Present',ghost:'PRESENT'},
+ fees:{cls:'green',ld:'every rupee of',hl:'',big:'Fees Collection',ghost:'₹ FEES'},
+ academic:{cls:'white',ld:'track',hl:'live',big:'Academic Performance',ghost:'GRADES'},
+ admission:{cls:'green',ld:'instant',hl:'',big:'Admission Status',ghost:'ADMIT'},
+ parents:{cls:'white',ld:'every',hl:'parent',big:"Parents' Concerns",ghost:'PARENTS'}};
+function buildMG(){const host=document.getElementById('L_over');const box=document.createElement('div');box.id='mg';host.appendChild(box);
+  ICONS.user='<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>';
+  for(const sc of TL.mg.scenes){const d=SC[sc.kind];const el=document.createElement('div');el.className='scn '+d.cls;
+    el.innerHTML=`<div class="grid"></div><div class="sweep"></div><div class="ghost">${d.ghost}</div><div class="in">
+      <div class="ld">${d.ld}${d.hl?`<span class="hl">${d.hl}</span>`:''}</div><div class="bg2"><span>${d.big}</span></div><div class="art"></div></div>`;
+    box.appendChild(el);const art=el.querySelector('.art');
+    if(sc.kind==='students'){for(let r=0;r<4;r++)for(let c=0;c<5;c++){const a=document.createElement('div');a.className='av';a.style.left=(85+c*186)+'px';a.style.top=(720+r*190)+'px';
+        a.innerHTML=svg('user')+`<div class="ck">${svg('check')}</div>`;art.appendChild(a)}
+      art.insertAdjacentHTML('beforeend',`<div class="cnt"><span class="n">0</span><small> / 500 present</small></div>`)}
+    if(sc.kind==='fees')art.innerHTML=`<div class="coin"><div class="rim"></div>₹</div><div class="bar"><i></i></div><div class="barl"><b class="n">₹0.0L</b> collected · <span class="p">0</span>%</div>`;
+    if(sc.kind==='academic'){const H=[34,46,52,63,74,90];art.innerHTML=`<div class="chartbox">${H.map((h,k)=>`<div class="cb${k==5?' hi':''}" style="left:${70+k*128}px;height:${h*6.2}px" data-h="${h}"></div>`).join('')}
+       <svg style="position:absolute;left:0;top:0;width:860px;height:760px" viewBox="0 0 860 760"><path class="tr" d="M116 520 L244 445 L372 410 L500 340 L628 270 L756 150" stroke="#233E32" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+       <div class="badge">A+</div></div>`}
+    if(sc.kind==='admission')art.innerHTML=`<div class="form"><div class="ph"></div><div class="tt">Admission form</div><div class="ln" style="width:90%"></div><div class="ln" style="width:75%"></div><div class="ln" style="width:82%"></div><div class="ln" style="width:60%"></div><div class="ln" style="width:70%"></div></div><div class="stamp">APPROVED</div>`;
+    if(sc.kind==='parents'){const B=[['P','#3d8c5e',"Is my child's fee paid?"],['R','#C8962E','When is the PTM?'],['A','#7a6bb0','Bus timing today?']];
+      art.innerHTML=B.map((b,k)=>`<div class="bub" style="top:${760+k*230}px"><div class="pa" style="background:${b[1]}">${b[0]}</div><div class="tx">${b[2]}</div></div>`).join('')+`<div class="res">${svg('check')}All resolved</div>`}
+    MG.push({sc,el,d})}
+  // fit big titles
+  MG.forEach(m=>{const b=m.el.querySelector('.bg2'),sp=b.querySelector('span');let fs=150;b.style.fontSize=fs+'px';m.el.style.display='block';while(sp.offsetWidth>980&&fs>70){fs-=2;b.style.fontSize=fs+'px'}m.el.style.display='none'});
+}
+function renderMG(t){const R=TL.mg;
+  for(const m of MG){const sc=m.sc;const vis=t>=sc.t0&&t<sc.t1;m.el.style.display=vis?'block':'none';if(!vis)continue;
+    const tau=t-sc.t0, el=m.el;
+    const ein=eOut(tau/0.2);const inn=el.querySelector('.in');
+    let shake='';
+    if(sc.kind==='admission'){const dt=t-(sc.big+0.3);if(dt>=0&&dt<0.35){const a=18*Math.exp(-dt*12);shake=` translate(${a*Math.sin(dt*90)}px,${a*Math.cos(dt*70)}px)`}}
+    inn.style.transform=`scale(${1.1-0.1*ein})${shake}`;inn.style.filter=ein<1?`blur(${10*(1-ein)}px)`:'none';
+    el.querySelector('.sweep').style.left=(-60+160*cl(tau/(sc.t1-sc.t0)))+'%';
+    el.querySelector('.grid').style.transform=`translateY(${-tau*40}px)`;
+    el.querySelector('.ghost').style.transform=`translateX(${(0.5-tau)*80}px)`;
+    const ld=el.querySelector('.ld'),a1=eOut((t-sc.lead)/0.2);ld.style.opacity=a1;ld.style.transform=`translateY(${20*(1-a1)}px)`;
+    const bg=el.querySelector('.bg2 span'),pb=(t-sc.big)/0.26,b=eOut(pb);bg.style.opacity=eOut(pb*1.7);bg.style.transform=`scale(${1.3-0.3*b})`;bg.style.filter=pb<1?`blur(${12*(1-b)}px)`:(el.classList.contains('white')?'drop-shadow(0 10px 22px rgba(35,62,50,.18))':'drop-shadow(0 10px 30px rgba(0,0,0,.35))');
+    const k0=sc.big+0.1;
+    if(sc.kind==='students'){const av=[...el.querySelectorAll('.av')];av.forEach((a,k)=>{const ap=eBack((tau-0.05-k*0.012)/0.3);a.style.transform=`scale(${Math.max(0,ap)})`;
+        const on=t>=k0+k*0.045&&k!==7&&k!==13;a.classList.toggle('on',on);const ck=a.querySelector('.ck');const cp=eBack((t-(k0+k*0.045))/0.22);ck.style.transform=`scale(${on?Math.max(0,cp):0})`});
+      const c=eOut((t-k0)/1.0);el.querySelector('.cnt .n').textContent=Math.round(482*c);el.querySelector('.cnt').style.opacity=cl((tau-0.1)/0.2)}
+    if(sc.kind==='fees'){const coin=el.querySelector('.coin');const d=(t-(sc.big-0.05))/0.33;const e=eBack(d);const ang=(1-eOut((t-sc.big)/0.6))*Math.PI*5;
+      coin.style.transform=`translateY(${-500*(1-cl(e))}px) scaleX(${Math.max(0.06,Math.abs(Math.cos(ang)))}) scale(${0.7+0.3*cl(e)})`;coin.style.opacity=cl(d*3);
+      const f=eOut((t-sc.big-0.2)/0.7);el.querySelector('.bar i').style.width=(92*f)+'%';el.querySelector('.barl .n').textContent='₹'+(8.2*f).toFixed(1)+'L';el.querySelector('.barl .p').textContent=Math.round(92*f);
+      el.querySelector('.barl').style.opacity=cl((t-sc.big-0.1)/0.2)}
+    if(sc.kind==='academic'){const cb=[...el.querySelectorAll('.cb')];cb.forEach((c,k)=>{const g=eBack((t-(k0+k*0.08))/0.35);c.style.transform=`scaleY(${Math.max(0,g)})`;c.style.transformOrigin='bottom'});
+      const tr=el.querySelector('.tr');const L=tr.getTotalLength();tr.style.strokeDasharray=L;tr.style.strokeDashoffset=L*(1-eIO((t-k0-0.25)/0.5));
+      const bd=el.querySelector('.badge');const bp=eBack((t-k0-0.6)/0.35);bd.style.transform=`scale(${Math.max(0,bp)}) rotate(${(1-cl(bp))*-30}deg)`;
+      el.querySelector('.chartbox').style.transform=`translateY(${60*(1-eOut(tau/0.3))}px)`}
+    if(sc.kind==='admission'){const fm=el.querySelector('.form');const fp=eOut((tau)/0.3);fm.style.transform=`translateY(${120*(1-fp)}px) rotate(-3deg)`;
+      const st=el.querySelector('.stamp');const sp=(t-(sc.big+0.3)+0.12)/0.12;const se=cl(sp);st.style.opacity=se;st.style.transform=`translate(-50%,0) rotate(-12deg) scale(${2.4-1.4*eOut(se)})`}
+    if(sc.kind==='parents'){[...el.querySelectorAll('.bub')].forEach((b,k)=>{const p=eBack((t-(sc.big+0.05+k*0.22))/0.3);b.style.transform=`scale(${Math.max(0,p)})`;b.style.transformOrigin='left bottom';b.style.opacity=cl(p*2)});
+      const r=el.querySelector('.res');const rp=eBack((t-(sc.big+0.72))/0.3);r.style.transform=`translateX(-50%) scale(${Math.max(0,rp)})`}
+  }}
+
+window.init=async(tl)=>{TL=tl;window.__fitMG=()=>{MG.forEach(m=>{const b=m.el.querySelector('.bg2'),sp=b.querySelector('span');let fs=150;b.style.fontSize=fs+'px';m.el.style.display='block';while(sp.offsetWidth>980&&fs>70){fs-=2;b.style.fontSize=fs+'px'}m.el.style.display='none'});};buildCaps();buildPills();buildBroll();buildEnd();buildCalls();buildDash();buildMG();await document.fonts.ready;
   await Promise.all([...document.images].map(i=>i.decode().catch(()=>{})));
+  window.__fitMG();
   // refit big lines after fonts load
   for(const c of CAPS){if(c._big){let fs=c.behind?190:168;c._big.style.fontSize=fs+'px';const maxW=c.behind?1010:930;while(c._big.scrollWidth>maxW&&fs>60){fs-=2;c._big.style.fontSize=fs+'px'}}}
   return true};
 window.render=(i,layer,sub)=>{const fr=TL.frames[Math.min(i,TL.frames.length-1)];const t=fr.t+(sub||0)/TL.fps;
   for(const L of ['under','behind','over'])document.getElementById('L_'+L).style.display=(L===layer)?'block':'none';
-  if(layer==='over'){renderCaps(t);renderPills(t);renderCalls(t);renderBroll(t);renderDash(t)}
+  if(layer==='over'){renderCaps(t);renderPills(t);renderCalls(t);renderBroll(t);renderDash(t);renderMG(t)}
   else if(layer==='behind'){renderCaps(t)}
   else if(layer==='under'){renderEnd(t,fr)}
   return true};

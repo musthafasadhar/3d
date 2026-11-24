@@ -36,6 +36,28 @@ Source: https://pin.it/6Cvd1utLc · 720×1280 · 16.9 s · 30 fps · cuts at 4.4
 
 ---
 
+---
+
+## ref-03 — White motion-graphics B-rolls (use to break up talking-head every 5–8 s)
+Source: https://pin.it/1upehth87 · 720×1280 · 34.9 s · 30 fps · 8 hard cuts (4.5, 7.1, 13.1, 15.1, 16.2, 18.0, 26.0, 28.3 s)
+
+- At **4.5 s** it hard-cuts from the face to a full-screen **white paper card** (soft diagonal light, faint grid) for ~2.5 s: small words type on ("So as we are"), then a huge bold "**10K**" in red with depth/shadow lands.
+- Repeats every 5–8 s: "content creators", "scripting" (+ 3D search icon), "simple way". Keywords sit in a **solid colored highlight box**.
+- A-roll captions mix bold white sans with small italic accent words, and a red swoosh underline.
+
+## ref-04 — Kinetic-typography B-rolls (pattern interrupt every 1.5–3 s)
+Source: https://pin.it/2t04zTlVn · 720×1280 · 43 s · 60 fps (analysed at 30 fps) · editing before/after showcase
+
+- First 10 s: a new full-screen graphic every **1.5–3 s**: glowing condensed words ("ADVICE", "FANBASE"), crowd/spotlight imagery, text inside **[bracket frames]**, a huge faded word in the background.
+- **3D objects** used as visual nouns: spinning silver coin, ₹ / $ / € symbols, cash stacks.
+- One accent word per line in a different color or script ("young", "everyday", "gold").
+
+## Retention rules learned (from ref-03/04 + feedback)
+- **First 10 s must never sit still:** a pattern interrupt every 1–2 s (new scene, punch-in, stamp, counter, shake).
+- Every on-screen word gets a sound: typing clicks on small words, pop/whoosh on keywords, a bass hit on the hook number.
+- Turn spoken lists into **rapid motion-graphics scenes** (one scene per item, ~1–1.5 s each, hard cuts with swishes), alternating **white** and **green** backgrounds.
+- Motion-graphics kit: highlight-box word + big gradient title + huge faded ghost word + grid + light sweep + one animated object (counter, coin, bar chart, stamp, chat bubbles).
+
 ## brand-taara-erp — taaraerp.com (captured Nov 2026)
 - **Product:** Taara ERP, a complete school management ERP (admissions, attendance, fees, exams, faculty, library, transport, reports). Annual plans from ₹45,000 for up to 500 students. Built by Mila Innovations.
 - **Colours:** cream `#FAF9E8`, forest green `#244B37` / ink `#233E32`, gold `#F0D682`, module pastels peach `#F1DDD0`, sage `#DEE6CC`, lavender `#E3E0EE`, butter `#F5E7B7`.

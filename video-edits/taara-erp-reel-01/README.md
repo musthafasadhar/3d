@@ -11,8 +11,8 @@
 ## Edit decisions
 | Out time | Section | Treatment |
 |---|---|---|
-| 0.0–4.8 | Hook | zoom-out reveal 1.12→1.0 · **"5 MINUTES" behind her head** (person matte) · "& knows the entire institute's **Performance**" |
-| 4.8–10.9 | Feature list | tight 1.16 · 5 brand glass pills stack in on each spoken word |
+| 0.0–4.8 | Hook | zoom-out reveal · typing clicks on each word · riser → bass hit + **camera shake** as **"5 Minutes" lands behind her head** · clock ticks · "**Performance**" with light-shine sweep + shimmer |
+| 4.8–10.9 | **5 motion-graphics scenes** (white/green alternating, ref-03/04 style) | Students Present (avatar grid + 482/500 counter) → Fees Collection (spinning ₹ coin + bar, cha-ching) → Academic Performance (bars + trend line + A+) → Admission Status (APPROVED stamp slam + shake) → Parents' Concerns (chat pings → All resolved) |
 | 10.9–15.0 | Problem | wide · "for basic info, you call **Departments** one by one" + iPhone-style "Calling Accounts / Admissions / Exam cell" cards |
 | 15.0–17.1 | Problem | tight · "and ask for **Reports**" + red strike-through · "not anymore." |
 | 17.6–22.7 | **B-roll** | ref-01 style: taaraerp.com tilted in 3D, fast scroll with real motion blur, floating module chips → framed card "Every key update, *in one single view.*" |
