@@ -8,7 +8,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-const URL = 'file://' + path.join(__dirname, 'index.html');
+const URL = 'file://' + path.join(process.env.FILM_DIR || __dirname, 'index.html');
 
 async function openPage(browser) {
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });

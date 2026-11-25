@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Avni Launch Film v2</title>
+<style>
+@font-face{font-family:'Jakarta';src:url(fonts/jakarta.woff2) format('woff2');font-weight:200 800;font-style:normal}
+@font-face{font-family:'Gelasio';src:url(../fonts/gelasio_i0.woff2) format('woff2');font-weight:400 700;font-style:italic}
+:root{
+  --white:#f8fbf9; --ink:#0b2e25; --ink2:#123e33; --green:#125b49; --emerald:#0ba77e; --deepg:#00574d; --leaf:#32d58b;
+  --lime:#b6df7e; --mint:#e6f3ed; --muted:#5b7368; --dark:#05211b; --gold:#e8c35a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--white)}
+body{font-family:Jakarta,Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+#stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--white)}
+.scene{position:absolute;inset:0;visibility:hidden;overflow:hidden}
+.abs{position:absolute}
+em,.serif{font-family:Gelasio,Georgia,serif;font-style:italic;font-weight:500;letter-spacing:-.03em}
+.big{font-weight:800;letter-spacing:-.055em;line-height:.98;word-spacing:.16em}
+.grad{background:linear-gradient(120deg,#0ba77e 0%,#0d8f6c 45%,#00574d 100%);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em}
+.gradL{background:linear-gradient(120deg,#b6df7e 0%,#32d58b 60%,#0ba77e 100%);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em}
+.w{display:inline-block;overflow:hidden;vertical-align:bottom;padding:.04em .08em .16em;margin:-.04em -.08em -.16em}
+.wi,.c{display:inline-block;will-change:transform}
+.ctr{position:absolute;left:0;right:0;text-align:center}
+.el{position:absolute;width:200px;height:200px;filter:drop-shadow(0 26px 30px rgba(0,50,35,.22));will-change:transform}
+.el.s{width:150px;height:150px}.el.l{width:250px;height:250px}
+svg.ic{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.glass{background:linear-gradient(140deg,rgba(255,255,255,.78),rgba(255,255,255,.42));backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);
+  border:1.5px solid rgba(255,255,255,.95);box-shadow:0 30px 70px rgba(0,70,50,.16),inset 0 1px 0 #fff}
+.glassD{background:linear-gradient(140deg,rgba(255,255,255,.14),rgba(255,255,255,.04));backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);
+  border:1.5px solid rgba(255,255,255,.22);box-shadow:0 30px 80px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.25)}
+.pillLbl{position:absolute;left:140px;top:120px;display:inline-flex;align-items:center;gap:14px;padding:14px 26px;border-radius:40px;font-size:24px;font-weight:700;letter-spacing:.02em;color:var(--green)}
+.pillLbl b{width:12px;height:12px;border-radius:50%;background:var(--emerald);box-shadow:0 0 14px var(--emerald)}
+.dark .pillLbl{color:#c9f0dc}
+
+/* background system */
+#mesh{position:absolute;inset:0;overflow:hidden}
+.blob{position:absolute;border-radius:50%}
+#b1{width:1300px;height:1300px;left:-300px;top:-500px;background:radial-gradient(circle,rgba(50,213,139,.38),rgba(50,213,139,0) 65%)}
+#b2{width:1400px;height:1400px;left:900px;top:100px;background:radial-gradient(circle,rgba(11,167,126,.30),rgba(11,167,126,0) 65%)}
+#b3{width:1000px;height:1000px;left:300px;top:500px;background:radial-gradient(circle,rgba(182,223,126,.35),rgba(182,223,126,0) 65%)}
+#b4{width:900px;height:900px;left:1300px;top:-400px;background:radial-gradient(circle,rgba(0,87,77,.16),rgba(0,87,77,0) 65%)}
+#darkbg{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 120%,#0b6e52 0%,#06352b 42%,#041f19 75%);opacity:0}
+#horizon{position:absolute;left:-200px;right:-200px;top:720px;height:900px;border-radius:50%;background:radial-gradient(closest-side,rgba(50,213,139,.95),rgba(11,167,126,.55) 40%,rgba(11,167,126,0) 100%);opacity:0;filter:blur(10px)}
+#colorbg{position:absolute;inset:0;background:linear-gradient(130deg,#0ba77e,#00574d);opacity:0}
+#fx{position:absolute;left:0;top:0;width:1920px;height:1080px;z-index:60;pointer-events:none;overflow:visible}
+#grain{position:absolute;left:0;top:0;width:1920px;height:1080px;pointer-events:none;z-index:90;opacity:.07;mix-blend-mode:soft-light}
+#vignette{position:absolute;inset:0;pointer-events:none;z-index:89;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 60%,rgba(0,30,22,.14) 100%)}
+#flash{position:absolute;inset:0;background:#fff;z-index:85;opacity:0}
+#fadeout{position:absolute;inset:0;background:var(--white);z-index:88;opacity:0}
+#cursor{position:absolute;left:0;top:0;width:50px;height:50px;z-index:80;opacity:0;filter:drop-shadow(0 6px 10px rgba(0,30,20,.3))}
+#clickRing{position:absolute;left:0;top:0;width:100px;height:100px;margin:-50px 0 0 -50px;border-radius:50%;border:3px solid var(--emerald);z-index:79;opacity:0}
+
+/* H1 */
+#h1t{top:395px;font-size:250px;color:var(--ink)}
+/* H2 */
+#h2t{top:405px;font-size:215px;color:var(--ink)}
+/* H3 */
+.slam{position:absolute;left:0;right:0;top:400px;text-align:center;font-size:205px;visibility:hidden}
+#h3a{color:#fff}#h3b{color:var(--ink)}#h3c{color:#fff}
+/* H4 */
+#h4t{top:405px;font-size:225px;color:#fff}
+/* H5 logo */
+#logo5{position:absolute;left:50%;top:330px;width:900px;height:366px;margin-left:-450px}
+#logo5 svg,#logo9 svg{width:100%;height:100%;overflow:visible}
+.lring{position:absolute;left:50%;top:50%;width:300px;height:300px;margin:-150px 0 0 -150px;border-radius:50%;border:2.5px solid rgba(50,213,139,.8)}
+/* H6 */
+#h6t{position:absolute;left:150px;top:260px;font-size:150px;color:var(--ink);line-height:1.04}
+#h6t .l{display:block}
+#phone{position:absolute;left:1210px;top:150px;width:400px;height:790px;border-radius:64px;padding:58px 34px;transform-style:preserve-3d}
+.ph-in{position:absolute;inset:14px;border-radius:52px;background:linear-gradient(170deg,#ffffff,#f1f8f4);overflow:hidden;padding:54px 30px}
+#phone .notch{position:absolute;left:50%;top:26px;width:120px;height:26px;margin-left:-60px;background:#0b2e25;border-radius:20px;z-index:2}
+.pl{font-size:13px;letter-spacing:.22em;color:#4e6a5c;text-transform:uppercase;font-weight:700}
+.phello{font-size:40px;font-weight:700;letter-spacing:-.04em;margin:12px 0 24px;color:var(--ink)}
+.pcard{background:linear-gradient(135deg,#0d8f6c,#00574d);border-radius:20px;padding:28px 24px;color:#fff;position:relative;box-shadow:0 20px 40px rgba(0,87,77,.3)}
+.pcard .serif{font-size:34px;line-height:1.15}
+.pcard img{position:absolute;right:16px;top:50%;width:64px;height:64px;margin-top:-32px}
+.pnext{font-size:17px;font-weight:700;margin:26px 0 12px;color:var(--ink)}
+.pdoc{display:flex;align-items:center;gap:14px;background:#fff;border-radius:16px;padding:12px;box-shadow:0 10px 24px rgba(0,60,40,.08)}
+.pdoc .av{width:54px;height:54px;border-radius:14px;overflow:hidden}
+.pdoc .av img{width:100%;height:100%;object-fit:cover;object-position:50% 15%}
+.pdoc b{display:block;font-size:18px;color:var(--ink)}
+.pdoc small{font-size:14px;color:var(--muted)}
+.pask{margin-top:20px;display:flex;align-items:center;gap:12px;background:#e6f3ed;border-radius:16px;padding:16px;font-size:18px;font-weight:600;color:var(--ink)}
+.pask img{width:30px;height:30px}
+/* H7 */
+#h7t{top:380px;font-size:150px;color:var(--ink);line-height:1.04}
+.chip{position:absolute;display:flex;align-items:center;gap:18px;padding:20px 34px 20px 20px;border-radius:26px;font-size:34px;font-weight:800;letter-spacing:-.03em;word-spacing:.08em;color:var(--ink);white-space:nowrap;transform:translate(-50%,-50%)}
+.chip img{width:84px;height:84px}
+#h7lines{position:absolute;inset:0;width:1920px;height:1080px}
+/* F1 */
+#f1h{position:absolute;left:140px;top:330px;font-size:150px;color:var(--ink);line-height:1.0}
+#f1s{position:absolute;left:146px;top:640px;font-size:76px;color:var(--green)}
+#rec{position:absolute;left:1000px;top:210px;width:780px;height:660px;border-radius:34px;padding:50px 50px;transform-style:preserve-3d}
+.rh{display:flex;align-items:center;gap:14px;font-size:18px;letter-spacing:.22em;font-weight:800;color:var(--green);text-transform:uppercase}
+.rh .dot{margin-left:auto;width:14px;height:14px;border-radius:50%;background:var(--emerald);box-shadow:0 0 14px var(--emerald)}
+.rt{font-size:52px;font-weight:800;letter-spacing:-.045em;color:var(--ink);margin:30px 0 32px}
+.row{display:flex;align-items:center;gap:22px;background:rgba(255,255,255,.9);border-radius:18px;height:106px;padding:0 28px 0 16px;margin-bottom:16px;font-size:30px;font-weight:700;letter-spacing:-.02em;color:var(--ink);box-shadow:0 10px 30px rgba(0,60,40,.07)}
+.row img{width:76px;height:76px}
+.row .tk{margin-left:auto;width:52px;height:52px;border-radius:50%;background:var(--emerald);display:grid;place-items:center;color:#fff;box-shadow:0 8px 20px rgba(11,167,126,.4)}
+.row .tk svg{width:30px;height:30px;stroke-width:3}
+.row .tk path{stroke-dasharray:24;stroke-dashoffset:24}
+#shine{position:absolute;inset:0;border-radius:34px;overflow:hidden;pointer-events:none}
+#shine i{position:absolute;top:-20%;left:-60%;width:40%;height:140%;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.75),rgba(255,255,255,0));transform:rotate(18deg)}
+/* F2 */
+#f2h{top:150px;font-size:132px;color:var(--ink)}
+#car{position:absolute;left:0;top:0;width:1920px;height:1080px;perspective:1600px}
+.dc{position:absolute;left:50%;top:400px;width:380px;height:520px;margin-left:-190px;border-radius:30px;overflow:hidden;box-shadow:0 40px 80px rgba(0,60,40,.25)}
+.dc img{width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+.dc .ft{position:absolute;left:14px;right:14px;bottom:14px;border-radius:20px;padding:16px 20px}
+.dc .ft b{display:block;font-size:30px;font-weight:800;letter-spacing:-.04em;color:var(--ink)}
+.dc .ft span{font-size:20px;font-weight:600;color:var(--green)}
+.dc .tag{position:absolute;left:16px;top:16px;font-size:12px;font-weight:700;letter-spacing:.14em;padding:7px 11px;border-radius:20px;color:var(--ink)}
+#f2chip{left:960px;top:965px}
+/* F3 */
+#f3k{position:absolute;left:140px;top:300px;font-size:30px;font-weight:700;color:#9fe3c2;letter-spacing:-.01em}
+#f3h{position:absolute;left:140px;top:360px;font-size:132px;color:#fff;line-height:1.0}
+#chat{position:absolute;left:1010px;top:170px;width:780px;height:740px;border-radius:36px;padding:40px}
+.chh{display:flex;align-items:center;gap:16px;font-size:30px;font-weight:800;color:#fff;letter-spacing:-.03em}
+.chh img{width:58px;height:58px}
+.chh small{display:block;font-size:17px;font-weight:600;color:#8fd9b5;letter-spacing:0}
+.bub{position:absolute;font-size:30px;font-weight:600;border-radius:26px;padding:22px 30px;line-height:1.3;letter-spacing:-.02em}
+#bu{right:40px;top:170px;background:linear-gradient(135deg,#32d58b,#0ba77e);color:#04261d;border-bottom-right-radius:8px}
+#bb{left:40px;top:300px;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.18);border-bottom-left-radius:8px}
+#dots{position:absolute;left:40px;top:300px;display:flex;gap:10px;background:rgba(255,255,255,.12);padding:24px 28px;border-radius:26px}
+#dots i{width:12px;height:12px;border-radius:50%;background:#bfe9d4;display:block}
+#dates{position:absolute;left:40px;right:40px;top:490px;display:flex;gap:14px}
+.date{flex:1;height:130px;border-radius:20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#fff}
+.date small{font-size:16px;font-weight:700;letter-spacing:.1em;color:#9fd8bd}
+.date b{font-size:42px;font-weight:800}
+#okc{position:absolute;left:50%;top:50%;width:230px;height:230px;margin:-115px 0 0 -115px}
+#okchip{left:1400px;top:960px}
+.conf{position:absolute;width:14px;height:22px;border-radius:3px}
+/* F4 */
+#f4h,#f4h2{position:absolute;left:140px;top:340px;font-size:112px;color:var(--ink);line-height:1.02}
+#tile{position:absolute;left:1350px;top:560px;width:250px;height:250px;margin:-125px 0 0 -125px;border-radius:56px;display:grid;place-items:center}
+#tile img{width:170px;height:170px}
+.oring{position:absolute;border-radius:50%;border:2px solid rgba(11,167,126,.25)}
+#net{position:absolute;inset:0;width:1920px;height:1080px}
+.role{font-size:30px}
+.role img{width:72px;height:72px}
+.pulse{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:var(--emerald);box-shadow:0 0 20px var(--emerald),0 0 6px #fff}
+/* stats */
+.stx{position:absolute;left:0;right:0;top:250px;text-align:center;visibility:hidden}
+.stx .n{font-size:420px;font-weight:800;letter-spacing:-.06em;line-height:1}
+.stx .cap{font-size:44px;font-weight:700;color:#cdeedd;margin-top:10px;letter-spacing:-.02em}
+#strow{position:absolute;left:160px;right:160px;top:330px;display:flex;justify-content:space-between;visibility:hidden}
+#strow .s{width:480px}
+#strow .n{font-size:230px;font-weight:800;letter-spacing:-.06em;line-height:1}
+#strow .cap{font-size:32px;font-weight:700;color:#cdeedd;margin-top:14px;letter-spacing:-.02em;border-top:2px solid rgba(255,255,255,.25);padding-top:20px}
+/* C1 */
+#walk{position:absolute;left:260px;top:150px;width:1400px;height:780px;border-radius:44px;overflow:hidden;box-shadow:0 50px 100px rgba(0,60,40,.3)}
+#walkImg{position:absolute;inset:0;background:url(../assets/walk.jpg) center 60%/cover}
+#walkOv{position:absolute;inset:0;background:linear-gradient(100deg,rgba(3,52,42,.88) 0%,rgba(3,52,42,.55) 50%,rgba(3,52,42,.1) 100%)}
+#c1h{position:absolute;left:120px;top:210px;font-size:168px;color:#fff;line-height:1.02}
+#c1h em{color:#b6f0cf}
+/* C2 end */
+#logo9{position:absolute;left:50%;top:250px;width:860px;height:350px;margin-left:-430px}
+#c2tag{top:640px;font-size:58px;font-weight:800;letter-spacing:-.045em;word-spacing:.1em;color:var(--ink)}
+#c2cta{position:absolute;left:0;right:0;top:770px;display:flex;justify-content:center;align-items:center;gap:26px}
+.url{font-size:28px;font-weight:700;color:var(--ink);padding:26px 36px;border-radius:50px}
+.btn{display:inline-flex;align-items:center;gap:22px;background:linear-gradient(135deg,#0d8f6c,#00574d);color:#fff;font-weight:800;font-size:28px;padding:26px 40px;border-radius:50px;box-shadow:0 20px 50px rgba(0,87,77,.35);letter-spacing:-.02em}
+.btn svg{width:28px;height:28px}
+#c2foot{top:990px;font-size:18px;letter-spacing:.26em;font-weight:700;color:#6f877c;text-transform:uppercase}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="mesh"><div class="blob" id="b1"></div><div class="blob" id="b2"></div><div class="blob" id="b3"></div><div class="blob" id="b4"></div></div>
+  <div id="colorbg"></div>
+  <div id="darkbg"></div>
+  <div id="horizon"></div>
+
+  <!-- H1 -->
+  <div class="scene" id="h1">
+    <img class="el l" id="h1e1" src="el/red_heart.png" style="left:150px;top:150px">
+    <img class="el l" id="h1e2" src="el/stethoscope.png" style="left:1500px;top:650px">
+    <img class="el s" id="h1e3" src="el/pill.png" style="left:1560px;top:150px">
+    <img class="el s" id="h1e4" src="el/dna.png" style="left:260px;top:730px">
+    <h1 class="ctr big" id="h1t">Your <span class="grad">health</span></h1>
+  </div>
+  <!-- H2 -->
+  <div class="scene" id="h2">
+    <h1 class="ctr big" id="h2t">is scattered.</h1>
+    <img class="el" src="el/page_facing_up.png" data-x="230" data-y="160" data-r="-20">
+    <img class="el s" src="el/pill.png" data-x="760" data-y="90" data-r="30">
+    <img class="el" src="el/test_tube.png" data-x="1520" data-y="120" data-r="25">
+    <img class="el s" src="el/syringe.png" data-x="1700" data-y="470" data-r="-35">
+    <img class="el" src="el/clipboard.png" data-x="1460" data-y="760" data-r="18">
+    <img class="el s" src="el/thermometer.png" data-x="930" data-y="840" data-r="-25">
+    <img class="el" src="el/spiral_calendar.png" data-x="300" data-y="760" data-r="-16">
+    <img class="el s" src="el/drop_of_blood.png" data-x="70" data-y="470" data-r="20">
+  </div>
+  <!-- H3 -->
+  <div class="scene" id="h3">
+    <div class="slam big" id="h3a">Lost reports.</div>
+    <div class="slam big" id="h3b">Long waits.</div>
+    <div class="slam big" id="h3c">Starting over.</div>
+    <img class="el l" id="h3ea" src="el/file_folder.png" style="left:1580px;top:120px">
+    <img class="el l" id="h3eb" src="el/hourglass_not_done.png" style="left:110px;top:640px">
+    <img class="el l" id="h3ec" src="el/alarm_clock.png" style="left:1560px;top:660px">
+  </div>
+  <!-- H4 -->
+  <div class="scene" id="h4">
+    <svg class="abs" style="left:0;top:0;width:1920px;height:1080px;overflow:visible" viewBox="0 0 1920 1080">
+      <defs>
+        <linearGradient id="swg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#0ba77e"/><stop offset=".6" stop-color="#32d58b"/><stop offset="1" stop-color="#b6df7e"/></linearGradient>
+        <filter id="swb" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="20"/></filter>
+      </defs>
+      <path id="swoosh" d="M-150 980 C 300 900, 520 520, 980 560 S 1600 240, 2100 120" fill="none" stroke="url(#swg)" stroke-width="190" stroke-linecap="round" filter="url(#swb)" opacity=".9"/>
+    </svg>
+    <h1 class="ctr big" id="h4t">Not anymore.</h1>
+  </div>
+  <!-- H5 logo -->
+  <div class="scene" id="h5">
+    <div class="lring"></div><div class="lring"></div><div class="lring"></div>
+    <div id="logo5">
+      <svg viewBox="0 0 320 130">
+        <defs><linearGradient id="g5" x2="1" y2="1"><stop stop-color="#32d58b"/><stop offset="1" stop-color="#0ba77e"/></linearGradient></defs>
+        <g id="m5"><g fill="url(#g5)">
+          <path id="m5b" fill-rule="evenodd" d="M62 62C9-10-20 47 24 77C-3 130 40 135 62 94C89 137 129 125 104 77C150 28 102-9 62 62ZM51 70C22 22 10 49 41 72C52 85 20 105 37 106C49 107 57 87 62 81C69 86 79 110 91 106C105 101 77 85 84 72C116 40 98 26 73 64L65 75Z"/>
+          <circle id="m5h" cx="63" cy="16" r="8"/><path id="m5a" d="M31 14Q50 15 63 39Q78 15 96 14Q78 23 63 49Q47 24 31 14Z"/></g>
+          <path id="m5c" fill="#fff" d="M58 65h9v9h9v9h-9v9h-9v-9h-9v-9h9z"/></g>
+        <clipPath id="wm5"><rect id="wm5r" x="125" y="20" width="200" height="100"/></clipPath>
+        <g clip-path="url(#wm5)">
+          <text id="t5" x="131" y="82" font-family="Jakarta,Arial,sans-serif" font-size="66" font-weight="800" letter-spacing="-4" fill="#fff">Avni</text>
+          <text id="s5" x="137" y="105" font-family="Jakarta,Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="4" fill="#9fe3c2">HEALTH ERP</text>
+        </g>
+        <path id="l5" d="M277 26q-1-15 17-15q-1 16-17 15" fill="#b6df7e"/>
+      </svg>
+    </div>
+  </div>
+  <!-- H6 -->
+  <div class="scene" id="h6">
+    <h1 class="big" id="h6t"><span class="l">Healthcare</span><span class="l">that moves</span><span class="l"><em class="grad">with you.</em></span></h1>
+    <div id="orbitBack"></div>
+    <div id="phone" class="glass">
+      <div class="ph-in">
+        <div class="notch"></div>
+        <div class="pl">Your day, a little healthier</div>
+        <div class="phello">Hello, Sara ✦</div>
+        <div class="pcard"><div class="serif">A little care.<br>A long way.</div><img src="el/green_heart.png"></div>
+        <div class="pnext">Your next appointment</div>
+        <div class="pdoc"><span class="av"><img src="../assets/doctor3.jpg"></span><div><b>Dr. Neha Sharma</b><small>General medicine · Demo</small></div></div>
+        <div class="pask"><img src="el/sparkles.png">Ask Avni</div>
+      </div>
+    </div>
+    <div id="orbitFront"></div>
+  </div>
+  <!-- H7 -->
+  <div class="scene" id="h7">
+    <svg id="h7lines" viewBox="0 0 1920 1080"></svg>
+    <h1 class="ctr big" id="h7t">Your health,<br><span class="grad">in one place.</span></h1>
+    <div class="chip glass" id="c1" style="left:420px;top:210px"><img src="el/clipboard.png">Reports</div>
+    <div class="chip glass" id="c2" style="left:1500px;top:210px"><img src="el/man_health_worker.png">Doctors</div>
+    <div class="chip glass" id="c3" style="left:440px;top:880px"><img src="el/spiral_calendar.png">Appointments</div>
+    <div class="chip glass" id="c4" style="left:1480px;top:880px"><img src="el/sparkles.png">Ask Avni</div>
+  </div>
+  <!-- F1 records -->
+  <div class="scene" id="f1">
+    <div class="pillLbl glass" id="f1l"><b></b>01 · Understand</div>
+    <h1 class="big" id="f1h">Your<br><span class="grad">records.</span></h1>
+    <div id="f1s"><em>A little more clarity.</em></div>
+    <div id="recWrap" style="position:absolute;inset:0;perspective:1800px">
+      <div id="rec" class="glass">
+        <div class="rh"><img src="el/file_folder.png" style="width:44px;height:44px">My health records<span class="dot"></span></div>
+        <div class="rt">A little more clarity.</div>
+        <div class="row" id="r1"><img src="el/test_tube.png">Blood test report<span class="tk"><svg class="ic" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+        <div class="row" id="r2"><img src="el/clipboard.png">Consultation summary<span class="tk"><svg class="ic" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+        <div class="row" id="r3"><img src="el/pill.png">Prescription<span class="tk"><svg class="ic" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+        <div id="shine"><i></i></div>
+      </div>
+    </div>
+    <img class="el" id="f1e1" src="el/microscope.png" style="left:1640px;top:90px">
+    <img class="el s" id="f1e2" src="el/dna.png" style="left:900px;top:790px">
+  </div>
+  <!-- F2 doctors -->
+  <div class="scene" id="f2">
+    <div class="pillLbl glass" id="f2l"><b></b>02 · Connect</div>
+    <h1 class="ctr big" id="f2h">Find the right <span class="grad">doctor.</span></h1>
+    <div id="car">
+      <div class="dc" id="dA"><img src="../assets/doctor.jpg"><span class="tag glass">DEMO PROFILE</span><div class="ft glass"><b>Dr. Asha Rao</b><span>Cardiology</span></div></div>
+      <div class="dc" id="dB"><img src="../assets/doctor3.jpg"><span class="tag glass">DEMO PROFILE</span><div class="ft glass"><b>Dr. Neha Sharma</b><span>General medicine</span></div></div>
+      <div class="dc" id="dC"><img src="../assets/doctor2.jpg"><span class="tag glass">DEMO PROFILE</span><div class="ft glass"><b>Dr. Arjun Mehta</b><span>Dermatology</span></div></div>
+    </div>
+    <img class="el" id="f2e1" src="el/anatomical_heart.png" style="left:250px;top:430px">
+    <img class="el" id="f2e2" src="el/stethoscope.png" style="left:1480px;top:400px">
+    <div class="chip glass" id="f2chip"><img src="el/speech_balloon.png">Care begins with a conversation.</div>
+  </div>
+  <!-- F3 Ask Avni (dark) -->
+  <div class="scene dark" id="f3">
+    <div class="pillLbl glassD" id="f3l"><b></b>03 · Continue</div>
+    <div id="f3k">Your next appointment.</div>
+    <h1 class="big" id="f3h">Just a<br>conversation<br><span class="gradL">away.</span></h1>
+    <div id="chat" class="glassD">
+      <div class="chh"><img src="el/sparkles.png"><div>Ask Avni<small>Your guided assistant</small></div></div>
+      <div class="bub" id="bu"><span id="buTx"></span></div>
+      <div id="dots"><i></i><i></i><i></i></div>
+      <div class="bub" id="bb">Shall we find a time<br>that works for you?</div>
+      <div id="dates">
+        <div class="date"><small>MON</small><b>12</b></div><div class="date"><small>TUE</small><b>13</b></div>
+        <div class="date" id="dW"><small>WED</small><b>14</b></div><div class="date"><small>THU</small><b>15</b></div><div class="date"><small>FRI</small><b>16</b></div>
+      </div>
+      <img id="okc" src="el/check_mark_button.png">
+    </div>
+    <div id="confetti"></div>
+    <div class="chip glass" id="okchip"><img src="el/spiral_calendar.png">Your next step, made simple.</div>
+  </div>
+  <!-- F4 hospitals -->
+  <div class="scene" id="f4">
+    <div class="pillLbl glass" id="f4l"><b></b>For hospitals &amp; care teams</div>
+    <h1 class="big" id="f4h">Behind every<br>patient, a<br><span class="grad">connected team.</span></h1>
+    <h1 class="big" id="f4h2">More time<br>for what<br><span class="grad">matters.</span></h1>
+    <div class="oring" id="or1" style="left:1150px;top:360px;width:400px;height:400px"></div>
+    <div class="oring" id="or2" style="left:1010px;top:220px;width:680px;height:680px"></div>
+    <div class="oring" id="or3" style="left:860px;top:70px;width:980px;height:980px;border-style:dashed"></div>
+    <svg id="net" viewBox="0 0 1920 1080"></svg>
+    <div id="tile" class="glass"><img src="el/green_heart.png"></div>
+    <div class="chip glass role" id="ro1" style="left:1100px;top:250px"><img src="el/hospital.png">Hospital admin</div>
+    <div class="chip glass role" id="ro2" style="left:1640px;top:330px"><img src="el/busts_in_silhouette.png">Management staff</div>
+    <div class="chip glass role" id="ro3" style="left:1080px;top:860px"><img src="el/man_health_worker.png">Doctor</div>
+    <div class="chip glass role" id="ro4" style="left:1640px;top:800px"><img src="el/woman_health_worker.png">Nurse</div>
+  </div>
+  <!-- Stats (dark) -->
+  <div class="scene dark" id="st">
+    <div class="stx" id="sA"><div class="n gradL">01</div><div class="cap">Place for your patient journey</div></div>
+    <div class="stx" id="sB"><div class="n gradL">04</div><div class="cap">Staff roles to explore</div></div>
+    <div class="stx" id="sC"><div class="n gradL">One</div><div class="cap">Shared vision for better care</div></div>
+    <div id="strow">
+      <div class="s"><div class="n gradL">01</div><div class="cap">Place for your patient journey</div></div>
+      <div class="s"><div class="n gradL">04</div><div class="cap">Staff roles to explore</div></div>
+      <div class="s"><div class="n gradL">One</div><div class="cap">Shared vision for better care</div></div>
+    </div>
+  </div>
+  <!-- C1 -->
+  <div class="scene" id="c1s">
+    <div id="walkWrap" style="position:absolute;inset:0;perspective:2000px">
+      <div id="walk"><div id="walkImg"></div><div id="walkOv"></div>
+        <h1 class="big" id="c1h">A little care.<br><em>A long way.</em></h1>
+      </div>
+    </div>
+    <img class="el l" id="c1e1" src="el/seedling.png" style="left:1540px;top:60px">
+    <img class="el" id="c1e2" src="el/sparkling_heart.png" style="left:120px;top:770px">
+    <img class="el s" id="c1e3" src="el/herb.png" style="left:1640px;top:820px">
+  </div>
+  <!-- C2 end -->
+  <div class="scene" id="c2s">
+    <div class="lring" style="top:425px"></div><div class="lring" style="top:425px"></div><div class="lring" style="top:425px"></div>
+    <div id="logo9">
+      <svg viewBox="0 0 320 130">
+        <defs><linearGradient id="g9" x2="1" y2="1"><stop stop-color="#0ba77e"/><stop offset="1" stop-color="#00574d"/></linearGradient></defs>
+        <g id="m9"><g fill="url(#g9)">
+          <path id="m9b" fill-rule="evenodd" d="M62 62C9-10-20 47 24 77C-3 130 40 135 62 94C89 137 129 125 104 77C150 28 102-9 62 62ZM51 70C22 22 10 49 41 72C52 85 20 105 37 106C49 107 57 87 62 81C69 86 79 110 91 106C105 101 77 85 84 72C116 40 98 26 73 64L65 75Z"/>
+          <circle id="m9h" cx="63" cy="16" r="8"/><path id="m9a" d="M31 14Q50 15 63 39Q78 15 96 14Q78 23 63 49Q47 24 31 14Z"/></g>
+          <path id="m9c" fill="#fff" d="M58 65h9v9h9v9h-9v9h-9v-9h-9v-9h9z"/></g>
+        <clipPath id="wm9"><rect id="wm9r" x="125" y="20" width="200" height="100"/></clipPath>
+        <g clip-path="url(#wm9)">
+          <text id="t9" x="131" y="82" font-family="Jakarta,Arial,sans-serif" font-size="66" font-weight="800" letter-spacing="-4" fill="#005c50">Avni</text>
+          <text id="s9" x="137" y="105" font-family="Jakarta,Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="4" fill="#128973">HEALTH ERP</text>
+        </g>
+        <path id="l9" d="M277 26q-1-15 17-15q-1 16-17 15" fill="#32d58b"/>
+      </svg>
+    </div>
+    <div id="c2els">
+      <img class="el s" src="el/stethoscope.png"><img class="el s" src="el/red_heart.png"><img class="el s" src="el/spiral_calendar.png"><img class="el s" src="el/pill.png">
+      <img class="el s" src="el/clipboard.png"><img class="el s" src="el/dna.png"><img class="el s" src="el/sparkles.png"><img class="el s" src="el/test_tube.png">
+    </div>
+    <h2 class="ctr" id="c2tag">Your next chapter of care <span class="grad">starts here.</span></h2>
+    <div id="c2cta"><span class="url glass">avni-health-erp.vercel.app</span><span class="btn" id="c2btn">Start your health journey <svg class="ic" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></div>
+    <div class="ctr" id="c2foot">Avni Health ERP · Developed by MILLA</div>
+  </div>
+
+  <svg id="fx" viewBox="0 0 1920 1080">
+    <defs>
+      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <filter id="glowBig" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="14" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <linearGradient id="trailG" gradientUnits="objectBoundingBox"><stop offset="0" stop-color="#32d58b" stop-opacity="0"/><stop offset="1" stop-color="#b6f0cf"/></linearGradient>
+    </defs>
+    <g id="neon" filter="url(#glow)"></g>
+    <g id="comets"></g>
+  </svg>
+  <div id="clickRing"></div>
+  <svg id="cursor" viewBox="0 0 24 24"><path d="M4.5 2.5 4.5 20.5 9.3 15.9 12.6 22.6 15.6 21.2 12.4 14.6 19 14.6Z" fill="#0b2e25" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
+  <div id="flash"></div>
+  <div id="vignette"></div>
+  <canvas id="grain" width="960" height="540"></canvas>
+  <div id="fadeout"></div>
+</div>
+<script src="../gsap.min.js"></script>
+<script src="timeline.js"></script>
+</body>
+</html>
