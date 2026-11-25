@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Avni Launch Film</title>
+<style>
+@font-face{font-family:'Arimo';src:url(fonts/arimo_0.woff2) format('woff2');font-weight:400 700;font-style:normal}
+@font-face{font-family:'Gelasio';src:url(fonts/gelasio_r.woff2) format('woff2');font-weight:400;font-style:normal}
+@font-face{font-family:'Gelasio';src:url(fonts/gelasio_i0.woff2) format('woff2');font-weight:400 700;font-style:italic}
+:root{
+  --cream:#fefefa; --canvas:#f7f9f7; --ink:#133c31; --ink2:#123e33; --green:#125b49; --green2:#168567;
+  --deep:#123e33; --mint:#e6f3ed; --mint2:#e5f3e3; --sage:#e1ece7; --muted:#5f7369; --line:#e4eae6;
+  --lime:#b6df7e; --gold:#b5a54e; --logoA:#0ba77e; --logoB:#00574d; --leaf:#32d58b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--cream)}
+body{font-family:Arimo,Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+#stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--cream)}
+.scene{position:absolute;inset:0;visibility:hidden;overflow:hidden}
+em,.serif{font-family:Gelasio,Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-.035em}
+.num{font-family:Gelasio,Georgia,serif;font-weight:400;font-style:normal}
+.label{font-size:20px;letter-spacing:.32em;text-transform:uppercase;font-weight:700;color:var(--green2)}
+.w{display:inline-block;overflow:hidden;vertical-align:bottom;padding:.02em .08em .16em;margin:-.02em -.08em -.16em}
+.wi,.c{display:inline-block;will-change:transform,opacity}
+.abs{position:absolute}
+.center{position:absolute;left:0;right:0;text-align:center}
+svg.ic{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* global layers */
+#glow{position:absolute;left:50%;top:50%;width:1500px;height:1500px;margin:-750px 0 0 -750px;border-radius:50%;
+  background:radial-gradient(circle,rgba(190,226,203,.62) 0%,rgba(214,238,222,.35) 32%,rgba(254,254,250,0) 62%)}
+#glow2{position:absolute;left:78%;top:20%;width:900px;height:900px;margin:-450px 0 0 -450px;border-radius:50%;
+  background:radial-gradient(circle,rgba(182,223,126,.22) 0%,rgba(254,254,250,0) 65%)}
+#grain{position:absolute;left:0;top:0;width:1920px;height:1080px;pointer-events:none;z-index:90;opacity:.075;mix-blend-mode:soft-light}
+#vignette{position:absolute;inset:0;pointer-events:none;z-index:89;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 58%,rgba(8,40,30,.13) 100%)}
+#cursor{position:absolute;left:0;top:0;width:46px;height:46px;z-index:80;opacity:0;filter:drop-shadow(0 6px 10px rgba(10,40,30,.25))}
+#clickRing{position:absolute;left:0;top:0;width:90px;height:90px;margin:-45px 0 0 -45px;border-radius:50%;border:3px solid var(--green2);z-index:79;opacity:0}
+#flash{position:absolute;inset:0;background:#fff;z-index:85;opacity:0;pointer-events:none}
+#fadeout{position:absolute;inset:0;background:var(--cream);z-index:88;opacity:0}
+
+/* S0 */
+.ring{position:absolute;left:50%;top:50%;width:240px;height:240px;margin:-120px 0 0 -120px;border-radius:50%;border:1.5px solid rgba(22,133,103,.55)}
+#s0dot{position:absolute;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:var(--green2)}
+#heroLabel{position:absolute;left:0;right:0;top:255px;text-align:center;z-index:20;opacity:0}
+.spark{width:34px;height:34px;display:inline-block}
+
+/* S1 hero */
+#s1h{position:absolute;left:0;right:0;top:330px;text-align:center;font-size:112px;font-weight:600;letter-spacing:-.05em;line-height:1.06;color:var(--ink)}
+.pill{position:relative;display:inline-block;padding:0 .14em .04em;margin:0 .02em;color:#fff;vertical-align:bottom}
+.pill .pbg{position:absolute;inset:.06em -.0em -.02em -.0em;border-radius:.16em;background:linear-gradient(135deg,var(--logoA),var(--green));transform-origin:0 50%}
+.pill .ptx{position:relative;display:inline-block}
+#s1sub{position:absolute;left:0;right:0;top:640px;text-align:center;font-size:34px;line-height:1.55;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:26px;background:var(--green);color:#fff;font-weight:600;font-size:26px;padding:28px 40px;border-radius:6px}
+.btn svg{width:28px;height:28px}
+#s1btnWrap{position:absolute;left:0;right:0;top:800px;text-align:center}
+#morph{position:absolute;background:var(--deep);z-index:30;opacity:0;border-radius:6px}
+
+/* S2 */
+#s2{background:var(--deep)}
+#s2glow{position:absolute;left:50%;top:55%;width:1600px;height:1600px;margin:-800px 0 0 -800px;border-radius:50%;background:radial-gradient(circle,rgba(22,133,103,.45) 0%,rgba(18,62,51,0) 60%)}
+#s2h{position:absolute;left:0;right:0;top:380px;text-align:center;font-size:118px;font-weight:400;letter-spacing:-.045em;line-height:1.08;color:#fff}
+#s2h em{color:#d4ecdf}
+.chip{position:absolute;display:flex;align-items:center;gap:16px;padding:20px 30px;border-radius:16px;background:rgba(255,255,255,.96);color:var(--ink);font-size:28px;font-weight:600;box-shadow:0 24px 60px rgba(0,0,0,.28);white-space:nowrap}
+.chip .x{width:34px;height:34px;border-radius:50%;background:#f3e7e3;color:#b0533c;display:grid;place-items:center}
+.chip .x svg{width:20px;height:20px}
+#wipe{position:absolute;left:50%;top:50%;width:2400px;height:2400px;margin:-1200px 0 0 -1200px;border-radius:50%;background:var(--cream);z-index:40;opacity:0}
+#s2b{background:transparent}
+#s2bh{position:absolute;left:0;right:0;top:440px;text-align:center;font-size:132px;font-weight:400;letter-spacing:-.05em;color:var(--ink)}
+#hlwrap{position:relative;display:inline-block}
+#hl{position:absolute;left:-.06em;right:-.06em;top:.12em;bottom:.02em;background:#cfe8da;border-radius:.1em;transform-origin:0 50%;transform:scaleX(0)}
+#hlwrap .w{position:relative}
+
+/* S3 */
+#s3mark{position:absolute;left:50%;top:300px;width:230px;height:230px;margin-left:-115px}
+#s3mark svg{width:100%;height:100%;overflow:visible}
+.ring3{position:absolute;left:50%;top:415px;width:230px;height:230px;margin:-115px 0 0 -115px;border-radius:50%;border:2px solid rgba(11,167,126,.5)}
+#s3h{position:absolute;left:0;right:0;top:560px;text-align:center;font-size:124px;font-weight:600;letter-spacing:-.05em;color:var(--ink)}
+#s3h em{color:var(--green);font-weight:400}
+#s3sub{position:absolute;left:0;right:0;top:730px;text-align:center;font-size:36px;color:var(--muted)}
+#s3feat{position:absolute;left:0;right:0;top:860px;display:flex;justify-content:center;gap:70px}
+.feat{display:flex;align-items:center;gap:16px;font-size:27px;color:var(--ink)}
+.feat svg{width:34px;height:34px;color:var(--green)}
+#s3line{position:absolute;left:180px;right:180px;top:830px;height:1px;background:var(--line);transform-origin:50% 50%}
+
+/* S4 steps */
+#s4label{position:absolute;left:140px;top:110px}
+#orbit{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.node{position:absolute;left:0;top:0;width:132px;height:132px;margin:-66px 0 0 -66px;border-radius:50%;background:#fff;color:var(--green);display:grid;place-items:center;box-shadow:0 18px 40px rgba(18,62,51,.12);border:1.5px solid var(--line)}
+.node svg{width:52px;height:52px}
+.node.on{background:var(--green);color:#fff;border-color:var(--green)}
+.stepTx{position:absolute;left:420px;top:390px;width:470px}
+.stepTx .sn{font-family:Gelasio,Georgia,serif;font-size:44px;color:#7c9481}
+.stepTx .st{font-size:84px;font-weight:400;letter-spacing:-.05em;color:var(--ink);margin:6px 0 22px}
+.stepTx .sd{font-size:27px;line-height:1.5;color:var(--muted)}
+.card{position:absolute;left:960px;top:190px;width:820px;height:700px;border-radius:26px;padding:58px 60px;overflow:hidden}
+.c1{background:var(--mint2)}
+.chead{display:flex;align-items:center;gap:16px;font-size:18px;letter-spacing:.22em;font-weight:700;color:var(--green);text-transform:uppercase}
+.chead svg{width:34px;height:34px}
+.chead .dot{margin-left:auto;width:14px;height:14px;border-radius:50%;background:#2fb27f}
+.ctitle{font-size:56px;letter-spacing:-.045em;color:var(--ink);margin:40px 0 40px;line-height:1.1}
+.row{display:flex;align-items:center;gap:26px;background:#fff;border-radius:12px;height:96px;padding:0 34px;margin-bottom:16px;font-size:28px;color:var(--ink)}
+.row .rn{color:#8a9a8e;font-size:24px;width:34px}
+.row .tk{margin-left:auto;width:40px;height:40px;color:var(--green)}
+.row .tk path{stroke-dasharray:24;stroke-dashoffset:24}
+.cfoot{font-size:19px;color:var(--muted);margin-top:22px}
+.c2{background:transparent;padding:0}
+.doc{position:absolute;top:30px;width:252px}
+.doc .ph{width:252px;height:350px;border-radius:16px;overflow:hidden;position:relative;box-shadow:0 20px 50px rgba(18,62,51,.16)}
+.doc .ph img{width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+.doc .tag{position:absolute;left:10px;bottom:10px;background:rgba(255,255,255,.92);font-size:11px;letter-spacing:.14em;padding:6px 9px;border-radius:3px;color:var(--ink)}
+.doc .arr{position:absolute;right:12px;top:12px;width:48px;height:48px;border-radius:50%;background:#fff;display:grid;place-items:center;color:var(--ink)}
+.doc .arr svg{width:24px;height:24px}
+.doc .dn{font-size:31px;letter-spacing:-.04em;margin-top:20px;color:var(--ink)}
+.doc .ds{font-size:21px;color:var(--muted);margin-top:6px}
+#bubble{position:absolute;left:150px;top:520px;display:flex;align-items:center;gap:18px;background:#fff;border-radius:14px;padding:24px 34px;font-size:27px;box-shadow:0 24px 60px rgba(18,62,51,.18);color:var(--ink)}
+#bubble svg{width:36px;height:36px;color:var(--green)}
+.c3{background:var(--sage)}
+.msg{position:absolute;font-size:27px;border-radius:18px;padding:20px 28px;line-height:1.35}
+#mUser{right:60px;top:150px;background:#fff;color:var(--ink);border-bottom-right-radius:6px}
+#mBot{left:60px;top:270px;background:transparent;padding:0;font-size:50px;letter-spacing:-.045em;color:var(--ink);line-height:1.12}
+#typing{position:absolute;left:60px;top:300px;display:flex;gap:10px;background:#fff;padding:22px 26px;border-radius:18px}
+#typing i{width:12px;height:12px;border-radius:50%;background:#8aa596;display:block}
+#dates{position:absolute;left:60px;right:60px;top:460px;display:flex;gap:16px}
+.date{flex:1;background:#fff;border-radius:10px;height:116px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--ink)}
+.date .dw{font-size:15px;letter-spacing:.08em;color:#58705f}
+.date .dd{font-size:36px;font-weight:600}
+.date.sel{background:var(--green);color:#fff}
+.date.sel .dw{color:#d8eee2}
+#nextStep{position:absolute;left:60px;top:612px;display:flex;align-items:center;gap:14px;font-size:22px;color:var(--ink)}
+#nextStep svg{width:28px;height:28px;color:var(--green)}
+
+/* S5 patients */
+#s5{background:var(--cream)}
+#s5panel{position:absolute;left:120px;top:110px;width:820px;height:860px;border-radius:24px;background:linear-gradient(160deg,#e9f3e2,#dbead6)}
+#phone{position:absolute;left:300px;top:150px;width:460px;height:780px;border-radius:64px;background:#fff;border:16px solid #17483b;box-shadow:0 50px 90px rgba(18,62,51,.28);overflow:hidden;padding:56px 36px}
+#phone .notch{position:absolute;left:50%;top:6px;width:150px;height:28px;margin-left:-75px;background:#17483b;border-radius:0 0 18px 18px}
+.pl{font-size:13px;letter-spacing:.22em;color:#4e6a5c;text-transform:uppercase;font-weight:700}
+.phello{font-size:44px;letter-spacing:-.04em;margin:14px 0 26px;color:var(--ink)}
+.phello .spark{width:28px;height:28px;vertical-align:4px}
+.picons{display:flex;gap:26px;margin-bottom:28px}
+.picons span{width:60px;height:60px;border-radius:50%;background:#e6f3ed;color:var(--green);display:grid;place-items:center}
+.picons svg{width:28px;height:28px}
+.pcard{background:var(--green);border-radius:16px;padding:30px 28px;color:#fff;position:relative}
+.pcard .serif{font-size:38px;line-height:1.18;letter-spacing:-.02em}
+.pcard svg{position:absolute;right:26px;top:50%;margin-top:-22px;width:44px;height:44px;color:var(--lime)}
+.pnext{font-size:19px;font-weight:600;margin:28px 0 14px;color:var(--ink)}
+.pdoc{display:flex;align-items:center;gap:16px}
+.pdoc .av{width:56px;height:56px;border-radius:12px;background:#f1e3cf;display:grid;place-items:center;font-size:18px;color:#5b4a35}
+.pdoc b{display:block;font-size:20px;font-weight:600;color:var(--ink)}
+.pdoc small{font-size:16px;color:var(--muted)}
+.pask{margin-top:26px;display:flex;align-items:center;gap:14px;background:#e6f3ed;border-radius:14px;padding:18px 20px;font-size:19px;color:var(--ink)}
+.pask svg{width:24px;height:24px;color:var(--green)}
+.pask .ar{margin-left:auto}
+#s5tx{position:absolute;left:1060px;top:250px;width:760px}
+#s5h{font-size:84px;letter-spacing:-.05em;line-height:1.05;color:var(--ink);margin:26px 0 46px;font-weight:400}
+.tg{display:flex;align-items:center;gap:24px;font-size:28px;color:var(--ink);margin-bottom:26px}
+.sw{width:70px;height:40px;border-radius:20px;background:#dfe7e2;position:relative;flex:none}
+.sw i{position:absolute;left:4px;top:4px;width:32px;height:32px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+#s5btnWrap{margin-top:40px}
+#s5btn{background:#0d7a5f}
+
+/* wave */
+#wave{position:absolute;left:0;top:0;width:1920px;height:1400px;z-index:45;opacity:0}
+
+/* S6 hospitals */
+#s6{background:linear-gradient(135deg,#0b6e52 0%,#0a8a65 55%,#07a173 100%)}
+#s6h{position:absolute;left:140px;top:350px;width:820px;font-size:88px;letter-spacing:-.05em;line-height:1.06;color:#fff;font-weight:400}
+#s6h2{position:absolute;left:140px;top:350px;width:820px;font-size:88px;letter-spacing:-.05em;line-height:1.06;color:#fff;font-weight:400}
+#s6label{position:absolute;left:140px;top:290px;color:#bfe6d3}
+#s6sub{position:absolute;left:140px;top:640px;width:700px;font-size:30px;line-height:1.5;color:rgba(255,255,255,.86)}
+#net{position:absolute;left:0;top:0;width:1920px;height:1080px}
+.oring{position:absolute;border-radius:50%;border:1.5px solid rgba(255,255,255,.18)}
+#tile{position:absolute;left:1330px;top:540px;width:210px;height:210px;margin:-105px 0 0 -105px;border-radius:44px;background:#cfe9d2;display:grid;place-items:center;color:#1d5a45;box-shadow:0 40px 80px rgba(0,40,28,.35)}
+#tile svg{width:110px;height:110px}
+.role{position:absolute;display:flex;align-items:center;gap:16px;padding:22px 28px;border-radius:16px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.28);color:#fff;font-size:27px;white-space:nowrap;transform:translate(-50%,-50%)}
+.role svg{width:32px;height:32px}
+.pulse{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--lime);box-shadow:0 0 18px var(--lime)}
+
+/* S7 stats */
+#s7{background:var(--deep)}
+#s7label{position:absolute;left:140px;top:200px;color:#9fd2b8}
+#s7h{position:absolute;left:140px;top:250px;font-size:96px;letter-spacing:-.05em;line-height:1.05;color:#fff;font-weight:400}
+#s7h em{color:#d4ecdf}
+#stats{position:absolute;left:140px;right:140px;top:620px;display:flex;gap:60px}
+.stat{flex:1;position:relative;padding-top:40px}
+.stat .ln{position:absolute;left:0;right:0;top:0;height:1.5px;background:rgba(255,255,255,.28);transform-origin:0 50%}
+.stat .sv{font-family:Gelasio,Georgia,serif;font-size:150px;line-height:1;color:#fff;height:160px;overflow:hidden}
+.stat .sv span{display:inline-block}
+.stat .sl{font-size:28px;color:rgba(255,255,255,.75);margin-top:22px}
+
+/* S8 walk */
+#s8{background:#0b3d33}
+#s8img{position:absolute;inset:0;background:url(assets/walk.jpg) center 60%/cover}
+#s8ov{position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,61,53,.9) 0%,rgba(4,61,53,.62) 45%,rgba(4,61,53,.18) 100%)}
+#s8label{position:absolute;left:140px;top:290px;color:#cfe9d9}
+#s8h{position:absolute;left:140px;top:340px;font-size:112px;letter-spacing:-.05em;line-height:1.04;color:#fff;font-weight:400}
+#s8btnWrap{position:absolute;left:140px;top:760px}
+.btnw{display:inline-flex;align-items:center;gap:24px;background:#fff;color:var(--ink);font-weight:600;font-size:24px;padding:24px 34px;border-radius:5px}
+.btnw svg{width:26px;height:26px}
+
+/* S9 end */
+#s9h{position:absolute;left:0;right:0;top:360px;text-align:center;font-size:128px;letter-spacing:-.05em;line-height:1.06;color:var(--ink);font-weight:400}
+#logoWrap{position:absolute;left:50%;top:300px;width:800px;height:325px;margin-left:-400px}
+#logoWrap svg{width:100%;height:100%;overflow:visible}
+#s9tag{position:absolute;left:0;right:0;top:660px;text-align:center;font-size:46px;color:var(--green)}
+#s9cta{position:absolute;left:0;right:0;top:770px;display:flex;justify-content:center;align-items:center;gap:28px}
+.url{font-size:26px;color:var(--ink);padding:24px 34px;border-radius:6px;border:1.5px solid #cfdcd4;background:#fff}
+#s9foot{position:absolute;left:0;right:0;top:985px;text-align:center;font-size:18px;letter-spacing:.26em;color:#7b8f84;text-transform:uppercase}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glow"></div><div id="glow2"></div>
+
+  <!-- S0 intro -->
+  <div class="scene" id="s0">
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring"></div>
+    <div id="s0dot"></div>
+  </div>
+  <div id="heroLabel"><span class="label" id="heroLabelTx">A little care. A healthier tomorrow.</span></div>
+
+  <!-- S1 hero -->
+  <div class="scene" id="s1">
+    <h1 id="s1h">Your health deserves a more<br><span class="pill nosplit" id="pill"><span class="pbg"></span><span class="ptx">connected</span></span> kind of care.</h1>
+    <p id="s1sub">From your first question to your next appointment.<br>Meet Avni. Healthcare that moves with you.</p>
+    <div id="s1btnWrap"><span class="btn" id="s1btn">Start your health journey <svg class="ic" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></div>
+  </div>
+  <div id="morph"></div>
+
+  <!-- S2 problem -->
+  <div class="scene" id="s2">
+    <div id="s2glow"></div>
+    <h2 id="s2h">Care shouldn’t feel<br><em>like starting over.</em></h2>
+    <div class="chip" id="chip1" style="left:180px;top:170px"><span class="x"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span>Scattered reports</div>
+    <div class="chip" id="chip2" style="left:1290px;top:210px"><span class="x"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span>Repeating your history</div>
+    <div class="chip" id="chip3" style="left:240px;top:780px"><span class="x"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span>Searching for the right doctor</div>
+    <div class="chip" id="chip4" style="left:1250px;top:820px"><span class="x"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span>Starting from scratch</div>
+  </div>
+  <div id="wipe"></div>
+  <div class="scene" id="s2b">
+    <h2 id="s2bh">It should feel <span id="hlwrap" class="nosplitwrap"><span id="hl"></span><em>connected.</em></span></h2>
+  </div>
+
+  <!-- S3 meet avni -->
+  <div class="scene" id="s3">
+    <div class="ring3"></div><div class="ring3"></div><div class="ring3"></div>
+    <div id="s3mark">
+      <svg viewBox="0 0 130 130">
+        <defs><linearGradient id="g3" x2="1" y2="1"><stop stop-color="#0ba77e"/><stop offset="1" stop-color="#00574d"/></linearGradient></defs>
+        <g fill="url(#g3)">
+          <path id="mBody" fill-rule="evenodd" d="M62 62C9-10-20 47 24 77C-3 130 40 135 62 94C89 137 129 125 104 77C150 28 102-9 62 62ZM51 70C22 22 10 49 41 72C52 85 20 105 37 106C49 107 57 87 62 81C69 86 79 110 91 106C105 101 77 85 84 72C116 40 98 26 73 64L65 75Z"/>
+          <circle id="mHead" cx="63" cy="16" r="8"/>
+          <path id="mArms" d="M31 14Q50 15 63 39Q78 15 96 14Q78 23 63 49Q47 24 31 14Z"/>
+        </g>
+        <path id="mCross" fill="#fff" d="M58 65h9v9h9v9h-9v9h-9v-9h-9v-9h9z"/>
+      </svg>
+    </div>
+    <h2 id="s3h">Meet <em>Avni.</em></h2>
+    <p id="s3sub">Healthcare that moves with you.</p>
+    <div id="s3line"></div>
+    <div id="s3feat">
+      <div class="feat"><svg class="ic" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>People at the heart of care</div>
+      <div class="feat"><svg class="ic" viewBox="0 0 24 24"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></svg>Connected care teams</div>
+      <div class="feat"><svg class="ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M10.3 12.4a1.7 1.7 0 0 0-2.4 2.4L11 17.9l3.1-3.1a1.7 1.7 0 0 0-2.4-2.4l-.7.7z"/></svg>Your health, in one place</div>
+    </div>
+  </div>
+
+  <!-- S4 approach steps -->
+  <div class="scene" id="s4">
+    <div class="label" id="s4label">01 / Our approach</div>
+    <svg id="orbit" viewBox="0 0 1920 1080">
+      <circle id="orb1" cx="-260" cy="540" r="560" fill="none" stroke="rgba(22,133,103,.28)" stroke-width="1.5"/>
+      <circle id="orb2" cx="-260" cy="540" r="700" fill="none" stroke="rgba(22,133,103,.14)" stroke-width="1.5" stroke-dasharray="4 10"/>
+      <circle id="orb3" cx="-260" cy="540" r="420" fill="none" stroke="rgba(22,133,103,.12)" stroke-width="1.5"/>
+      <g id="orbDots">
+        <circle cx="440" cy="540" r="6" fill="#168567"/>
+        <circle cx="-260" cy="-160" r="5" fill="#b6df7e"/>
+        <circle cx="160" cy="540" r="5" fill="#168567" opacity=".6"/>
+      </g>
+    </svg>
+    <div id="nodes">
+      <div class="node" id="n1"><svg class="ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M10.3 12.4a1.7 1.7 0 0 0-2.4 2.4L11 17.9l3.1-3.1a1.7 1.7 0 0 0-2.4-2.4l-.7.7z"/></svg></div>
+      <div class="node" id="n2"><svg class="ic" viewBox="0 0 24 24"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></svg></div>
+      <div class="node" id="n3"><svg class="ic" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg></div>
+    </div>
+    <div class="stepTx" id="st1"><div class="sn">01</div><div class="st">Understand</div><div class="sd">Bring your reports and consultation history into one easy-to-explore space.</div></div>
+    <div class="stepTx" id="st2"><div class="sn">02</div><div class="st">Connect</div><div class="sd">Discover doctors and find the right conversation for your next step.</div></div>
+    <div class="stepTx" id="st3"><div class="sn">03</div><div class="st">Continue</div><div class="sd">Book inside the guided chatbot and keep your demo appointments close.</div></div>
+
+    <div class="card c1" id="card1">
+      <div class="chead"><svg class="ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M10.3 12.4a1.7 1.7 0 0 0-2.4 2.4L11 17.9l3.1-3.1a1.7 1.7 0 0 0-2.4-2.4l-.7.7z"/></svg>My health records<span class="dot"></span></div>
+      <div class="ctitle">A little more clarity.</div>
+      <div class="row" id="r1"><span class="rn">01</span>Blood test report<svg class="ic tk" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <div class="row" id="r2"><span class="rn">02</span>Consultation summary<svg class="ic tk" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <div class="row" id="r3"><span class="rn">03</span>Prescription<svg class="ic tk" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <div class="cfoot">Sample patient records</div>
+    </div>
+
+    <div class="card c2" id="card2">
+      <div class="doc" id="d1" style="left:0"><div class="ph"><img src="assets/doctor.jpg"><span class="tag">DEMO PROFILE</span><span class="arr"><svg class="ic" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></div><div class="dn">Dr. Asha Rao</div><div class="ds">Cardiology</div></div>
+      <div class="doc" id="d2" style="left:284px"><div class="ph"><img src="assets/doctor3.jpg"><span class="tag">DEMO PROFILE</span><span class="arr"><svg class="ic" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></div><div class="dn">Dr. Neha Sharma</div><div class="ds">General medicine</div></div>
+      <div class="doc" id="d3" style="left:568px"><div class="ph"><img src="assets/doctor2.jpg"><span class="tag">DEMO PROFILE</span><span class="arr"><svg class="ic" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></div><div class="dn">Dr. Arjun Mehta</div><div class="ds">Dermatology</div></div>
+      <div id="bubble"><svg class="ic" viewBox="0 0 24 24"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></svg>Care begins with a conversation.</div>
+    </div>
+
+    <div class="card c3" id="card3">
+      <div class="chead"><svg class="ic" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>Ask Avni</div>
+      <div class="msg" id="mUser"><span id="mUserTx"></span></div>
+      <div id="typing"><i></i><i></i><i></i></div>
+      <div class="msg" id="mBot">Shall we find a time<br>that works for you?</div>
+      <div id="dates">
+        <div class="date"><span class="dw">MON</span><span class="dd">12</span></div>
+        <div class="date"><span class="dw">TUE</span><span class="dd">13</span></div>
+        <div class="date" id="dWed"><span class="dw">WED</span><span class="dd">14</span></div>
+        <div class="date"><span class="dw">THU</span><span class="dd">15</span></div>
+        <div class="date"><span class="dw">FRI</span><span class="dd">16</span></div>
+      </div>
+      <div id="nextStep"><svg class="ic" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Your next step, made simple.</div>
+    </div>
+  </div>
+
+  <!-- S5 patients -->
+  <div class="scene" id="s5">
+    <div id="s5panel"></div>
+    <div id="phone">
+      <div class="notch"></div>
+      <div class="pl" style="text-align:right">Your day, a little healthier</div>
+      <div class="phello">Hello, Sara <svg class="spark" viewBox="0 0 24 24"><path fill="#b5a54e" d="M12 1.5c.6 5.6 4.9 9.9 10.5 10.5-5.6.6-9.9 4.9-10.5 10.5C11.4 16.9 7.1 12.6 1.5 12 7.1 11.4 11.4 7.1 12 1.5Z"/></svg></div>
+      <div class="picons">
+        <span><svg class="ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>
+        <span><svg class="ic" viewBox="0 0 24 24"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></svg></span>
+        <span><svg class="ic" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg></span>
+      </div>
+      <div class="pcard"><div class="serif">A little care.<br>A long way.</div><svg class="ic" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></div>
+      <div class="pnext">Your next appointment</div>
+      <div class="pdoc"><span class="av">NS</span><div><b>Dr. Neha Sharma</b><small>General medicine · Demo</small></div></div>
+      <div class="pask"><svg class="ic" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>Ask Avni<svg class="ic ar" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+    </div>
+    <div id="s5tx">
+      <div class="label" id="s5label">For patients</div>
+      <h2 id="s5h">A little more control.<br>A lot more ease.</h2>
+      <div class="tg" id="tg1"><span class="sw"><i></i></span>Reports and previous consultations together</div>
+      <div class="tg" id="tg2"><span class="sw"><i></i></span>Doctor discovery and free consultation demos</div>
+      <div class="tg" id="tg3"><span class="sw"><i></i></span>Appointments booked directly in Ask Avni</div>
+      <div id="s5btnWrap"><span class="btn" id="s5btn">Explore the patient demo <svg class="ic" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></div>
+    </div>
+  </div>
+
+  <svg id="wave" viewBox="0 0 1920 1400" preserveAspectRatio="none"><defs><linearGradient id="wg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1920" y2="1080"><stop offset="0" stop-color="#0b6e52"/><stop offset=".55" stop-color="#0a8a65"/><stop offset="1" stop-color="#07a173"/></linearGradient></defs><path id="wavePath" fill="url(#wg)" d=""/></svg>
+
+  <!-- S6 hospitals -->
+  <div class="scene" id="s6">
+    <div class="oring" id="or1" style="left:1130px;top:340px;width:400px;height:400px"></div>
+    <div class="oring" id="or2" style="left:1010px;top:220px;width:640px;height:640px"></div>
+    <div class="oring" id="or3" style="left:870px;top:80px;width:920px;height:920px;border-style:dashed;border-color:rgba(255,255,255,.12)"></div>
+    <svg id="net" viewBox="0 0 1920 1080"></svg>
+    <div class="label" id="s6label">For hospitals &amp; care teams</div>
+    <h2 id="s6h">Behind every patient,<br><em>a connected team.</em></h2>
+    <h2 id="s6h2">More time for<br><em>what matters.</em></h2>
+    <p id="s6sub">Give every role a place in the same care journey.</p>
+    <div id="tile"><svg class="ic" viewBox="0 0 24 24" style="stroke-width:1.6"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path id="pulseLine" d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg></div>
+    <div class="role" id="ro1" style="left:1090px;top:250px"><svg class="ic" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>Hospital admin</div>
+    <div class="role" id="ro2" style="left:1600px;top:300px"><svg class="ic" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></svg>Management staff</div>
+    <div class="role" id="ro3" style="left:1100px;top:830px"><svg class="ic" viewBox="0 0 24 24"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></svg>Doctor</div>
+    <div class="role" id="ro4" style="left:1610px;top:790px"><svg class="ic" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Nurse</div>
+  </div>
+
+  <!-- S7 stats -->
+  <div class="scene" id="s7">
+    <div class="label" id="s7label">Explore what connected care can feel like</div>
+    <h2 id="s7h">Small steps.<br><em>Meaningful connections.</em></h2>
+    <div id="stats">
+      <div class="stat" id="stA"><div class="ln"></div><div class="sv"><span id="cA">00</span></div><div class="sl">Place for your patient journey</div></div>
+      <div class="stat" id="stB"><div class="ln"></div><div class="sv"><span id="cB">00</span></div><div class="sl">Staff roles to explore</div></div>
+      <div class="stat" id="stC"><div class="ln"></div><div class="sv" id="svC">One</div><div class="sl">Shared vision for better care</div></div>
+    </div>
+  </div>
+
+  <!-- S8 walk -->
+  <div class="scene" id="s8">
+    <div id="s8img"></div><div id="s8ov"></div>
+    <div class="label" id="s8label">Make room for your wellbeing</div>
+    <h2 id="s8h">A healthier tomorrow<br>starts with a little<br><em>care today.</em></h2>
+    <div id="s8btnWrap"><span class="btnw" id="s8btn">Take your first step <svg class="ic" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></div>
+  </div>
+
+  <!-- S9 end -->
+  <div class="scene" id="s9">
+    <h2 id="s9h">Your next chapter of care<br><em>starts here.</em></h2>
+    <div id="logoWrap">
+      <svg viewBox="0 0 320 130">
+        <defs><linearGradient id="g9" x2="1" y2="1"><stop stop-color="#0ba77e"/><stop offset="1" stop-color="#00574d"/></linearGradient></defs>
+        <g id="lMark">
+          <g fill="url(#g9)">
+            <path id="lBody" fill-rule="evenodd" d="M62 62C9-10-20 47 24 77C-3 130 40 135 62 94C89 137 129 125 104 77C150 28 102-9 62 62ZM51 70C22 22 10 49 41 72C52 85 20 105 37 106C49 107 57 87 62 81C69 86 79 110 91 106C105 101 77 85 84 72C116 40 98 26 73 64L65 75Z"/>
+            <circle id="lHead" cx="63" cy="16" r="8"/>
+            <path id="lArms" d="M31 14Q50 15 63 39Q78 15 96 14Q78 23 63 49Q47 24 31 14Z"/>
+          </g>
+          <path id="lCross" fill="#fff" d="M58 65h9v9h9v9h-9v9h-9v-9h-9v-9h9z"/>
+        </g>
+        <clipPath id="wmClip"><rect id="wmRect" x="125" y="20" width="200" height="100"/></clipPath>
+        <g clip-path="url(#wmClip)">
+          <text id="lText" x="131" y="82" font-family="Arimo,Arial,sans-serif" font-size="65" font-weight="700" letter-spacing="-4" fill="#005c50">Avni</text>
+          <text id="lSub" x="137" y="105" font-family="Arimo,Arial,sans-serif" font-size="12" letter-spacing="4" fill="#128973">HEALTH ERP</text>
+        </g>
+        <path id="lLeaf" d="M277 26q-1-15 17-15q-1 16-17 15" fill="#32d58b"/>
+      </svg>
+    </div>
+    <div id="s9tag"><em>Little care goes a long way.</em></div>
+    <div id="s9cta"><span class="url" id="s9url">avni-health-erp.vercel.app</span><span class="btn" id="s9btn">Discover Avni <svg class="ic" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></div>
+    <div id="s9foot">Avni Health ERP · Developed by MILLA</div>
+  </div>
+
+    <div id="clickRing"></div>
+  <svg id="cursor" viewBox="0 0 24 24"><path d="M4.5 2.5 4.5 20.5 9.3 15.9 12.6 22.6 15.6 21.2 12.4 14.6 19 14.6Z" fill="#123e33" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
+  <div id="flash"></div>
+  <div id="vignette"></div>
+  <canvas id="grain" width="960" height="540"></canvas>
+  <div id="fadeout"></div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="timeline.js"></script>
+</body>
+</html>
