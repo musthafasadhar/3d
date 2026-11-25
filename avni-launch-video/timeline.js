@@ -196,9 +196,10 @@
     });
     T.to('#s2h', { scale: 0.7, opacity: 0, filter: 'blur(12px)', duration: 0.5, ease: 'power3.in' }, 14.0);
     cue(14.0, 'suck', 0.9);
-    ft('#wipe', { scale: 0, opacity: 1 }, { scale: 1, opacity: 1, duration: 0.65, ease: 'expo.out' }, 14.45);
+    ft('#wipe', { scale: 0 }, { scale: 1, duration: 0.65, ease: 'expo.out' }, 14.45);
+    T.set('#wipe', { opacity: 1 }, 14.45);
     cue(14.45, 'whoosh', 0.8);
-    T.set('#wipe', { opacity: 0 }, 15.02);
+    T.set('#wipe', { opacity: 0 }, 15.15);
 
     /* ===== S2b · "It should feel connected." (15–18) ===== */
     show('#s2b', 14.95, 18.0);
