@@ -30,7 +30,7 @@ own content, colours, type and imagery. The final file is `output/Avni_Launch_Fi
 marimba lead, plucks, warm pad, round bass, kick, clap, hats and shaker, with humanised timing, kick sidechain
 and risers into every section change. Around 20 SFX (whooshes, clicks, pops, ticks, typing, toggles, chimes,
 impacts) are generated from the cue sheet that the animation timeline exports, so each one lands on its exact frame.
-Master: -14 LUFS, -1 dBTP.
+Master: about -14 LUFS, true peak below -1 dBTP.
 
 ## Rebuild
 ```
