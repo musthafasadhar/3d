@@ -124,6 +124,15 @@ Frames: `references/ref3_*`. Use this style for storytelling/case-study/business
 - **ffmpeg/Pillow**: render captions as transparent PNG sequences at 30 fps and overlay with `enable='between(t,a,b)'`; punch-in with `zoompan` or `scale+crop` expression `1.6 - 0.45*min(t/0.4,1)`; stripes with a mask built from a 6 px vertical bar pattern and `blend`.
 - **CapCut / Premiere / After Effects**: use the per-element numbers above; saved frames in `references/` show target look.
 
+## 6b. Full premium pipeline (used on a real client reel)
+
+`pipeline/` holds a working HTML-to-ffmpeg renderer: bold gradient kinetic captions, 3D glass-card
+B-roll scenes (CSS 3D), flash/stripe transitions, ring punch-in, CTA and end card, plus an SFX mixer
+(uisfx cues). Read `pipeline/README.md` before using it; edit `cards.py` (captions) and the scene files
+for the new video. Palette used there: ink `#0C0A26`/`#15103F`, indigo `#4B3BFF`, single amber gradient
+`#FFF1C9 -> #FFD36E -> #FF9B45 -> #FF6A3D` for keywords, Plus Jakarta Sans 800 (keywords), Unbounded
+(labels, numerals), Inter (UI). Caption zone y 1090-1500, B-roll stage y 120-1080, hook scene by 1.0 s.
+
 ## 7. Re-analysing a new reference video
 
 ```

@@ -1,0 +1,64 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"PJS";src:url("../fonts/PJS.ttf");font-weight:200 800}
+@font-face{font-family:"PJS";src:url("../fonts/PJS-Italic.ttf");font-weight:200 800;font-style:italic}
+@font-face{font-family:"Unb";src:url("../fonts/Unbounded.ttf");font-weight:200 900}
+@font-face{font-family:"Inter";src:url("../fonts/Inter.ttf");font-weight:100 900}
+@font-face{font-family:"Ser";src:url("../fonts/InstrumentSerif-Italic.ttf");font-style:italic}
+:root{
+  --ink:#0C0A26; --ink2:#15103F; --indigo:#4B3BFF; --violet:#8A5CFF;
+  --amber1:#FFF1C9; --amber2:#FFD36E; --amber3:#FF9B45; --amber4:#FF6A3D;
+  --gold:linear-gradient(180deg,#FFF1C9 0%,#FFD36E 36%,#FF9B45 72%,#FF6A3D 100%);
+  --goldh:linear-gradient(90deg,#FFD36E,#FF8A3D);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;background:transparent;overflow:hidden}
+#root{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden;font-family:"PJS",sans-serif;color:#fff}
+.abs{position:absolute}
+.hide{display:none!important}
+/* ---------- grade layers over footage ---------- */
+#scrim{position:absolute;left:0;right:0;bottom:0;top:0;
+  background:linear-gradient(180deg,rgba(10,8,34,0) 0%,rgba(10,8,34,0) 44%,rgba(10,8,34,.30) 54%,rgba(10,8,34,.62) 66%,rgba(10,8,34,.80) 80%,rgba(10,8,34,.90) 100%)}
+#topshade{position:absolute;left:0;right:0;top:0;height:420px;background:linear-gradient(180deg,rgba(10,8,34,.45),rgba(10,8,34,0))}
+/* ---------- captions ---------- */
+.card{position:absolute;left:0;width:1080px;top:0;height:1920px}
+.cw{position:absolute;white-space:nowrap;display:inline-block;transform-origin:50% 60%}
+.pre,.post{font-weight:700;color:#fff;letter-spacing:-.012em;text-shadow:0 3px 18px rgba(8,6,30,.75),0 1px 2px rgba(8,6,30,.8)}
+.key{font-weight:800;letter-spacing:-.035em;line-height:1;
+  background:var(--gold);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 7px 0 rgba(110,30,6,.42)) drop-shadow(0 0 30px rgba(255,140,60,.42))}
+.key.white{background:none;color:#fff;-webkit-background-clip:border-box}
+/* ---------- B-roll ---------- */
+.scene{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden}
+.bg{position:absolute;inset:0;background:
+  radial-gradient(1100px 900px at 24% 22%,rgba(91,75,255,.62),transparent 62%),
+  radial-gradient(900px 760px at 86% 62%,rgba(255,122,61,.30),transparent 62%),
+  linear-gradient(180deg,#0E0B2B 0%,#171044 52%,#0B0824 100%)}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.055) 1px,transparent 1px);background-size:90px 90px;
+  -webkit-mask-image:radial-gradient(ellipse at 50% 34%,#000 18%,transparent 72%);mask-image:radial-gradient(ellipse at 50% 34%,#000 18%,transparent 72%)}
+.grain{position:absolute;inset:-40px;background:url(grain.png);opacity:.10;mix-blend-mode:overlay}
+.vig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 42%,transparent 45%,rgba(4,3,16,.55) 100%)}
+.stage3d{position:absolute;left:0;top:0;width:1080px;height:1920px;perspective:1900px;perspective-origin:50% 34%}
+.p3{transform-style:preserve-3d}
+.glass{position:absolute;border-radius:34px;
+  background:linear-gradient(150deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,.05) 38%,rgba(120,100,255,.10) 100%),rgba(24,18,72,.78);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.35),inset 0 0 0 1.5px rgba(255,255,255,.10),0 40px 90px rgba(4,2,30,.65),0 0 0 1px rgba(255,255,255,.04)}
+.lbl{font-family:"Unb",sans-serif;font-weight:700;letter-spacing:.14em;font-size:25px;color:#fff;text-transform:uppercase}
+.sub{font-family:"Inter",sans-serif;font-weight:600;color:rgba(255,255,255,.62);font-size:26px}
+.tag{font-family:"Unb",sans-serif;font-weight:700;letter-spacing:.16em;font-size:21px;color:#1a1033;background:var(--goldh);border-radius:999px;padding:12px 24px;box-shadow:0 10px 30px rgba(255,140,60,.35)}
+.gtext{background:var(--gold);-webkit-background-clip:text;background-clip:text;color:transparent}
+.flash{position:absolute;inset:0}
+</style></head>
+<body><div id="root">
+  <div id="topshade"></div><div id="scrim"></div>
+  <div id="scenes"></div>
+  <div id="cards"></div>
+  <div id="fx"></div>
+</div>
+<script src="core.js"></script>
+<script src="icons.js"></script>
+<script src="captions.js"></script>
+<script src="scenes.js"></script><script src="scenes2.js"></script><script src="overlays.js"></script>
+<script src="main.js"></script>
+</body></html>
