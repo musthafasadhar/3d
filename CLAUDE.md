@@ -33,7 +33,7 @@ ask me for the `real-sfx.skill` file (a zip archive) and install it by unzipping
 
 Whenever I ask to edit, caption or style a vertical talking-head video (reel, short, TikTok,
 tutorial), also use the `pin-reels-editing-style` skill. It holds the fonts, colours, kinetic
-captions, overlays, transitions and pacing learned from my two Pinterest reference videos.
+captions, overlays, transitions and pacing learned from my Pinterest reference videos.
 Use it together with `video-editing-skill` (cuts) and `real-sfx` (sound).
 
 ### Make sure the skill is installed (new/ephemeral environments)

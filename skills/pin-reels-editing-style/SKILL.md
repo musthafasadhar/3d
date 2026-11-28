@@ -1,6 +1,6 @@
 ---
 name: pin-reels-editing-style
-description: House editing style for vertical talking-head reels/shorts (9:16), learned from two reference videos the user saved on Pinterest. Kinetic word-by-word captions (one big lime/yellow keyword with small white connector words, glow), numbered step badges, white UI cards with logos, glass-red "REC" viewfinder pills, punch-in with ring, glitch/stripe and colour-flash transitions, inset screen-recording cards on a pale-yellow gradient, B&W + red emphasis for warnings. Use whenever the user asks to edit, caption, style or "make it like my references" for a reel, short, TikTok, talking-head or tutorial video, together with video-editing-skill (cuts/silences) and real-sfx (sound). Also use for fonts, caption style, colours, transitions, overlays and pacing questions for vertical video.
+description: House editing style for vertical talking-head reels/shorts (9:16), learned from three reference videos the user saved on Pinterest (a dark minimal reel, a bright step-by-step tutorial, and a long documentary-style explainer with neon captions, halftone B-roll and map graphics). Kinetic word-by-word captions (one big lime/yellow keyword with small white connector words, glow), numbered step badges, white UI cards with logos, glass-red "REC" viewfinder pills, punch-in with ring, glitch/stripe and colour-flash transitions, inset screen-recording cards on a pale-yellow gradient, B&W + red emphasis for warnings. Use whenever the user asks to edit, caption, style or "make it like my references" for a reel, short, TikTok, talking-head or tutorial video, together with video-editing-skill (cuts/silences) and real-sfx (sound). Also use for fonts, caption style, colours, transitions, overlays and pacing questions for vertical video.
 ---
 
 # pin-reels-editing-style
@@ -12,6 +12,7 @@ not extracted font files. **Audio (music, sfx, voice levels) was not analysed**;
 References (frames in `references/`):
 - **Ref 1** "Reels Editing Tutorial: Clean & Minimal Style": 16.9 s, 720x1280, 30 fps. Dark, moody, premium.
 - **Ref 2** "Don't use CapCut, use these three editing tools": 80.7 s, 576x1024, 30 fps. Bright, energetic, step-by-step explainer.
+- **Ref 3** "Roteiro / Direção, Edição": 176.1 s, 720x1280, 30 fps. Dark-green documentary-style business explainer with neon captions, halftone B-roll, maps (see section 5b).
 
 How to combine skills: `video-editing-skill` decides the cuts (silences, ums, retakes, jump cuts) and renders;
 this skill dictates the **look** (captions, overlays, transitions, colour); `real-sfx` adds sound on the same cue times.
@@ -81,6 +82,42 @@ Word-by-word, sentence-aware kinetic captions, 2 lines max, centred, ~3 to 3.5 w
 5. Emphasis hierarchy: accent keyword > white connector > UI card > background.
 6. Outro: blue "Follow" button pops in, handle types in a white pill (Ref 2, 76-80 s).
 
+## 5b. Style C: documentary business explainer (Ref 3, "Roteiro / Direção, Edição")
+
+Ref 3: 176.1 s, 720x1280, 30 fps, Portuguese-language, a long-form story explainer (how a Mexican store chain
+won). Analysed at 12 fps over all 2,114 frames (contact sheets every 0.75 s) and at 30 fps around the transitions.
+Frames: `references/ref3_*`. Use this style for storytelling/case-study/business explainers longer than ~60 s.
+
+**Look**
+- Talking head in a dark-green studio (`#031B0D` shadows, warm yellow practical lights, green armchair); neon accent **`#42F491`** (sampled) with a strong outer glow. Everything else is white or the B-roll's own colour.
+- **End card** (last ~6 s, from 170.1 s): brand wordmark in a wide techno font with a 1-2 px RGB-split glitch, on a green gradient `#22CA68 -> #1C854F` with faint curved contour lines.
+
+**Captions (two modes, switch between them)**
+1. *Neon keyword mode* (on the talking head, for the key claim of a sentence; ~10 times in 176 s): the key word(s) in neon green glow, **bold wide grotesque** (Syne ExtraBold / Sora Bold look-alike) at ~5 % of frame height; connector words small, white, light **italic** (Instrument Sans Italic), slightly offset above/below; letters appear left to right in ~6 frames with a blur-in. Example: "você **confundiu** o *produto* com a **estratégia**". The line sits at chest height, 2 short lines.
+2. *Plain narration mode* (the default, nearly all other speech, also over B-roll): small white bold condensed sans (Roboto Condensed / Archivo Narrow Bold), cap height ~2 % of frame height (~28 px of 1280), centred at chest height (y ~ 50-60 %), thin dark shadow, 3-6 words per card, hard swap every 0.5-1.0 s on speech boundaries, no entrance animation. **One word per card is bolder/larger** (melhor, analisam, valiosíssimo, LITERALMENTE) for rhythm.
+- Plain mode is for readability, neon mode for emphasis: keep neon rare so it still lands.
+
+**Camera on the talking head**
+- Alternate **wide** (subject small, whole armchair visible, scale 1.0) and **close** (face/torso, scale ~1.5-1.8) every 3-6 s. Hard cuts, plus a slow 1.00 -> 1.05 push-in inside each shot.
+- Hook: 0-1 s cold open on a halftone black-and-white portrait of the speaker with a big white two-line title (one word in green), then cut to the real footage at 1.5 s.
+- Prop/macro inserts (e.g. 5.25 s a glowing red ticket in the hands, 6.75 s a neon digital clock "02:00 AM") to illustrate one concrete noun.
+
+**B-roll (about 45 % of runtime)**: a B-roll clip every ~4.9 s average (1.3-4 s each; one 29.8 s talking-head run is the longest).
+- Treated as **halftone/duotone**: visible dot pattern, crimson-red or green duotone, high contrast, film grain, slight RGB split. Real news-style photos and AI stills, always with a slow Ken-Burns push-in (1.0 -> 1.12).
+- **Map sequences**: light map with an animated translucent green circle (radius label "400 m", "500 m") growing over ~0.5 s, a red route line drawing along the street with a pin that drops, place labels ("Trabalho", "Casa") in white bold. Zoom in on the map between steps.
+- **Data infographic**: dark grey map with red region fill, flag icons, callout lines drawn from the map to text blocks ("77 million people served, 884K points of sale ...") with a stepped reveal.
+- Captions continue unchanged over B-roll so the viewer never loses the line.
+
+**Transitions (30 fps, measured)**
+- **Green-white flash wipe** (31.97 -> 32.40 s, 13 frames): green radial glow grows from the bottom over 2 frames, the screen goes full white for 2 frames, then the new shot is revealed from the right edge under a green-white wipe over 3-4 frames. Use to go from talking head into B-roll.
+- **Whip-zoom cut** (15.27 -> 16.5 s): a one-frame white flash, then a 4x zoom into a logo that spins/pans (rotation ~15 deg, ~6 frames) and settles with ease-out; a second whip leaves the logo. Use on a brand/logo reveal.
+- **Datamosh / RGB-split glitch** (109.30 -> 109.57 s, ~8 frames): horizontal slice displacement and chroma split on the talking head (3 frames), then it shrinks into a **desaturated letterboxed halftone "screen"** (black pixel-grid bars above and below) for ~2 s with the neon caption on top, then back with another glitch. Use for a "meanwhile / mind-reading" beat.
+- **Hard cuts** with no transition for most B-roll in/out; flashes are for 1 in ~4 changes.
+
+**Pacing**
+- Caption card every 0.5-1.0 s, visual change (camera size, B-roll, map step) every 1-5 s, a big transition roughly every 25-30 s.
+- Story arc: hook claim -> myth ("you think X") -> reveal with B-roll -> data -> twist -> payoff -> brand end card.
+
 ## 6. Build recipe (any editor)
 
 - **HyperFrames / HTML+GSAP**: captions as absolutely positioned spans, keyword `font-size:~7.5vh; font-weight:800; color:#E0FC5E; text-shadow:0 0 18px rgba(224,252,94,.55)`, connectors `font-size:2.2vh; color:#fff`. Entrance `gsap.fromTo(el,{scale:.85,opacity:0,filter:"blur(6px)"},{scale:1,opacity:1,filter:"blur(0)",duration:.13,ease:"power3.out"})`.
@@ -101,4 +138,4 @@ section here rather than overwriting these two.
 
 - Fonts are best visual matches; ask the user for the actual font names if they know them.
 - Audio, music and sfx timing were not analysed.
-- Two references only: treat numbers as the house defaults, not as hard rules.
+- Three references only: treat numbers as the house defaults, not as hard rules.
