@@ -28,3 +28,19 @@ synthesized ones.
 `real-sfx` is not committed to this repo. If it is missing from `~/.claude/skills/real-sfx`,
 ask me for the `real-sfx.skill` file (a zip archive) and install it by unzipping it into
 `~/.claude/skills/`.
+
+## Reel / short-form editing style
+
+Whenever I ask to edit, caption or style a vertical talking-head video (reel, short, TikTok,
+tutorial), also use the `pin-reels-editing-style` skill. It holds the fonts, colours, kinetic
+captions, overlays, transitions and pacing learned from my two Pinterest reference videos.
+Use it together with `video-editing-skill` (cuts) and `real-sfx` (sound).
+
+### Make sure the skill is installed (new/ephemeral environments)
+
+It lives in this repo at `skills/pin-reels-editing-style`. If it is missing from
+`~/.claude/skills/pin-reels-editing-style`, install it with:
+
+```
+mkdir -p ~/.claude/skills && cp -r skills/pin-reels-editing-style ~/.claude/skills/
+```
