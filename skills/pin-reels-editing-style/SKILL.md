@@ -133,6 +133,17 @@ for the new video. Palette used there: ink `#0C0A26`/`#15103F`, indigo `#4B3BFF`
 `#FFF1C9 -> #FFD36E -> #FF9B45 -> #FF6A3D` for keywords, Plus Jakarta Sans 800 (keywords), Unbounded
 (labels, numerals), Inter (UI). Caption zone y 1090-1500, B-roll stage y 120-1080, hook scene by 1.0 s.
 
+## 6c. Style D: "Taara clean" (client's own reference reel, preferred for Taara ERP)
+
+Analysed at 30 fps (1,398 frames, 46.6 s). Natural footage, NO colour grade. Cream `#F7F5EF` / forest green
+`#0E3326-#226B4A` / gold `#E9C36B`; keywords heavy tight grotesque (Plus Jakarta Sans 800, -0.055em) gold gradient
+on dark or footage, deep green gradient on cream; small white connector words above; letters reveal with a soft
+left-to-right wipe (~0.3 s). B-roll scenes: speaker shrinks to a 390 px gold-ringed circle bottom-centre (0.34 s
+morph), captions move to the top with a letter-spaced eyebrow (`. LABEL`), flat white UI cards (serif numerals),
+dark scenes carry soft asterisk shapes and a hub diagram. Top pills/timeline chips over the speaker, logo card at
+chest, dim title beat, cream end card (logo, "Your school. One connected ERP.", url). Brand is "Taara ERP".
+Pipeline: `pipeline/README.md` (v2). Always tone-map HDR phone footage first.
+
 ## 7. Re-analysing a new reference video
 
 ```
