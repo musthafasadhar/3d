@@ -15,3 +15,16 @@ is missing), install it first with:
 ```
 npx skills add social-media-skills/video-editing-skill -g -a claude-code -y
 ```
+
+## Sound design / SFX
+
+Whenever I ask for sound effects, sound design, SFX, whooshes/hits/risers/clicks/typing sounds,
+UI sounds, or to replace synthetic sounds with real ones, use the `real-sfx` skill (invoke it via
+the Skill tool) and follow its workflow. It uses real recorded sounds from my libraries, never
+synthesized ones.
+
+### Make sure the skill is installed (new/ephemeral environments)
+
+`real-sfx` is not committed to this repo. If it is missing from `~/.claude/skills/real-sfx`,
+ask me for the `real-sfx.skill` file (a zip archive) and install it by unzipping it into
+`~/.claude/skills/`.
